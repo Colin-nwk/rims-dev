@@ -19,7 +19,7 @@ return new class extends Migration
             // PFA Info
             $table->string('pfa_name')->nullable();
             $table->string('pension_pin')->nullable();
-            $table->string('ippis_number')->nullable();
+            $table->string('ippis')->nullable();
             
             // Next of Kin
             $table->string('next_of_kin_name')->nullable();
@@ -36,6 +36,7 @@ return new class extends Migration
             // Bank Info
             $table->string('bank_name')->nullable();
             $table->string('account_number')->nullable();
+            $table->string('account_name')->nullable();
             
             $table->timestamps();
         });

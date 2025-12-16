@@ -19,7 +19,7 @@ class StaffDetailFactory extends Factory
         return [
             'pfa_name' => $this->faker->company(),
             'pension_pin' => $this->faker->numerify('PEN#########'),
-            'ippis_number' => $this->faker->numerify('#####'),
+            'ippis' => $this->faker->numerify('#####'),
             'next_of_kin_name' => $this->faker->name(),
             'next_of_kin_phone' => $this->faker->phoneNumber(),
             'next_of_kin_relationship' => $this->faker->randomElement(['Spouse', 'Brother', 'Sister', 'Father', 'Mother']),
@@ -29,6 +29,7 @@ class StaffDetailFactory extends Factory
             'spouse_phone' => $this->faker->phoneNumber(),
             'number_of_children' => $this->faker->numberBetween(0, 5),
             'bank_name' => $this->faker->company() . ' Bank',
+            'account_name' => $this->faker->name(),
             'account_number' => $this->faker->numerify('##########'),
         ];
     }

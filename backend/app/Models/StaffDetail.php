@@ -14,7 +14,7 @@ class StaffDetail extends Model
         'service_no',
         'pfa_name',
         'pension_pin',
-        'ippis_number',
+        'ippis',
         'next_of_kin_name',
         'next_of_kin_phone',
         'next_of_kin_relationship',
@@ -25,6 +25,7 @@ class StaffDetail extends Model
         'number_of_children',
         'bank_name',
         'account_number',
+        'account_name'
     ];
 
     public function staff()
