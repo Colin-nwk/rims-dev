@@ -29,6 +29,7 @@ class StoreStaffRequest extends FormRequest
             'email' => 'nullable|email',
             'details' => 'nullable|array',
             'education' => 'nullable|array',
+            'photo' => 'nullable|image|max:2048',
         ];
     }
 }

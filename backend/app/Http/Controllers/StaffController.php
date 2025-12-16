@@ -63,6 +63,18 @@ class StaffController extends Controller
                 }
             }
 
+            // Handle Photo Upload
+            if ($request->hasFile('photo')) {
+                $file = $request->file('photo');
+                $serviceNo = $data['service_no']; // Ensure service_no is present
+                $timestamp = now()->timestamp;
+                $filename = "{$serviceNo}_photo_{$timestamp}";
+                $path = $this->uploadFile($file, 'photos', 'public', $filename);
+                if ($path) {
+                    $data['photo'] = $path;
+                }
+            }
+
             $changeRequest = $this->changeRequestService->submit(
                 'App\Models\Staff',
                 'CREATE',
@@ -92,6 +104,18 @@ class StaffController extends Controller
     {
         try {
             $data = $request->validated();
+
+            // Handle Photo Upload
+            if ($request->hasFile('photo')) {
+                $file = $request->file('photo');
+                $serviceNo = $staff->service_no; // Use staff service no for update
+                $timestamp = now()->timestamp;
+                $filename = "{$serviceNo}_photo_{$timestamp}";
+                $path = $this->uploadFile($file, 'photos', 'public', $filename);
+                if ($path) {
+                    $data['photo'] = $path;
+                }
+            }
 
             $changeRequest = $this->changeRequestService->submit(
                 'App\Models\Staff',

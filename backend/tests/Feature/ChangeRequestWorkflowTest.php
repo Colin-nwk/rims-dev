@@ -53,7 +53,8 @@ class ChangeRequestWorkflowTest extends TestCase
                     'start_date' => '2008-01-01',
                     'url' => \Illuminate\Http\UploadedFile::fake()->create('degree.pdf', 100)
                 ]
-            ]
+            ],
+            'photo' => \Illuminate\Http\UploadedFile::fake()->image('photo.jpg')
         ];
 
         // 1. Store (Submit Request)
@@ -65,8 +66,10 @@ class ChangeRequestWorkflowTest extends TestCase
         // Additional Check: Verify request data contains a path string, not a file object (implicit by JSON structure)
         $responseData = $response->json('data.data');
         $this->assertTrue(is_string($responseData['education'][0]['url']), 'URL should be converted to a file path string.');
-        // Verify naming convention in the path (e.g. contains SVC_TEST_01_BSc_)
         $this->assertStringContainsString('SVC_TEST_01_BSc_', $responseData['education'][0]['url']);
+        
+        $this->assertTrue(is_string($responseData['photo']), 'Photo should be converted to a file path string.');
+        $this->assertStringContainsString('SVC_TEST_01_photo_', $responseData['photo']);
 
         $requestId = $response->json('data.id');
 
