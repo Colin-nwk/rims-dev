@@ -1,0 +1,15 @@
+{
+    "agents": [
+        "codex",
+        "copilot",
+        "cursor",
+        "gemini"
+    ],
+    "editors": [
+        "codex",
+        "gemini",
+        "vscode"
+    ],
+    "guidelines": [],
+    "herd_mcp": true
+}
