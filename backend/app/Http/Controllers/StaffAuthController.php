@@ -21,7 +21,14 @@ class StaffAuthController extends Controller
             ], 401);
         }
 
-        $token = $staff->createToken('staff_token')->plainTextToken;
+        $deviceName = $request->userAgent() ?? 'Unknown Device';
+        $tokenInstance = $staff->createToken($deviceName);
+        $token = $tokenInstance->plainTextToken;
+        
+        // Save IP address
+        $tokenInstance->accessToken->forceFill([
+            'ip_address' => $request->ip(),
+        ])->save();
 
         return response()->json([
             'access_token' => $token,
@@ -35,7 +42,7 @@ class StaffAuthController extends Controller
         $request->validate([
             'service_no' => 'required|string',
             'password' => 'required|string',
-            'state' => 'required|string', // Assuming state is passed as a string/ID matching assigned_state or similar logic
+            'state' => 'required|string', 
         ]);
 
         $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
@@ -47,15 +54,20 @@ class StaffAuthController extends Controller
         }
 
         // Verify State
-        // Assuming 'assigned_state' in DB is an ID, and user passes ID. Alternatively, we might need to resolve state name.
-        // For now, I will assume exact match on the column 'assigned_state'.
         if ($staff->assigned_state != $request->state) {
             return response()->json([
                 'message' => 'You are not assigned to this state'
             ], 403);
         }
 
-        $token = $staff->createToken('staff_state_token')->plainTextToken;
+        $deviceName = $request->userAgent() ?? 'Unknown Device';
+        $tokenInstance = $staff->createToken($deviceName);
+        $token = $tokenInstance->plainTextToken;
+        
+        // Save IP address
+        $tokenInstance->accessToken->forceFill([
+            'ip_address' => $request->ip(),
+        ])->save();
 
         return response()->json([
             'access_token' => $token,

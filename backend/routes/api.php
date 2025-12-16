@@ -18,3 +18,15 @@ Route::prefix('staff')->group(function () {
         });
     });
 });
+
+// User Authentication
+Route::prefix('user')->group(function () {
+    Route::post('login', [\App\Http\Controllers\UserAuthController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('logout', [\App\Http\Controllers\UserAuthController::class, 'logout']);
+        Route::get('me', function (Request $request) {
+            return $request->user();
+        });
+    });
+});
