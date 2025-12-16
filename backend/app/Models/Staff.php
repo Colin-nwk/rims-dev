@@ -86,4 +86,9 @@ class Staff extends Authenticatable
     {
         return $this->hasMany(StaffEducation::class, 'service_no', 'service_no');
     }
+
+    public function assignedState()
+    {
+        return $this->belongsTo(State::class, 'assigned_state');
+    }
 }

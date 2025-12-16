@@ -14,6 +14,9 @@ Route::prefix('staff')->group(function () {
     Route::post('login', [\App\Http\Controllers\StaffAuthController::class, 'login']);
     Route::post('state/login', [\App\Http\Controllers\StaffAuthController::class, 'stateLogin']);
     
+    // Public ID Card lookup (for QR code generation)
+    Route::get('id-card/{serviceNo}', [\App\Http\Controllers\StaffController::class, 'idCard']);
+    
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('user', function (Request $request) {
             return $request->user();
@@ -46,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('change-requests', [\App\Http\Controllers\ChangeRequestController::class, 'index']);
     Route::post('change-requests/{id}/approve', [\App\Http\Controllers\ChangeRequestController::class, 'approve']);
     Route::post('change-requests/{id}/reject', [\App\Http\Controllers\ChangeRequestController::class, 'reject']);
+    
+    // Dashboard Stats
+    Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
 });
 
 // Generic CRUD for lookup tables (Zones, States, Prisons)

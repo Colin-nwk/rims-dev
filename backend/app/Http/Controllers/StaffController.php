@@ -144,4 +144,29 @@ class StaffController extends Controller
         $staff->delete();
         return response()->noContent();
     }
+
+    /**
+     * Get basic staff details for ID card / QR code (public)
+     */
+    public function idCard(string $serviceNo)
+    {
+        $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
+
+        if (!$staff) {
+            return $this->errorResponse('Staff not found.', 404);
+        }
+
+        return $this->successResponse([
+            'service_no' => $staff->service_no,
+            'surname' => $staff->surname,
+            'first_name' => $staff->first_name,
+            'other_names' => $staff->other_names,
+            'present_rank' => $staff->present_rank,
+            'dob' => $staff->dob?->format('Y-m-d'),
+            'photo' => $staff->photo,
+            'status' => $staff->status,
+            'sex' => $staff->sex,
+            'assigned_state_name' => $staff->assignedState?->state,
+        ]);
+    }
 }
