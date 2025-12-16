@@ -47,3 +47,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('change-requests/{id}/approve', [\App\Http\Controllers\ChangeRequestController::class, 'approve']);
     Route::post('change-requests/{id}/reject', [\App\Http\Controllers\ChangeRequestController::class, 'reject']);
 });
+
+// Generic CRUD for lookup tables (Zones, States, Prisons)
+// Public routes (no auth required for reading)
+Route::get('{model}', [\App\Http\Controllers\GenericController::class, 'index'])->where('model', 'zones|states|prisons');
+Route::get('{model}/{id}', [\App\Http\Controllers\GenericController::class, 'show'])->where('model', 'zones|states|prisons');
+
+// Protected routes (auth required for writing)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('{model}', [\App\Http\Controllers\GenericController::class, 'store'])->where('model', 'zones|states|prisons');
+    Route::put('{model}/{id}', [\App\Http\Controllers\GenericController::class, 'update'])->where('model', 'zones|states|prisons');
+    Route::delete('{model}/{id}', [\App\Http\Controllers\GenericController::class, 'destroy'])->where('model', 'zones|states|prisons');
+});
