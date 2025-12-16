@@ -73,4 +73,72 @@ class ChangeRequestServiceTest extends TestCase
         $this->assertEquals('Invalid Data', $rejected->rejection_reason);
         $this->assertEquals($user->id, $rejected->approved_by);
     }
+
+    public function test_it_can_approve_create_request_and_execute_logic()
+    {
+        $user = User::factory()->create();
+        $admin = User::factory()->create();
+
+        $data = [
+            'service_no' => 'SVC_APP_01',
+            'surname' => 'Approved',
+            'first_name' => 'Staff',
+            'password' => 'password',
+            'assigned_state' => 1,
+            'prison' => 1,
+            'status' => 1
+        ];
+
+        // 1. Submit
+        $request = $this->changeRequestService->submit(
+            Staff::class,
+            'CREATE',
+            $data,
+            $user,
+            'SVC_APP_01'
+        );
+
+        // 2. Approve
+        $this->changeRequestService->approve($request->id, $admin);
+
+        // 3. Verify Request Status
+        $request->refresh();
+        $this->assertEquals('APPROVED', $request->status);
+        $this->assertEquals($admin->id, $request->approved_by);
+
+        // 4. Verify Staff Created
+        $this->assertDatabaseHas('staff', [
+            'service_no' => 'SVC_APP_01',
+            'surname' => 'Approved'
+        ]);
+    }
+
+    public function test_it_can_approve_update_request_and_execute_logic()
+    {
+        // Setup existing staff
+        $staff = Staff::factory()->create(['service_no' => 'SVC_UPD_01', 'surname' => 'OldName']);
+        $user = User::factory()->create();
+        $admin = User::factory()->create();
+
+        $data = ['surname' => 'NewName'];
+
+        // 1. Submit Update
+        $request = $this->changeRequestService->submit(
+            Staff::class,
+            'UPDATE',
+            $data,
+            $user,
+            'SVC_UPD_01',
+            $staff->id
+        );
+
+        // 2. Approve
+        $this->changeRequestService->approve($request->id, $admin);
+
+        // 3. Verify Staff Updated
+        $this->assertDatabaseHas('staff', [
+            'id' => $staff->id,
+            'surname' => 'NewName'
+        ]);
+    }
 }

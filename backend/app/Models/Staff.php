@@ -47,6 +47,14 @@ class Staff extends Authenticatable
         'file_no',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'service_no';
+    }
+
     public $filterable = [
         'status', 
         'assigned_state', 

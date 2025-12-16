@@ -1,0 +1,82 @@
+<?php
+
+namespace Tests\Feature\Controllers;
+
+use App\Models\ChangeRequest;
+use App\Models\Staff;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ChangeRequestControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_can_list_pending_requests()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        ChangeRequest::factory()->count(3)->create(['status' => 'PENDING', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
+        ChangeRequest::factory()->create(['status' => 'APPROVED', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
+
+        $response = $this->getJson('/api/change-requests');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(4, 'data.data');
+    }
+
+    public function test_can_approve_request()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $cr = ChangeRequest::factory()->create([
+            'status' => 'PENDING',
+            'model_type' => Staff::class,
+            'type' => 'CREATE',
+            'data' => [
+                'service_no' => 'SVC_APP_CONT',
+                'surname' => 'ControllerApprove',
+                'first_name' => 'Test',
+                'status' => 1
+            ],
+            'requested_by_id' => null,
+            'requested_by_type' => null,
+            'approved_by' => null
+        ]);
+
+        $response = $this->postJson("/api/change-requests/{$cr->id}/approve");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'Success');
+
+        $this->assertDatabaseHas('change_requests', ['id' => $cr->id, 'status' => 'APPROVED']);
+        $this->assertDatabaseHas('staff', ['service_no' => 'SVC_APP_CONT']);
+    }
+
+    public function test_can_reject_request()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $cr = ChangeRequest::factory()->create([
+            'status' => 'PENDING',
+            'requested_by_id' => null,
+            'requested_by_type' => null,
+            'approved_by' => null
+        ]);
+
+        $response = $this->postJson("/api/change-requests/{$cr->id}/reject", [
+            'reason' => 'Bad Data'
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('change_requests', [
+            'id' => $cr->id, 
+            'status' => 'REJECTED',
+            'rejection_reason' => 'Bad Data'
+        ]);
+    }
+}
