@@ -27,6 +27,8 @@ class StoreStaffRequest extends FormRequest
             'first_name' => 'required|string',
             'status' => 'required|integer',
             'email' => 'nullable|email',
+            'details' => 'nullable|array',
+            'education' => 'nullable|array',
         ];
     }
 }

@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait;
 
     protected $fillable = [
         'service_no',
@@ -36,6 +36,26 @@ class Staff extends Authenticatable
         'photo',
         'last_login',
         'status',
+        'zone_id',
+    ];
+
+    public $searchable = [
+        'service_no', 
+        'surname', 
+        'first_name', 
+        'email', 
+        'file_no',
+    ];
+
+    public $filterable = [
+        'status', 
+        'assigned_state', 
+        'prison', 
+        'sex', 
+        'initial_rank', 
+        'present_rank',
+        'level',
+        'department',
         'zone_id',
     ];
 
