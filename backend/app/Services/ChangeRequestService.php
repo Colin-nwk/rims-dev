@@ -32,8 +32,13 @@ class ChangeRequestService
     /**
      * Approve a change request
      */
+    /**
+     * Approve a change request
+     */
     public function approve($requestId, $approverId)
     {
+        $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
+        
         $request = ChangeRequest::findOrFail($requestId);
 
         if ($request->status !== 'PENDING') {
@@ -57,6 +62,8 @@ class ChangeRequestService
      */
     public function reject($requestId, $approverId, $reason)
     {
+        $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
+
         $request = ChangeRequest::findOrFail($requestId);
 
         if ($request->status !== 'PENDING') {
@@ -69,6 +76,22 @@ class ChangeRequestService
         $request->save();
 
         return $request;
+    }
+
+    /**
+     * Find a change request by ID
+     */
+    public function find($id)
+    {
+        return ChangeRequest::findOrFail($id);
+    }
+
+    /**
+     * List all change requests
+     */
+    public function all(array $filters = [])
+    {
+        return ChangeRequest::filter($filters)->paginate($filters['per_page'] ?? 15);
     }
 
     /**
