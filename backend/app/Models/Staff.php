@@ -47,6 +47,12 @@ class Staff extends Authenticatable
         'file_no',
     ];
 
+    protected $appends = [
+        'retirement_date_formatted',
+        'is_retired',
+        'retirement_time_remaining',
+    ];
+
     /**
      * Get the route key for the model.
      */
