@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\ChangeRequestController;
+use App\Http\Controllers\V1\ComplaintController;
 use App\Http\Controllers\V1\DashboardController;
 use App\Http\Controllers\V1\GenericController;
 use App\Http\Controllers\V1\StaffAuthController;
@@ -66,6 +67,11 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Dashboard Stats
     Route::get('dashboard', [DashboardController::class, 'index']);
+    
+    // Complaints / Ticketing System
+    Route::apiResource('complaints', ComplaintController::class)->except(['update']);
+    Route::patch('complaints/{complaint}/status', [ComplaintController::class, 'updateStatus']);
+    Route::post('complaints/{complaint}/messages', [ComplaintController::class, 'addMessage']);
 });
 
 // Generic CRUD for lookup tables (Zones, States, Prisons)
