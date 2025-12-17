@@ -1,33 +1,22 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-// Unified Logout (Works for both Staff and User)
-Route::middleware('auth:sanctum')->post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Legacy API routes file. All active routes are now in routes/api/v1.php
+| and accessible via /api/v1 prefix.
+|
+*/
 
-// Staff Authentication
-Route::prefix('staff')->group(function () {
-    Route::post('login', [\App\Http\Controllers\StaffAuthController::class, 'login']);
-    Route::post('state/login', [\App\Http\Controllers\StaffAuthController::class, 'stateLogin']);
-    
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('user', function (Request $request) {
-            return $request->user();
-        });
-    });
-});
-
-// User Authentication
-Route::prefix('user')->group(function () {
-    Route::post('login', [\App\Http\Controllers\UserAuthController::class, 'login']);
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('me', function (Request $request) {
-            return $request->user();
-        });
-    });
+// Redirect root to V1 info
+Route::get('/', function () {
+    return response()->json([
+        'message' => 'Welcome to RIMS API',
+        'version' => 'v1',
+        'documentation' => '/api/v1'
+    ]);
 });

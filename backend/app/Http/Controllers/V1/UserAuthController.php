@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class UserAuthController extends Controller
 {
+    use ApiResponseTrait;
+
     public function login(Request $request)
     {
         $request->validate([
@@ -19,25 +22,21 @@ class UserAuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Invalid login details'
-            ], 401);
+            return $this->errorResponse('Invalid login details', 401);
         }
 
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $user->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
         
-        // Save IP address
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip()
         ])->save();
 
-        return response()->json([
-            'token' => $token,
+        return $this->successResponse([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'user' => $user,
         ]);
     }
-
-
 }

@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\RetirementTrait;
 
     protected $fillable = [
         'service_no',
@@ -39,6 +39,40 @@ class Staff extends Authenticatable
         'zone_id',
     ];
 
+    public $searchable = [
+        'service_no', 
+        'surname', 
+        'first_name', 
+        'email', 
+        'file_no',
+    ];
+
+    protected $appends = [
+        'retirement_date_formatted',
+        'is_retired',
+        'retirement_time_remaining',
+    ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'service_no';
+    }
+
+    public $filterable = [
+        'status', 
+        'assigned_state', 
+        'prison', 
+        'sex', 
+        'initial_rank', 
+        'present_rank',
+        'level',
+        'department',
+        'zone_id',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -57,5 +91,10 @@ class Staff extends Authenticatable
     public function education()
     {
         return $this->hasMany(StaffEducation::class, 'service_no', 'service_no');
+    }
+
+    public function assignedState()
+    {
+        return $this->belongsTo(State::class, 'assigned_state');
     }
 }

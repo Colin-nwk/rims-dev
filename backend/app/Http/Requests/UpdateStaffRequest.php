@@ -27,6 +27,9 @@ class UpdateStaffRequest extends FormRequest
             'first_name' => 'sometimes|required|string',
             'status' => 'sometimes|required|integer',
             'email' => 'nullable|email',
+            'details' => 'nullable|array',
+            'education' => 'nullable|array',
+            'photo' => 'nullable|image|max:2048',
         ];
     }
 }

@@ -11,18 +11,16 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
+
+    public $searchable = ['name', 'email'];
+    public $filterable = ['id']; // Minimal filters for user for now
 
     /**
      * The attributes that should be hidden for serialization.
