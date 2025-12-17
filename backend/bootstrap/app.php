@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -33,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
                     $statusCode = $e->getStatusCode();
                 } elseif ($e instanceof AuthenticationException) {
                     $statusCode = 401;
+                } elseif ($e instanceof AuthorizationException) {
+                    $statusCode = 403;
                 } elseif ($e instanceof ValidationException) {
                     $statusCode = 422;
                 }
