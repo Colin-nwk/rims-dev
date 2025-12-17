@@ -42,7 +42,7 @@ class StaffAuthController extends Controller
         $request->validate([
             'service_no' => 'required|string',
             'password' => 'required|string',
-            'state' => 'required|string', 
+            'state' => 'required|exists:states,id', 
         ]);
 
         $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
