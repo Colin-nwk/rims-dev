@@ -29,6 +29,8 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::prefix('staff')->group(function () {
     Route::post('login', [StaffAuthController::class, 'login']);
     Route::post('state/login', [StaffAuthController::class, 'stateLogin']);
+    Route::post('register', [StaffAuthController::class, 'register']);
+    Route::post('set-password', [StaffAuthController::class, 'setPassword']);
     
     // Public ID Card lookup (for QR code generation)
     Route::get('id-card/{serviceNo}', [StaffController::class, 'idCard']);
