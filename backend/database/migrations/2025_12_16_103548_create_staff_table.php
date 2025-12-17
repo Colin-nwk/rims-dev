@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->unsignedBigInteger('assigned_state')->nullable();
             $table->unsignedBigInteger('prison')->nullable();
-            $table->string('surname');
-            $table->string('first_name');
+            $table->string('surname')->nullable();
+            $table->string('first_name')->nullable();
             $table->string('other_names')->nullable();
             $table->string('sex')->nullable();
             $table->string('initial_rank')->nullable();

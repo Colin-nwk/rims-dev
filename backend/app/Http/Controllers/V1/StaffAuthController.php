@@ -86,8 +86,12 @@ class StaffAuthController extends Controller
         $staff = \App\Models\Staff::create([
             'service_no' => $request->service_no,
             'file_no' => $request->file_no,
-            'ippis' => $request->ippis,
             'status' => 0, // Inactive until password is set
+        ]);
+
+        // Store ippis in staff_details
+        $staff->details()->create([
+            'ippis' => $request->ippis,
         ]);
 
         return $this->successResponse([
