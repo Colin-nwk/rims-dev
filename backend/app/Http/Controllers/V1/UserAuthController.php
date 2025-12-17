@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -28,7 +29,6 @@ class UserAuthController extends Controller
         $tokenInstance = $user->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
         
-        // Save IP address
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip()
         ])->save();

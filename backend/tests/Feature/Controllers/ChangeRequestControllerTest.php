@@ -20,7 +20,7 @@ class ChangeRequestControllerTest extends TestCase
         ChangeRequest::factory()->count(3)->create(['status' => 'PENDING', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
         ChangeRequest::factory()->create(['status' => 'APPROVED', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
 
-        $response = $this->getJson('/api/change-requests');
+        $response = $this->getJson('/api/v1/change-requests');
 
         $response->assertStatus(200)
             ->assertJsonCount(4, 'data.data');
@@ -46,7 +46,7 @@ class ChangeRequestControllerTest extends TestCase
             'approved_by' => null
         ]);
 
-        $response = $this->postJson("/api/change-requests/{$cr->id}/approve");
+        $response = $this->postJson("/api/v1/change-requests/{$cr->id}/approve");
 
         $response->assertStatus(200)
             ->assertJsonPath('status', 'Success');
@@ -67,7 +67,7 @@ class ChangeRequestControllerTest extends TestCase
             'approved_by' => null
         ]);
 
-        $response = $this->postJson("/api/change-requests/{$cr->id}/reject", [
+        $response = $this->postJson("/api/v1/change-requests/{$cr->id}/reject", [
             'reason' => 'Bad Data'
         ]);
 

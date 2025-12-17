@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Models\Staff;
 use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
@@ -25,24 +26,17 @@ class StaffController extends Controller
         $this->staffService = $staffService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $staff = $this->staffService->all($request->all());
         return $this->collectionResponse($staff);
     }
 
-    /**
-     * Store a newly created resource in change request.
-     */
     public function store(StoreStaffRequest $request)
     {
         try {
             $data = $request->validated();
             
-            // Handle Education File Uploads
             if (isset($data['education']) && is_array($data['education'])) {
                 foreach ($data['education'] as $index => &$edu) {
                     if (isset($edu['url']) && $request->hasFile("education.{$index}.url")) {
@@ -50,23 +44,18 @@ class StaffController extends Controller
                         $serviceNo = $data['service_no'];
                         $type = $edu['type'] ?? 'document';
                         $timestamp = now()->timestamp;
-                        
-                        // Naming: service_no_type_timestamp
                         $filename = "{$serviceNo}_{$type}_{$timestamp}";
-                        
                         $path = $this->uploadFile($file, 'education', 'public', $filename);
-                        
                         if ($path) {
-                            $edu['url'] = $path; // Replace file object with path string
+                            $edu['url'] = $path;
                         }
                     }
                 }
             }
 
-            // Handle Photo Upload
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $serviceNo = $data['service_no']; // Ensure service_no is present
+                $serviceNo = $data['service_no'];
                 $timestamp = now()->timestamp;
                 $filename = "{$serviceNo}_photo_{$timestamp}";
                 $path = $this->uploadFile($file, 'photos', 'public', $filename);
@@ -89,26 +78,19 @@ class StaffController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Staff $staff)
     {
         return $staff->load(['details', 'education']);
     }
 
-    /**
-     * Update the specified resource in change request.
-     */
     public function update(UpdateStaffRequest $request, Staff $staff)
     {
         try {
             $data = $request->validated();
 
-            // Handle Photo Upload
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $serviceNo = $staff->service_no; // Use staff service no for update
+                $serviceNo = $staff->service_no;
                 $timestamp = now()->timestamp;
                 $filename = "{$serviceNo}_photo_{$timestamp}";
                 $path = $this->uploadFile($file, 'photos', 'public', $filename);
@@ -132,22 +114,12 @@ class StaffController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Staff $staff)
     {
-        // Direct delete or request? Assuming direct for now or unimplemented.
-        // If request:
-        // $this->changeRequestService->submit('App\Models\Staff', 'DELETE', [], $user, ...);
-        
         $staff->delete();
         return response()->noContent();
     }
 
-    /**
-     * Get basic staff details for ID card / QR code (public)
-     */
     public function idCard(string $serviceNo)
     {
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();

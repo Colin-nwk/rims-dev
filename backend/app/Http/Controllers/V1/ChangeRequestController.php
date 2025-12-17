@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
 use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
@@ -18,9 +19,6 @@ class ChangeRequestController extends Controller
         $this->changeRequestService = $changeRequestService;
     }
 
-    /**
-     * List pending requests
-     */
     public function index(Request $request)
     {
         $requests = ChangeRequest::filter($request->all())
@@ -29,35 +27,24 @@ class ChangeRequestController extends Controller
         return $this->collectionResponse($requests);
     }
 
-    /**
-     * Approve a request
-     */
     public function approve(Request $request, $id)
     {
         try {
-            // Check permissions/roles here? Assuming authenticated user has permission for now.
             $approverId = $request->user()->id; 
-            
             $result = $this->changeRequestService->approve($id, $approverId);
-            
             return $this->successResponse($result, 'Request approved and executed successfully.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);
         }
     }
 
-    /**
-     * Reject a request
-     */
     public function reject(Request $request, $id)
     {
         $request->validate(['reason' => 'required|string']);
 
         try {
             $approverId = $request->user()->id;
-            
             $result = $this->changeRequestService->reject($id, $approverId, $request->reason);
-            
             return $this->successResponse($result, 'Request rejected.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);

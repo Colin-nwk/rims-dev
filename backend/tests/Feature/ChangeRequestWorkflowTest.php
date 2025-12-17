@@ -58,7 +58,7 @@ class ChangeRequestWorkflowTest extends TestCase
         ];
 
         // 1. Store (Submit Request)
-        $response = $this->postJson('/api/staff', $staffData);
+        $response = $this->postJson('/api/v1/staff', $staffData);
 
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'PENDING');
@@ -84,7 +84,7 @@ class ChangeRequestWorkflowTest extends TestCase
 
         // 2. Approve Request
         // Assuming current user can approve
-        $approveResponse = $this->postJson("/api/change-requests/{$requestId}/approve");
+        $approveResponse = $this->postJson("/api/v1/change-requests/{$requestId}/approve");
 
         $approveResponse->assertStatus(200)
             ->assertJsonPath('data.service_no', 'SVC_TEST_01');
@@ -114,7 +114,7 @@ class ChangeRequestWorkflowTest extends TestCase
         ];
 
         // 1. Store
-        $response = $this->postJson('/api/user/users', $userData);
+        $response = $this->postJson('/api/v1/user/users', $userData);
 
         $response->assertStatus(201);
         $requestId = $response->json('data.id');
@@ -122,7 +122,7 @@ class ChangeRequestWorkflowTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'newuser@example.com']);
 
         // 2. Approve
-        $this->postJson("/api/change-requests/{$requestId}/approve")
+        $this->postJson("/api/v1/change-requests/{$requestId}/approve")
             ->assertStatus(200);
 
         $this->assertDatabaseHas('change_requests', [

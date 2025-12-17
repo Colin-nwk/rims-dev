@@ -12,10 +12,10 @@ class StaffControllerTest extends TestCase
 
     public function test_unauthenticated_user_cannot_access_staff_routes()
     {
-        $response = $this->getJson('/api/staff');
+        $response = $this->getJson('/api/v1/staff');
         $response->assertStatus(401);
 
-        $response = $this->postJson('/api/staff', []);
+        $response = $this->postJson('/api/v1/staff', []);
         $response->assertStatus(401);
     }
 
@@ -23,7 +23,7 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/staff', [
+        $response = $this->actingAs($user)->postJson('/api/v1/staff', [
             'first_name' => 'John' 
             // Missing required fields: surname, service_no, etc.
         ]);
@@ -43,7 +43,7 @@ class StaffControllerTest extends TestCase
             'status' => 1
         ];
 
-        $response = $this->postJson('/api/staff', $data);
+        $response = $this->postJson('/api/v1/staff', $data);
 
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'PENDING')
@@ -68,7 +68,7 @@ class StaffControllerTest extends TestCase
             'surname' => 'Updated Name'
         ];
 
-        $response = $this->putJson("/api/staff/{$staff->service_no}", $data);
+        $response = $this->putJson("/api/v1/staff/{$staff->service_no}", $data);
 
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'PENDING')

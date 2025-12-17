@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +28,6 @@ class StaffAuthController extends Controller
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
         
-        // Save IP address
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip(),
         ])->save();
@@ -53,7 +53,6 @@ class StaffAuthController extends Controller
             return $this->errorResponse('Invalid login details', 401);
         }
 
-        // Verify State
         if ($staff->assigned_state != $request->state) {
             return $this->errorResponse('You are not assigned to this state', 403);
         }
@@ -62,7 +61,6 @@ class StaffAuthController extends Controller
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
         
-        // Save IP address
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip(),
         ])->save();

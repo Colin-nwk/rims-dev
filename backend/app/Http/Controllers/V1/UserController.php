@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
@@ -23,18 +24,12 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $users = $this->userService->all($request->all());
         return $this->collectionResponse($users);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -44,7 +39,7 @@ class UserController extends Controller
         ]);
 
         try {
-            $data = $request->all(); // Or specific fields
+            $data = $request->all();
 
             $changeRequest = $this->changeRequestService->submit(
                 'App\Models\User',
@@ -59,23 +54,16 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
         return $user;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email,'.$user->id],
-            // Password update logic if needed
         ]);
 
         try {
@@ -96,9 +84,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
         $user->delete();

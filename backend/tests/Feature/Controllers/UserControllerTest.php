@@ -12,7 +12,7 @@ class UserControllerTest extends TestCase
 
     public function test_unauthenticated_user_cannot_access_user_routes()
     {
-        $response = $this->postJson('/api/user/users', []);
+        $response = $this->postJson('/api/v1/user/users', []);
         $response->assertStatus(401);
     }
 
@@ -20,7 +20,7 @@ class UserControllerTest extends TestCase
     {
         $admin = User::factory()->create();
 
-        $response = $this->actingAs($admin)->postJson('/api/user/users', [
+        $response = $this->actingAs($admin)->postJson('/api/v1/user/users', [
             'name' => 'John' 
             // Missing email, password
         ]);
@@ -41,7 +41,7 @@ class UserControllerTest extends TestCase
             'password_confirmation' => 'password',
         ];
 
-        $response = $this->postJson('/api/user/users', $data);
+        $response = $this->postJson('/api/v1/user/users', $data);
 
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'PENDING')
@@ -68,7 +68,7 @@ class UserControllerTest extends TestCase
             'name' => 'Updated Name'
         ];
 
-        $response = $this->putJson("/api/user/users/{$user->id}", $data);
+        $response = $this->putJson("/api/v1/user/users/{$user->id}", $data);
 
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'PENDING')

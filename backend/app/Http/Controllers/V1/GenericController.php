@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,6 @@ class GenericController extends Controller
 
     public function __construct(Request $request)
     {
-        // Resolve model class from route parameter or custom mapping
         $this->modelClass = $request->route('model');
     }
 

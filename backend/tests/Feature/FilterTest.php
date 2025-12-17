@@ -23,18 +23,18 @@ class FilterTest extends TestCase
         Staff::factory()->create(['service_no' => 'SVC003', 'surname' => 'Smith', 'status' => 1]);
 
         // Test Search
-        $response = $this->getJson('/api/staff?search=Smith');
+        $response = $this->getJson('/api/v1/staff?search=Smith');
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data.data'); // Should find SVC001 and SVC003
 
         // Test Filter
-        $response = $this->getJson('/api/staff?status=2');
+        $response = $this->getJson('/api/v1/staff?status=2');
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data.data')
             ->assertJsonPath('data.data.0.service_no', 'SVC002');
 
         // Test Sort
-        $response = $this->getJson('/api/staff?sort=service_no&sort_dir=desc');
+        $response = $this->getJson('/api/v1/staff?sort=service_no&sort_dir=desc');
         $response->assertStatus(200)
              ->assertJsonPath('data.data.0.service_no', 'SVC003');
     }
@@ -48,7 +48,7 @@ class FilterTest extends TestCase
         User::factory()->create(['name' => 'Charlie', 'email' => 'charlie@test.com']);
 
         // Test Search
-        $response = $this->getJson('/api/user/users?search=User');
+        $response = $this->getJson('/api/v1/user/users?search=User');
         // Should find Admin User and Bob User
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data.data');
