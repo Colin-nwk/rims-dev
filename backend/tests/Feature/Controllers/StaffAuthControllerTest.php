@@ -160,4 +160,25 @@ class StaffAuthControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['password']);
     }
+    public function test_staff_login_with_no_roles_returns_empty_arrays()
+    {
+        $staff = Staff::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 1,
+        ]);
+
+        $response = $this->postJson('/api/v1/staff/login', [
+            'service_no' => $staff->service_no,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'Success',
+                'data' => [
+                    'roles' => [],
+                    'permissions' => [],
+                ]
+            ]);
+    }
 }

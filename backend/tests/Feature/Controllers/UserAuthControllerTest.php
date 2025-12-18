@@ -85,4 +85,25 @@ class UserAuthControllerTest extends TestCase
             'tokenable_type' => User::class,
         ]);
     }
+    public function test_user_login_with_no_roles_returns_empty_arrays()
+    {
+        $user = User::factory()->create([
+            'email' => 'norole@test.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        $response = $this->postJson('/api/v1/user/login', [
+            'email' => 'norole@test.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'Success',
+                'data' => [
+                    'roles' => [],
+                    'permissions' => [],
+                ]
+            ]);
+    }
 }
