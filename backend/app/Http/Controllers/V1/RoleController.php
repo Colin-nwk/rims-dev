@@ -15,12 +15,14 @@ class RoleController extends Controller
 
     public function index()
     {
+        $this->authorize('role.view');
         $roles = Role::with('permissions', 'prison', 'state', 'zone')->get();
         return $this->successResponse($roles, 'Roles retrieved successfully');
     }
 
     public function store(StoreRoleRequest $request)
     {
+        $this->authorize('role.create');
         $validated = $request->validated();
         
         $role = Role::create($validated);
@@ -36,12 +38,14 @@ class RoleController extends Controller
 
     public function show(Role $role)
     {
+        $this->authorize('role.view');
         $role->load('permissions', 'prison', 'state', 'zone');
         return $this->successResponse($role, 'Role retrieved successfully');
     }
 
     public function update(UpdateRoleRequest $request, Role $role)
     {
+        $this->authorize('role.edit');
         $validated = $request->validated();
         
         $role->update($validated);
@@ -57,12 +61,14 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        $this->authorize('role.delete');
         $role->delete();
         return $this->successResponse(null, 'Role deleted successfully');
     }
 
     public function syncPermissions(Request $request, Role $role)
     {
+        $this->authorize('role.edit');
         $request->validate([
             'permissions' => 'required|array',
             'permissions.*' => 'exists:permissions,id'
@@ -75,6 +81,7 @@ class RoleController extends Controller
 
     public function attachPermission(Request $request, Role $role)
     {
+        $this->authorize('role.edit');
         $request->validate([
             'permission_id' => 'required|exists:permissions,id'
         ]);
@@ -86,6 +93,7 @@ class RoleController extends Controller
 
     public function detachPermission(Request $request, Role $role)
     {
+        $this->authorize('role.edit');
         $request->validate([
             'permission_id' => 'required|exists:permissions,id'
         ]);

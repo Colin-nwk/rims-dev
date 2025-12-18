@@ -30,4 +30,18 @@ trait HasRolesTrait
     {
         return $this->roles->whereIn('slug', $slugs)->isNotEmpty();
     }
+
+    /**
+     * Get all permissions as a flat array of strings.
+     */
+    public function getAllPermissionsAttribute(): array
+    {
+        return $this->roles->load('permissions')
+            ->pluck('permissions')
+            ->flatten()
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 }

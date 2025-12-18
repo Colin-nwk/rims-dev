@@ -19,10 +19,39 @@ class RoleControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Create necessary permissions for role management
+        $permissions = [
+            'role.view', 'role.create', 'role.edit', 'role.delete'
+        ];
+        
+        $rolePermissions = [];
+        foreach ($permissions as $name) {
+            $rolePermissions[] = Permission::create(['name' => $name]);
+        }
+        
+        // Create Super Admin role
+        $role = Role::create(['name' => 'Super Admin', 'slug' => 'super-admin', 'scopeless' => true]);
+        $role->permissions()->saveMany($rolePermissions); // Attach all permissions
+
         // Setup an authenticated user (acting as admin)
-        // Check if Staff or User is used for admin login. Assuming Staff for now as requested context implies Staff roles.
-        // Or simpler, act as a User.
         $this->admin = User::factory()->create();
+        $this->admin->roles()->attach($role); // Assign role to user
+
+        // Re-boot gates to pick up new permissions
+        (new \App\Providers\AppServiceProvider($this->app))->boot();
+    }
+
+    public function test_cannot_access_without_permission()
+    {
+        $user = User::factory()->create(); // User without roles
+        
+        $response = $this->actingAs($user)->getJson('/api/v1/roles');
+        $response->assertStatus(403);
+        
+        // Provide valid data so validation passes and we hit the controller's authorization check.
+        $response = $this->actingAs($user)->postJson('/api/v1/roles', ['name' => 'Fail', 'slug' => 'fail']);
+        $response->assertStatus(403);
     }
 
     public function test_can_list_roles()
@@ -33,7 +62,7 @@ class RoleControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->getJson('/api/v1/roles');
 
         $response->assertStatus(200)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(3, 'data'); // 2 created + 1 Super Admin from setUp
     }
 
     public function test_can_create_role_with_permissions()

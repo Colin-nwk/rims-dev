@@ -13,6 +13,7 @@ class PermissionController extends Controller
 
     public function index()
     {
+        $this->authorize('role.view');
         $permissions = Permission::all();
         return $this->successResponse($permissions, 'Permissions retrieved successfully');
     }
