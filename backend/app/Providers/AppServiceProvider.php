@@ -31,7 +31,8 @@ class AppServiceProvider extends ServiceProvider
                     // We filter the permission's roles to see which ones the user possesses.
                     $userRoleIds = $user->roles->pluck('id')->toArray();
                     
-                    $authorizedRoles = $permission->roles->filter(function ($role) use ($userRoleIds) {
+                    // Use fresh roles to handle test/runtime changes
+                    $authorizedRoles = $permission->roles()->get()->filter(function ($role) use ($userRoleIds) {
                         return in_array($role->id, $userRoleIds);
                     });
 

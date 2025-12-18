@@ -53,4 +53,20 @@ class Complaint extends Model
     {
         return $this->creator ? "{$this->creator->first_name} {$this->creator->surname}" : null;
     }
+
+    // Helper methods for Scoped Authorization (Gate checks)
+    public function getPrisonId()
+    {
+        return $this->creator?->prison; // Staff model uses 'prison' for ID? Check Staff model.
+    }
+
+    public function getStateId()
+    {
+        return $this->creator?->assigned_state;
+    }
+
+    public function getZoneId()
+    {
+        return $this->creator?->zone_id;
+    }
 }

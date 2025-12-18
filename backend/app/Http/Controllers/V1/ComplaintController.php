@@ -16,12 +16,79 @@ class ComplaintController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $staff = $request->user();
+        $user = $request->user();
         
-        $complaints = Complaint::with(['creator', 'messages'])
-            ->where('created_by', $staff->id)
-            ->filter($request->all())
-            ->paginate($request->get('per_page', 15));
+        // Start building the query
+        $query = Complaint::with(['creator', 'messages']);
+
+        // Check if user has permission to view all complaints (scoped)
+        // AND didn't explicitly ask for their own only
+        if ($user->can('complaint.view') && !$request->has('mine')) {
+            // Apply Scope Limits based on User's Role
+            // We filter based on the *creator's* location since Complaint doesn't have location columns
+            
+            // Check for Scoped Constraints (State, Zone, Prison)
+            // If the user is restricted to a specific scope, enforce it.
+            // If they are scopeless (Super Admin), no enforcement.
+            
+            // We need to resolve the effective scope of the user.
+            // Since a user might have multiple roles, we take the most permissive? 
+            // Or typically, we restrict if *all* roles are restricted.
+            // However, the Gate logic usually handles "Can I access this resource?".
+            // For a list, we need to construct a query that matches "resources I can access".
+            
+            // Simplified Approach: Users usually have one primary role scope or mutually exclusive scopes.
+            // We'll check the user's attributes directly if they have AuthorizesScopedAccess trait.
+            
+            // But wait, the Role defines the scope, not the User table directly (though trait reads User).
+            // Let's rely on the user's `roles` relationship to find the widest scope? 
+            // Actually, the `AuthorizesScopedAccess` trait provided `getPrisonId` etc. based on the Model's attributes, not the Role pivot.
+            // Checking `Staff` model: it has `prison`, `assigned_state`, `zone_id`.
+            // So the Staff's location IS their scope.
+            
+            $prisonId = $user->prison ?? null; // Adjust if column name differs
+            $stateId = $user->assigned_state ?? null;
+            $zoneId = $user->zone_id ?? null;
+
+            // If user is NOT scopeless (meaning they are restricted to their location)
+            // We must filter the complaints.
+            // But how do we know if they are "scopeless"?
+            // We check if they have ANY role that is 'scopeless'.
+            $isScopeless = $user->roles()->where('scopeless', true)->exists();
+
+            if (!$isScopeless) {
+                $query->whereHas('creator', function ($q) use ($prisonId, $stateId, $zoneId) {
+                    if ($prisonId) {
+                        $q->where('prison', $prisonId);
+                    } elseif ($stateId) {
+                        $q->where('assigned_state', $stateId);
+                    } elseif ($zoneId) {
+                        $q->where('zone_id', $zoneId);
+                    }
+                });
+            }
+
+            // Apply Requested Filters (e.g. Admin filtering by State/Zone)
+            if ($request->has('state_id')) {
+                $query->whereHas('creator', fn($q) => $q->where('assigned_state', $request->state_id));
+            }
+            if ($request->has('zone_id')) {
+                $query->whereHas('creator', fn($q) => $q->where('zone_id', $request->zone_id));
+            }
+            if ($request->has('prison_id')) {
+                $query->whereHas('creator', fn($q) => $q->where('prison', $request->prison_id));
+            }
+
+        } else {
+            // "Personal View": User has no permission OR asked for mine
+            $query->where('created_by', $user->id);
+        }
+
+        // Apply General Filters (Status, Priority, etc.)
+        $filters = $request->except(['mine', 'state_id', 'zone_id', 'prison_id', 'page', 'per_page']);
+        $query->filter($filters);
+
+        $complaints = $query->latest()->paginate($request->get('per_page', 15));
 
         return $this->collectionResponse($complaints);
     }
@@ -57,6 +124,8 @@ class ComplaintController extends Controller
 
     public function updateStatus(Request $request, Complaint $complaint): JsonResponse
     {
+        $this->authorize('complaint.resolve', $complaint);
+
         $validated = $request->validate([
             'status' => 'required|in:open,in-progress,resolved,escalated',
         ]);
@@ -98,6 +167,8 @@ class ComplaintController extends Controller
 
     public function destroy(Complaint $complaint): JsonResponse
     {
+        $this->authorize('complaint.delete', $complaint);
+
         $complaint->delete();
         return $this->successResponse(null, 'Complaint deleted successfully');
     }
