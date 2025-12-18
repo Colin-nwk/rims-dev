@@ -89,4 +89,22 @@ class UserController extends Controller
         $user->delete();
         return response()->noContent();
     }
+
+    public function assignRole(Request $request, User $user)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $user->roles()->syncWithoutDetaching([$request->role_id]);
+        
+        return $this->successResponse($user->load('roles'), 'Role assigned successfully');
+    }
+
+    public function removeRole(User $user, $roleId)
+    {
+        $user->roles()->detach($roleId);
+        
+        return $this->successResponse($user->load('roles'), 'Role removed successfully');
+    }
 }
