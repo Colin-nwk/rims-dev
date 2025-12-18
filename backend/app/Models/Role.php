@@ -19,6 +19,17 @@ class Role extends Model
         'scopeless' => 'boolean',
     ];
 
+    protected static function booted()
+    {
+        static::saved(function ($role) {
+            \Illuminate\Support\Facades\Cache::forget('app.permissions');
+        });
+
+        static::deleted(function ($role) {
+            \Illuminate\Support\Facades\Cache::forget('app.permissions');
+        });
+    }
+
     public function permissions()
     {
         return $this->belongsToMany(Permission::class);

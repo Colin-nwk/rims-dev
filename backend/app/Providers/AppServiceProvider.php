@@ -20,19 +20,29 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            // Eager load roles to avoid N+1 queries during gate registration loop
-            // NOTE: In production with many permissions, cache this query.
-            $permissions = \App\Models\Permission::with('roles')->get();
+            // Cache permissions indefinitely to handle high scale
+            $permissions = \Illuminate\Support\Facades\Cache::rememberForever('app.permissions', function () {
+                return \App\Models\Permission::with('roles')->get();
+            });
 
             foreach ($permissions as $permission) {
+                // We bind the permission NAME to the closure, but fetch the LATEST object from cache/memory
                 \Illuminate\Support\Facades\Gate::define($permission->name, function ($user, $target = null) use ($permission) {
+                    // Reload the permission from the (potentially refreshed) cache to handle runtime updates (like in tests)
+                    $cachedPermissions = \Illuminate\Support\Facades\Cache::rememberForever('app.permissions', function () {
+                         return \App\Models\Permission::with('roles')->get();
+                    });
+                    
+                    // Find the specific permission object in the fresh collection
+                    $currentPermission = $cachedPermissions->firstWhere('id', $permission->id);
+                    
+                    if (!$currentPermission) return false;
+
                     // 1. Get user's roles that have this permission.
-                    // We assume $user has the HasRolesTrait and relationship loaded/accessible.
-                    // We filter the permission's roles to see which ones the user possesses.
                     $userRoleIds = $user->roles->pluck('id')->toArray();
                     
-                    // Use fresh roles to handle test/runtime changes
-                    $authorizedRoles = $permission->roles()->get()->filter(function ($role) use ($userRoleIds) {
+                    // Use the CACHED relationship
+                    $authorizedRoles = $currentPermission->roles->filter(function ($role) use ($userRoleIds) {
                         return in_array($role->id, $userRoleIds);
                     });
 
