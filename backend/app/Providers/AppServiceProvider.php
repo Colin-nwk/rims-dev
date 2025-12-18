@@ -38,8 +38,11 @@ class AppServiceProvider extends ServiceProvider
                     
                     if (!$currentPermission) return false;
 
-                    // 1. Get user's roles that have this permission.
-                    $userRoleIds = $user->roles->pluck('id')->toArray();
+                    // 1. Get user's roles CACHED to avoid per-request DB query.
+                    // We assume $user has the HasRolesTrait.
+                    $userRoleIds = method_exists($user, 'getCachedRoleIds') 
+                        ? $user->getCachedRoleIds() 
+                        : $user->roles->pluck('id')->toArray();
                     
                     // Use the CACHED relationship
                     $authorizedRoles = $currentPermission->roles->filter(function ($role) use ($userRoleIds) {

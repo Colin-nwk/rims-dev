@@ -44,4 +44,26 @@ trait HasRolesTrait
             ->values()
             ->toArray();
     }
+
+    /**
+     * Get cached role IDs for the user.
+     * Use this instead of $user->roles to avoid DB hits.
+     */
+    public function getCachedRoleIds(): array
+    {
+        $key = "user_roles_{$this->id}_" . get_class($this);
+        return \Illuminate\Support\Facades\Cache::rememberForever($key, function () {
+            // Reload relation to be safe, or just use $this->roles if loaded
+            return $this->roles()->pluck('id')->toArray();
+        });
+    }
+
+    /**
+     * Flush the user's role cache.
+     */
+    public function flushRoleCache(): void
+    {
+        $key = "user_roles_{$this->id}_" . get_class($this);
+        \Illuminate\Support\Facades\Cache::forget($key);
+    }
 }

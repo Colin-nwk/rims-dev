@@ -181,4 +181,28 @@ class StaffAuthControllerTest extends TestCase
                 ]
             ]);
     }
+    public function test_staff_can_logout()
+    {
+        $staff = Staff::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 1,
+        ]);
+
+        $token = $staff->createToken('test')->plainTextToken;
+
+        // Mock cache interaction if possible, or just verify successful logout response
+        // Since we can't easily assert Cache::forget was called without mocking Cache facade
+        // We will focus on the successful response and token deletion.
+        
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/v1/logout');
+
+        // 204 No Content response
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'tokenable_id' => $staff->id,
+            'tokenable_type' => get_class($staff),
+        ]);
+    }
 }

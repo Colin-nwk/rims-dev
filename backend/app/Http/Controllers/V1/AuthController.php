@@ -14,6 +14,11 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
+        // Flush role cache as requested
+        if (method_exists($request->user(), 'flushRoleCache')) {
+             $request->user()->flushRoleCache();
+        }
+
         return $this->successResponse(null, 'Logged out successfully', 204);
     }
 }

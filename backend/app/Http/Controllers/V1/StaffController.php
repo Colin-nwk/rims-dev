@@ -149,6 +149,7 @@ class StaffController extends Controller
         ]);
 
         $staff->roles()->syncWithoutDetaching([$request->role_id]);
+        $staff->flushRoleCache();
         
         return $this->successResponse($staff->load('roles'), 'Role assigned successfully');
     }
@@ -156,6 +157,7 @@ class StaffController extends Controller
     public function removeRole(Staff $staff, $roleId)
     {
         $staff->roles()->detach($roleId);
+        $staff->flushRoleCache();
         
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
     }

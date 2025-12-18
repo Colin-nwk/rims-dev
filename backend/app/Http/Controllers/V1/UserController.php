@@ -97,6 +97,7 @@ class UserController extends Controller
         ]);
 
         $user->roles()->syncWithoutDetaching([$request->role_id]);
+        $user->flushRoleCache();
         
         return $this->successResponse($user->load('roles'), 'Role assigned successfully');
     }
@@ -104,6 +105,7 @@ class UserController extends Controller
     public function removeRole(User $user, $roleId)
     {
         $user->roles()->detach($roleId);
+        $user->flushRoleCache();
         
         return $this->successResponse($user->load('roles'), 'Role removed successfully');
     }
