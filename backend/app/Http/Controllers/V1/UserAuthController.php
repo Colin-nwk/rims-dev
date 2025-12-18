@@ -36,7 +36,9 @@ class UserAuthController extends Controller
         return $this->successResponse([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user,
+            'user' => $user->load('roles'),
+            'roles' => $user->roles->pluck('slug'), // Simple array of role slugs
+            'permissions' => $user->all_permissions, // Flattened array from trait
         ]);
     }
 }

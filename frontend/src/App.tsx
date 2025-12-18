@@ -20,6 +20,7 @@ import PolicyDetail from './pages/PolicyDetail';
 import ForgotPassword from './pages/ForgotPassword';
 import Modules from './pages/Modules';
 import Components from './pages/Components';
+import RoleManagement from './pages/RoleManagement';
 
 // --- Theme Context ---
 type Theme = 'light' | 'dark';
@@ -269,6 +270,14 @@ const AppContent = () => {
         <ProtectedRoute allowedRoles={['admin']}>
           <Layout user={user!} onLogout={logout} pendingApprovals={pendingCount}>
             <Settings />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin/roles" element={
+        <ProtectedRoute allowedRoles={['admin']}>
+          <Layout user={user!} onLogout={logout} pendingApprovals={pendingCount}>
+            <RoleManagement />
           </Layout>
         </ProtectedRoute>
       } />

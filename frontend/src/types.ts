@@ -39,6 +39,8 @@ export interface User {
   joinDate: string; // created_at
   phone?: string; 
   location?: string; // Derived from assignedState/prison
+
+  
 }
 
 export interface BioData {
@@ -151,4 +153,25 @@ export interface Complaint {
   createdAt: string;
   updatedAt: string;
   messages: Message[];
+}
+
+
+ 
+
+
+export interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  category: 'User Management' | 'Documents' | 'System' | 'Reports' | 'Approvals' | 'Policies';
+}
+
+export interface SystemRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[]; // Array of Permission IDs
+  userCount: number;
+  isSystem?: boolean; // Protected roles that cannot be deleted
+  createdAt: string;
 }

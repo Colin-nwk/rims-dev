@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\RetirementTrait;
+    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\RetirementTrait, \App\Traits\HasRolesTrait, \App\Traits\AuthorizesScopedAccess;
 
     protected $fillable = [
         'service_no',

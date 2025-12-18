@@ -1,4 +1,4 @@
-import { User, Document, Notification, Policy } from './types';
+import { User, Document, Notification, Policy, Permission, SystemRole } from './types';
 import { Users, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 export const MOCK_USERS: User[] = [
@@ -88,6 +88,63 @@ export const MOCK_USERS: User[] = [
     gender: 'Male',
     stateOfOrigin: 'Lagos',
     username: 'jdoe'
+  }
+];
+
+export const MOCK_PERMISSIONS: Permission[] = [
+  { id: 'u_v', name: 'View Staff', description: 'Can view staff directory and basic profiles', category: 'User Management' },
+  { id: 'u_c', name: 'Create Staff', description: 'Can add new staff members to the system', category: 'User Management' },
+  { id: 'u_e', name: 'Edit Staff', description: 'Can edit existing staff records', category: 'User Management' },
+  { id: 'u_d', name: 'Delete Staff', description: 'Can remove staff records from system', category: 'User Management' },
+  
+  { id: 'd_v', name: 'View Documents', description: 'Can view and download documents', category: 'Documents' },
+  { id: 'd_u', name: 'Upload Documents', description: 'Can upload and version documents', category: 'Documents' },
+  { id: 'd_m', name: 'Manage Vault', description: 'Can approve or reject document submissions', category: 'Documents' },
+  
+  { id: 'p_m', name: 'Manage Policies', description: 'Can create and update organizational policies', category: 'Policies' },
+  
+  { id: 'a_p', name: 'Process Approvals', description: 'Can process leave, bio-data, and profile updates', category: 'Approvals' },
+  
+  { id: 's_c', name: 'System Config', description: 'Can manage system settings and maintenance', category: 'System' },
+  { id: 's_r', name: 'Manage Roles', description: 'Can manage system roles and permissions', category: 'System' },
+  
+  { id: 'r_g', name: 'Generate Reports', description: 'Can generate HR and financial reports', category: 'Reports' }
+];
+
+export const MOCK_SYSTEM_ROLES: SystemRole[] = [
+  {
+    id: 'r1',
+    name: 'Administrator',
+    description: 'Full system access including security settings and role management.',
+    permissions: MOCK_PERMISSIONS.map(p => p.id),
+    userCount: 3,
+    isSystem: true,
+    createdAt: '2023-01-01'
+  },
+  {
+    id: 'r2',
+    name: 'HR Manager',
+    description: 'Handles recruitment, staff directory, and all approval workflows.',
+    permissions: ['u_v', 'u_c', 'u_e', 'd_v', 'd_u', 'd_m', 'p_m', 'a_p', 'r_g'],
+    userCount: 12,
+    createdAt: '2023-02-15'
+  },
+  {
+    id: 'r3',
+    name: 'State Controller',
+    description: 'Oversees staff and documents within a specific state jurisdiction.',
+    permissions: ['u_v', 'd_v', 'a_p', 'r_g'],
+    userCount: 36,
+    createdAt: '2023-03-10'
+  },
+  {
+    id: 'r4',
+    name: 'Officer',
+    description: 'Standard staff access for profile updates and document uploads.',
+    permissions: ['d_v', 'd_u'],
+    userCount: 840,
+    isSystem: true,
+    createdAt: '2023-01-01'
   }
 ];
 
