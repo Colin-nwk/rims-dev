@@ -141,4 +141,24 @@ class StaffController extends Controller
             'assigned_state_name' => $staff->assignedState?->state,
         ]);
     }
+
+    public function assignRole(Request $request, Staff $staff)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $staff->roles()->syncWithoutDetaching([$request->role_id]);
+        $staff->flushRoleCache();
+        
+        return $this->successResponse($staff->load('roles'), 'Role assigned successfully');
+    }
+
+    public function removeRole(Staff $staff, $roleId)
+    {
+        $staff->roles()->detach($roleId);
+        $staff->flushRoleCache();
+        
+        return $this->successResponse($staff->load('roles'), 'Role removed successfully');
+    }
 }

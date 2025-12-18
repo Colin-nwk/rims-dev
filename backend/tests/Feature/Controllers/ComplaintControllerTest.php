@@ -3,6 +3,8 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Complaint;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -10,6 +12,17 @@ use Tests\TestCase;
 class ComplaintControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Permission::firstOrCreate(['name' => 'complaint.view']);
+        Permission::firstOrCreate(['name' => 'complaint.create']);
+        Permission::firstOrCreate(['name' => 'complaint.resolve']);
+        Permission::firstOrCreate(['name' => 'complaint.delete']);
+        (new \App\Providers\AppServiceProvider($this->app))->boot(); // Reboot gates
+    }
+
 
     public function test_unauthenticated_user_cannot_access_complaints()
     {
@@ -94,6 +107,12 @@ class ComplaintControllerTest extends TestCase
     public function test_staff_can_update_complaint_status()
     {
         $staff = Staff::factory()->create();
+        
+        // Assign resolve permission
+        $role = Role::create(['name' => 'Resolver', 'slug' => 'resolver', 'scopeless' => true]);
+        $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.resolve']));
+        $staff->roles()->attach($role);
+
         $this->actingAs($staff, 'sanctum');
 
         $complaint = Complaint::factory()->create([
@@ -137,6 +156,12 @@ class ComplaintControllerTest extends TestCase
     public function test_staff_can_delete_complaint()
     {
         $staff = Staff::factory()->create();
+        
+        // Assign delete permission
+        $role = Role::create(['name' => 'Deleter', 'slug' => 'deleter', 'scopeless' => true]);
+        $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.delete']));
+        $staff->roles()->attach($role);
+
         $this->actingAs($staff, 'sanctum');
 
         $complaint = Complaint::factory()->create(['created_by' => $staff->id]);

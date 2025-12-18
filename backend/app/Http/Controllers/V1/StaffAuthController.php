@@ -35,7 +35,9 @@ class StaffAuthController extends Controller
         return $this->successResponse([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $staff,
+            'user' => $staff->load('roles'),
+            'roles' => $staff->roles->pluck('slug'),
+            'permissions' => $staff->all_permissions,
         ]);
     }
 
@@ -68,7 +70,9 @@ class StaffAuthController extends Controller
         return $this->successResponse([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $staff,
+            'user' => $staff->load('roles'),
+            'roles' => $staff->roles->pluck('slug'),
+            'permissions' => $staff->all_permissions,
         ]);
     }
 
