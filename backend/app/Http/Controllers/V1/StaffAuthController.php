@@ -138,6 +138,8 @@ class StaffAuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $staff,
+            'roles' => [],
+            'permissions' => [],
         ], 'Password set successfully');
     }
 }
