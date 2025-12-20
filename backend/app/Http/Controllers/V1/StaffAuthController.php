@@ -24,6 +24,10 @@ class StaffAuthController extends Controller
             return $this->errorResponse('Invalid login details', 401);
         }
 
+        if ($staff->status != 1) {
+            return $this->errorResponse('Account is deactivated', 403);
+        }
+
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
@@ -53,6 +57,10 @@ class StaffAuthController extends Controller
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             return $this->errorResponse('Invalid login details', 401);
+        }
+        
+        if ($staff->status != 1) {
+            return $this->errorResponse('Account is deactivated', 403);
         }
 
         if ($staff->assigned_state != $request->state) {
