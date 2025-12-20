@@ -27,10 +27,10 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 
 // Staff Authentication
 Route::prefix('staff')->group(function () {
-    Route::post('login', [StaffAuthController::class, 'login']);
-    Route::post('state/login', [StaffAuthController::class, 'stateLogin']);
-    Route::post('register', [StaffAuthController::class, 'register']);
-    Route::post('set-password', [StaffAuthController::class, 'setPassword']);
+    Route::post('login', [StaffAuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
+    Route::post('register', [StaffAuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
     
     // Public ID Card lookup (for QR code generation)
     Route::get('id-card/{serviceNo}', [StaffController::class, 'idCard']);
@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // User Authentication
 Route::prefix('user')->group(function () {
-    Route::post('login', [UserAuthController::class, 'login']);
+    Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', function (Request $request) {

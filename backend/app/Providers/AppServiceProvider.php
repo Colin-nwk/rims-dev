@@ -20,6 +20,29 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
+            // Register global 'safe_url' validation rule
+            \Illuminate\Support\Facades\Validator::extend('safe_url', function ($attribute, $value, $parameters, $validator) {
+                $rule = new \App\Rules\SafeUrl();
+                $passes = true;
+                $fail = function ($message) use (&$passes) {
+                    $passes = false;
+                };
+                
+                $rule->validate($attribute, $value, $fail);
+                
+                return $passes;
+            }, 'The :attribute must be a safe URL (publicly accessible).');
+
+            // Global API Rate Limiter
+            \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            });
+
+            // Strict Auth Rate Limiter (Login/Register/Reset)
+            \Illuminate\Support\Facades\RateLimiter::for('auth', function (\Illuminate\Http\Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+            });
+
             // Cache permissions indefinitely to handle high scale
             $permissions = \Illuminate\Support\Facades\Cache::rememberForever('app.permissions', function () {
                 return \App\Models\Permission::with('roles')->get();
