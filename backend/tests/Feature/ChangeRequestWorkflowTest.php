@@ -19,7 +19,7 @@ class ChangeRequestWorkflowTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        \Illuminate\Support\Facades\Gate::define('staff.create', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.create', fn () => true);
 
         $staffData = [
             'service_no' => 'SVC_TEST_01',
@@ -133,13 +133,14 @@ class ChangeRequestWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('users', ['email' => 'newuser@example.com']);
     }
+
     public function test_update_splits_sensitive_and_standard_fields()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         // Mock the gate to allow access (bypassing AppServiceProvider boot order issues in tests)
-        \Illuminate\Support\Facades\Gate::define('staff.edit', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
 
         // Create initial staff
         $staffData = [
@@ -167,8 +168,8 @@ class ChangeRequestWorkflowTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'sensitive',
-                'standard'
-            ]
+                'standard',
+            ],
         ]);
 
         // Verify Sensitive CR
@@ -184,19 +185,20 @@ class ChangeRequestWorkflowTest extends TestCase
             'type' => 'UPDATE',
             'status' => 'PENDING',
         ]);
-        
+
         // Verify database NOT updated yet
         $this->assertDatabaseHas('staff', [
             'surname' => 'Original',
             'email' => 'original@example.com',
         ]);
     }
+
     public function test_approve_sensitive_update_executes_changes()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
-        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn() => true);
+
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
 
         // Create staff
         $staff = \App\Models\Staff::create([
@@ -227,7 +229,7 @@ class ChangeRequestWorkflowTest extends TestCase
             'service_no' => 'SVC_SENSITIVE',
             'email' => 'new@example.com',
         ]);
-        
+
         // Verify CR status
         $this->assertDatabaseHas('change_requests', [
             'id' => $cr->id,
@@ -259,7 +261,7 @@ class ChangeRequestWorkflowTest extends TestCase
 
         // 3. Verify success (200 OK -> means it passed authorization)
         $response->assertStatus(200);
-        
+
         // Verify Change Request created (Standard flow)
         $response->assertJsonPath('data.standard.type', 'UPDATE');
     }

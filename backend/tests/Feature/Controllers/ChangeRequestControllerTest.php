@@ -18,7 +18,7 @@ class ChangeRequestControllerTest extends TestCase
         $this->actingAs($user);
 
         // Grant View All permission
-        \Illuminate\Support\Facades\Gate::define('change_request.view_all', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('change_request.view_all', fn () => true);
 
         // Assign Scopeless Role so filters don't hide everything
         $role = \App\Models\Role::create(['name' => 'Admin', 'slug' => 'admin', 'scopeless' => true]);

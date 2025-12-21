@@ -79,7 +79,7 @@ class ChangeRequest extends Model
             if (! empty($zoneIds)) {
                 $q->orWhereIn('data->zone_id', $zoneIds);
             }
-            
+
             // Always allow seeing own requests
             $q->orWhere('requested_by_id', $user->id);
         });

@@ -38,7 +38,7 @@ class StaffControllerTest extends TestCase
         $this->actingAs($user);
 
         // Grant permission
-        \Illuminate\Support\Facades\Gate::define('staff.create', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.create', fn () => true);
 
         $data = [
             'service_no' => 'SVC_CONT_01',
@@ -67,7 +67,7 @@ class StaffControllerTest extends TestCase
         $this->actingAs($user);
 
         // Grant permission
-        \Illuminate\Support\Facades\Gate::define('staff.edit', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
 
         $staff = \App\Models\Staff::factory()->create(['service_no' => 'SVC_CONT_02']);
 
@@ -90,19 +90,20 @@ class StaffControllerTest extends TestCase
         // Ensure staff is NOT updated yet
         $this->assertDatabaseHas('staff', ['id' => $staff->id, 'surname' => $staff->surname]);
     }
+
     public function test_index_returns_staff_list()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         \App\Models\Staff::factory()->count(3)->create();
 
         // Without permission
         $this->getJson('/api/v1/staff')->assertStatus(403);
 
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.view', fn() => true);
-        
+        \Illuminate\Support\Facades\Gate::define('staff.view', fn () => true);
+
         $response = $this->getJson('/api/v1/staff');
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
@@ -112,15 +113,15 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $staff = \App\Models\Staff::factory()->create();
 
         // Without permission
         $this->getJson("/api/v1/staff/{$staff->service_no}")->assertStatus(403);
 
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.view', fn() => true);
-        
+        \Illuminate\Support\Facades\Gate::define('staff.view', fn () => true);
+
         $response = $this->getJson("/api/v1/staff/{$staff->service_no}");
         $response->assertStatus(200)
             ->assertJsonPath('data.service_no', $staff->service_no);
@@ -130,15 +131,15 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $staff = \App\Models\Staff::factory()->create();
 
         // Without permission
         $this->deleteJson("/api/v1/staff/{$staff->service_no}")->assertStatus(403);
 
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.delete', fn() => true);
-        
+        \Illuminate\Support\Facades\Gate::define('staff.delete', fn () => true);
+
         $response = $this->deleteJson("/api/v1/staff/{$staff->service_no}");
         $response->assertStatus(204);
 
@@ -149,11 +150,11 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $staff = \App\Models\Staff::factory()->create();
 
-        // Assuming idCard likely requires view permission? 
-        // Checking controller code: public function idCard... no explicit authorize call in the snippet I saw earlier for idCard? 
+        // Assuming idCard likely requires view permission?
+        // Checking controller code: public function idCard... no explicit authorize call in the snippet I saw earlier for idCard?
         // Wait, looking at Step 411, line 182 IDCard method.. there is NO authorize call there!
         // So no permission needed? Or effectively public?
         // Ah, if the user blindly added authorize to everything, maybe they missed this one?
@@ -161,10 +162,10 @@ class StaffControllerTest extends TestCase
         // I will write the test assuming it might be public OR need view.
         // Let's check line 182 in Step 411 again. It has no authorize call.
         // So it should pass without permission.
-        
+
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.view', fn() => true);
-        
+        \Illuminate\Support\Facades\Gate::define('staff.view', fn () => true);
+
         $response = $this->getJson("/api/v1/staff/id-card/{$staff->service_no}");
         $response->assertStatus(200)
             ->assertJsonPath('data.service_no', $staff->service_no);
@@ -174,7 +175,7 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $staff = \App\Models\Staff::factory()->create();
         $role = \App\Models\Role::create(['name' => 'Tester', 'slug' => 'tester']);
 
@@ -182,11 +183,11 @@ class StaffControllerTest extends TestCase
         $this->postJson("/api/v1/staff/{$staff->service_no}/roles", ['role_id' => $role->id])->assertStatus(403);
 
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.delete', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.delete', fn () => true);
 
         $response = $this->postJson("/api/v1/staff/{$staff->service_no}/roles", ['role_id' => $role->id]);
         $response->assertStatus(200);
-        
+
         $this->assertTrue($staff->fresh()->hasRole('tester'));
     }
 
@@ -194,7 +195,7 @@ class StaffControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $staff = \App\Models\Staff::factory()->create();
         $role = \App\Models\Role::create(['name' => 'Tester', 'slug' => 'tester']);
         $staff->roles()->attach($role);
@@ -203,7 +204,7 @@ class StaffControllerTest extends TestCase
         $this->deleteJson("/api/v1/staff/{$staff->service_no}/roles/{$role->id}")->assertStatus(403);
 
         // With permission
-        \Illuminate\Support\Facades\Gate::define('staff.delete', fn() => true);
+        \Illuminate\Support\Facades\Gate::define('staff.delete', fn () => true);
 
         $response = $this->deleteJson("/api/v1/staff/{$staff->service_no}/roles/{$role->id}");
         $response->assertStatus(200);

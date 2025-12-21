@@ -37,7 +37,7 @@ class StaffController extends Controller
 
     public function store(StoreStaffRequest $request)
     {
-         $this->authorize('staff.create');
+        $this->authorize('staff.create');
         try {
             $data = $request->validated();
 
@@ -85,6 +85,7 @@ class StaffController extends Controller
     public function show(Staff $staff)
     {
         $this->authorize('staff.view');
+
         return $this->successResponse($staff->load(['details', 'education']));
     }
 
@@ -206,7 +207,7 @@ class StaffController extends Controller
 
     public function assignRole(Request $request, Staff $staff)
     {
-         $this->authorize('staff.delete');
+        $this->authorize('staff.delete');
         $request->validate([
             'role_id' => 'required|exists:roles,id',
         ]);
@@ -219,7 +220,7 @@ class StaffController extends Controller
 
     public function removeRole(Staff $staff, $roleId)
     {
-         $this->authorize('staff.delete');
+        $this->authorize('staff.delete');
         $staff->roles()->detach($roleId);
         $staff->flushRoleCache();
 
