@@ -87,9 +87,42 @@ class StaffController extends Controller
 
     public function update(UpdateStaffRequest $request, Staff $staff)
     {
+        // $this->authorize('staff.edit');
+
         try {
             $data = $request->validated();
 
+            $sensitiveFields = [
+                'dob',
+                'date_of_first_appointment',
+                'file_no',
+                'service_no',
+                'ippis',
+                'phone_number',
+                'email',
+            ];
+
+            $sensitivePayload = [];
+            $standardPayload = [];
+
+            foreach ($data as $key => $value) {
+                if (in_array($key, $sensitiveFields)) {
+                    $sensitivePayload[$key] = $value;
+                } elseif ($key === 'details' && is_array($value)) {
+                    // Check for sensitive fields inside details (like ippis)
+                    if (array_key_exists('ippis', $value)) {
+                        $sensitivePayload['details']['ippis'] = $value['ippis'];
+                        unset($value['ippis']);
+                    }
+                    if (! empty($value)) {
+                        $standardPayload['details'] = $value;
+                    }
+                } else {
+                    $standardPayload[$key] = $value;
+                }
+            }
+
+            // Handle file uploads (Photo is standard)
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
                 $serviceNo = $staff->service_no;
@@ -97,20 +130,35 @@ class StaffController extends Controller
                 $filename = "{$serviceNo}_photo_{$timestamp}";
                 $path = $this->uploadFile($file, 'photos', 'public', $filename);
                 if ($path) {
-                    $data['photo'] = $path;
+                    $standardPayload['photo'] = $path;
                 }
             }
 
-            $changeRequest = $this->changeRequestService->submit(
-                'App\Models\Staff',
-                'UPDATE',
-                $data,
-                $request->user(),
-                $staff->service_no,
-                $staff->id
-            );
+            $responses = [];
 
-            return $this->successResponse($changeRequest, 'Staff update request submitted for approval.');
+            if (! empty($sensitivePayload)) {
+                $responses['sensitive'] = $this->changeRequestService->submit(
+                    'App\Models\Staff',
+                    'SENSITIVE',
+                    $sensitivePayload,
+                    $request->user(),
+                    $staff->service_no,
+                    $staff->id
+                );
+            }
+
+            if (! empty($standardPayload)) {
+                $responses['standard'] = $this->changeRequestService->submit(
+                    'App\Models\Staff',
+                    'UPDATE',
+                    $standardPayload,
+                    $request->user(),
+                    $staff->service_no,
+                    $staff->id
+                );
+            }
+
+            return $this->successResponse($responses, 'Staff update request(s) submitted for approval.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }

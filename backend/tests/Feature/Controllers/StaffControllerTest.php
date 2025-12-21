@@ -72,8 +72,8 @@ class StaffControllerTest extends TestCase
         $response = $this->putJson("/api/v1/staff/{$staff->service_no}", $data);
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.status', 'PENDING')
-            ->assertJsonPath('data.type', 'UPDATE');
+            ->assertJsonPath('data.standard.status', 'PENDING')
+            ->assertJsonPath('data.standard.type', 'UPDATE');
 
         $this->assertDatabaseHas('change_requests', [
             'model_id' => $staff->id,

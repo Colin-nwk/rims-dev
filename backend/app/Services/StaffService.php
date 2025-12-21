@@ -106,7 +106,7 @@ class StaffService extends BaseService
 
         if ($request->type === 'CREATE') {
             return $this->create($data);
-        } elseif ($request->type === 'UPDATE') {
+        } elseif ($request->type === 'UPDATE' || $request->type === 'SENSITIVE') {
             return $this->update($request->model_id, $data);
         }
 

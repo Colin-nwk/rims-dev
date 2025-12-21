@@ -131,4 +131,105 @@ class ChangeRequestWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('users', ['email' => 'newuser@example.com']);
     }
+    public function test_update_splits_sensitive_and_standard_fields()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        
+        // Mock the gate to allow access (bypassing AppServiceProvider boot order issues in tests)
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn() => true);
+
+        // Create initial staff
+        $staffData = [
+            'service_no' => 'SVC123456',
+            'surname' => 'Original',
+            'first_name' => 'Staff',
+            'status' => 1,
+            'email' => 'original@example.com',
+            'dob' => '1990-01-01',
+        ];
+
+        // Manually create staff to bypass CR flow for setup
+        $staff = \App\Models\Staff::create($staffData);
+
+        // Update with mixed fields
+        $updateData = [
+            'surname' => 'Updated', // Standard
+            'email' => 'updated@example.com', // Sensitive
+            'dob' => '1995-01-01', // Sensitive
+        ];
+
+        $response = $this->putJson("/api/v1/staff/{$staff->service_no}", $updateData);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'sensitive',
+                'standard'
+            ]
+        ]);
+
+        // Verify Sensitive CR
+        $this->assertDatabaseHas('change_requests', [
+            'service_no' => 'SVC123456',
+            'type' => 'SENSITIVE',
+            'status' => 'PENDING',
+        ]);
+
+        // Verify Standard CR
+        $this->assertDatabaseHas('change_requests', [
+            'service_no' => 'SVC123456',
+            'type' => 'UPDATE',
+            'status' => 'PENDING',
+        ]);
+        
+        // Verify database NOT updated yet
+        $this->assertDatabaseHas('staff', [
+            'surname' => 'Original',
+            'email' => 'original@example.com',
+        ]);
+    }
+    public function test_approve_sensitive_update_executes_changes()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn() => true);
+
+        // Create staff
+        $staff = \App\Models\Staff::create([
+            'service_no' => 'SVC_SENSITIVE',
+            'email' => 'old@example.com',
+            'status' => 1,
+        ]);
+
+        // Create SENSITIVE Change Request
+        $cr = \App\Models\ChangeRequest::create([
+            'model_type' => 'App\Models\Staff',
+            'model_id' => $staff->id,
+            'service_no' => $staff->service_no,
+            'type' => 'SENSITIVE',
+            'data' => ['email' => 'new@example.com'],
+            'status' => 'PENDING',
+            'requested_by_type' => get_class($user),
+            'requested_by_id' => $user->id,
+        ]);
+
+        // Approve
+        $response = $this->postJson("/api/v1/change-requests/{$cr->id}/approve");
+
+        $response->assertStatus(200);
+
+        // Verify DB updated
+        $this->assertDatabaseHas('staff', [
+            'service_no' => 'SVC_SENSITIVE',
+            'email' => 'new@example.com',
+        ]);
+        
+        // Verify CR status
+        $this->assertDatabaseHas('change_requests', [
+            'id' => $cr->id,
+            'status' => 'APPROVED',
+        ]);
+    }
 }
