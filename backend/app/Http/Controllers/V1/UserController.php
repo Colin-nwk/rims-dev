@@ -95,20 +95,20 @@ class UserController extends Controller
 
     public function assignRole(Request $request, User $user)
     {
+        $this->authorize('user.edit');
         $request->validate([
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        $user->roles()->syncWithoutDetaching([$request->role_id]);
-        $user->flushRoleCache();
+        $user->assignRole($request->role_id);
 
         return $this->successResponse($user->load('roles'), 'Role assigned successfully');
     }
 
     public function removeRole(User $user, $roleId)
     {
-        $user->roles()->detach($roleId);
-        $user->flushRoleCache();
+        $this->authorize('user.edit');
+        $user->removeRole($roleId);
 
         return $this->successResponse($user->load('roles'), 'Role removed successfully');
     }

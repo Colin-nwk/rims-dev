@@ -212,8 +212,7 @@ class StaffController extends Controller
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        $staff->roles()->syncWithoutDetaching([$request->role_id]);
-        $staff->flushRoleCache();
+        $staff->assignRole($request->role_id);
 
         return $this->successResponse($staff->load('roles'), 'Role assigned successfully');
     }
@@ -221,8 +220,7 @@ class StaffController extends Controller
     public function removeRole(Staff $staff, $roleId)
     {
         $this->authorize('staff.delete');
-        $staff->roles()->detach($roleId);
-        $staff->flushRoleCache();
+        $staff->removeRole($roleId);
 
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
     }

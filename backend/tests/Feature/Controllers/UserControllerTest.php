@@ -83,4 +83,45 @@ class UserControllerTest extends TestCase
         // Ensure user is NOT updated yet
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Old Name']);
     }
+
+    public function test_assign_role()
+    {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
+        $user = User::factory()->create();
+        $role = \App\Models\Role::create(['name' => 'Tester', 'slug' => 'tester']);
+
+        // Without permission
+        $this->postJson("/api/v1/user/users/{$user->id}/roles", ['role_id' => $role->id])->assertStatus(403);
+
+        // With permission
+        \Illuminate\Support\Facades\Gate::define('user.edit', fn () => true);
+
+        $response = $this->postJson("/api/v1/user/users/{$user->id}/roles", ['role_id' => $role->id]);
+        $response->assertStatus(200);
+
+        $this->assertTrue($user->fresh()->hasRole('tester'));
+    }
+
+    public function test_remove_role()
+    {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
+        $user = User::factory()->create();
+        $role = \App\Models\Role::create(['name' => 'Tester', 'slug' => 'tester']);
+        $user->roles()->attach($role);
+
+        // Without permission
+        $this->deleteJson("/api/v1/user/users/{$user->id}/roles/{$role->id}")->assertStatus(403);
+
+        // With permission
+        \Illuminate\Support\Facades\Gate::define('user.edit', fn () => true);
+
+        $response = $this->deleteJson("/api/v1/user/users/{$user->id}/roles/{$role->id}");
+        $response->assertStatus(200);
+
+        $this->assertFalse($user->fresh()->hasRole('tester'));
+    }
 }
