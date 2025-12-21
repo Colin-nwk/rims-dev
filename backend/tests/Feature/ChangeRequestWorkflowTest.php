@@ -108,7 +108,7 @@ class ChangeRequestWorkflowTest extends TestCase
     {
         $admin = User::factory()->create();
         $this->actingAs($admin);
-        
+
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
 
         $userData = [
