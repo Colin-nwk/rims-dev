@@ -24,13 +24,14 @@ class StaffControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->postJson('/api/v1/staff', [
-            'first_name' => 'John' 
+            'first_name' => 'John',
             // Missing required fields: surname, service_no, etc.
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['surname', 'service_no', 'status']);
     }
+
     public function test_store_creates_change_request()
     {
         $user = User::factory()->create();
@@ -40,7 +41,7 @@ class StaffControllerTest extends TestCase
             'service_no' => 'SVC_CONT_01',
             'surname' => 'Controller',
             'first_name' => 'Test',
-            'status' => 1
+            'status' => 1,
         ];
 
         $response = $this->postJson('/api/v1/staff', $data);
@@ -49,11 +50,11 @@ class StaffControllerTest extends TestCase
             ->assertJsonPath('data.status', 'PENDING')
             ->assertJsonPath('data.model_type', 'App\Models\Staff')
             ->assertJsonPath('data.type', 'CREATE');
-        
+
         $this->assertDatabaseHas('change_requests', [
             'service_no' => 'SVC_CONT_01',
             'type' => 'CREATE',
-            'status' => 'PENDING'
+            'status' => 'PENDING',
         ]);
     }
 
@@ -65,7 +66,7 @@ class StaffControllerTest extends TestCase
         $staff = \App\Models\Staff::factory()->create(['service_no' => 'SVC_CONT_02']);
 
         $data = [
-            'surname' => 'Updated Name'
+            'surname' => 'Updated Name',
         ];
 
         $response = $this->putJson("/api/v1/staff/{$staff->service_no}", $data);
@@ -77,9 +78,9 @@ class StaffControllerTest extends TestCase
         $this->assertDatabaseHas('change_requests', [
             'model_id' => $staff->id,
             'type' => 'UPDATE',
-            'status' => 'PENDING'
+            'status' => 'PENDING',
         ]);
-        
+
         // Ensure staff is NOT updated yet
         $this->assertDatabaseHas('staff', ['id' => $staff->id, 'surname' => $staff->surname]);
     }

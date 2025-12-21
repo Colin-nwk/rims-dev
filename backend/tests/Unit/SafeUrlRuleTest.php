@@ -12,31 +12,31 @@ class SafeUrlRuleTest extends TestCase
      */
     public function test_safe_url_allows_public_https()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         $this->callRule($rule, 'https://google.com', true);
     }
 
     public function test_safe_url_allows_public_ip()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         $this->callRule($rule, 'http://8.8.8.8', true);
     }
 
     public function test_safe_url_blocks_localhost()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         $this->callRule($rule, 'http://localhost', false);
     }
 
     public function test_safe_url_blocks_loopback_ip()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         $this->callRule($rule, 'http://127.0.0.1', false);
     }
 
     public function test_safe_url_blocks_private_ip()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         // 192.168.x.x is private
         $this->callRule($rule, 'http://192.168.1.1', false);
         // 10.x.x.x is private
@@ -47,7 +47,7 @@ class SafeUrlRuleTest extends TestCase
     {
         // Whitelist localhost and specific private IP
         $rule = new SafeUrl(['localhost', '192.168.1.50']);
-        
+
         $this->callRule($rule, 'http://localhost', true);
         $this->callRule($rule, 'http://192.168.1.50', true);
         $this->callRule($rule, 'http://192.168.1.51', false); // Not whitelisted
@@ -57,16 +57,16 @@ class SafeUrlRuleTest extends TestCase
     {
         // Mock config
         \Illuminate\Support\Facades\Config::set('security.ssrf_whitelist', ['localhost']);
-        
-        $rule = new SafeUrl();
-        
+
+        $rule = new SafeUrl;
+
         $this->callRule($rule, 'http://localhost', true);
-        $this->callRule($rule, 'http://127.0.0.1', false); 
+        $this->callRule($rule, 'http://127.0.0.1', false);
     }
 
     public function test_safe_url_blocks_invalid_url()
     {
-        $rule = new SafeUrl();
+        $rule = new SafeUrl;
         $this->callRule($rule, 'not-a-url', false);
     }
 

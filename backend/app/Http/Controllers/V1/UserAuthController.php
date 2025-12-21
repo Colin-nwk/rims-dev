@@ -32,9 +32,9 @@ class UserAuthController extends Controller
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $user->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
-        
+
         $tokenInstance->accessToken->forceFill([
-            'ip_address' => $request->ip()
+            'ip_address' => $request->ip(),
         ])->save();
 
         return $this->successResponse([

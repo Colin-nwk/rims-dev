@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\ChangeRequest;
-use Illuminate\Support\Facades\Hash;
 use Exception;
+use Illuminate\Support\Facades\Hash;
 
 class UserService extends BaseService
 {
@@ -15,6 +14,7 @@ class UserService extends BaseService
     public function create(array $data)
     {
         $data['password'] = Hash::make($data['password']);
+
         return User::create($data);
     }
 
@@ -28,12 +28,14 @@ class UserService extends BaseService
             $data['password'] = Hash::make($data['password']);
         }
         $user->update($data);
+
         return $user;
     }
 
     public function delete($id)
     {
         $user = $this->find($id);
+
         return $user->delete();
     }
 
@@ -53,13 +55,13 @@ class UserService extends BaseService
     public function executeRequest($request)
     {
         $data = $request->data;
-        
+
         if ($request->type === 'CREATE') {
             return $this->create($data);
         } elseif ($request->type === 'UPDATE') {
             return $this->update($request->model_id, $data);
         }
-        
-        throw new Exception("Invalid request type: " . $request->type);
+
+        throw new Exception('Invalid request type: '.$request->type);
     }
 }

@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChangeRequest extends Model
 {
-    use HasFactory, \App\Traits\FilterableTrait;
+    use \App\Traits\FilterableTrait, HasFactory;
 
     public $searchable = ['service_no', 'model_type', 'type', 'status'];
+
     public $filterable = ['status', 'type', 'model_type', 'service_no', 'requested_by_id'];
 
     protected $fillable = [

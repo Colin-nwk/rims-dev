@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Staff;
 use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
+use App\Models\Staff;
 use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
@@ -16,6 +16,7 @@ class StaffController extends Controller
     use ApiResponseTrait, FileUploadTrait;
 
     protected $changeRequestService;
+
     protected $staffService;
 
     public function __construct(
@@ -29,6 +30,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         $staff = $this->staffService->all($request->all());
+
         return $this->collectionResponse($staff);
     }
 
@@ -36,7 +38,7 @@ class StaffController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             if (isset($data['education']) && is_array($data['education'])) {
                 foreach ($data['education'] as $index => &$edu) {
                     if (isset($edu['url']) && $request->hasFile("education.{$index}.url")) {
@@ -117,6 +119,7 @@ class StaffController extends Controller
     public function destroy(Staff $staff)
     {
         $staff->delete();
+
         return response()->noContent();
     }
 
@@ -124,7 +127,7 @@ class StaffController extends Controller
     {
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
 
-        if (!$staff) {
+        if (! $staff) {
             return $this->errorResponse('Staff not found.', 404);
         }
 
@@ -150,7 +153,7 @@ class StaffController extends Controller
 
         $staff->roles()->syncWithoutDetaching([$request->role_id]);
         $staff->flushRoleCache();
-        
+
         return $this->successResponse($staff->load('roles'), 'Role assigned successfully');
     }
 
@@ -158,7 +161,7 @@ class StaffController extends Controller
     {
         $staff->roles()->detach($roleId);
         $staff->flushRoleCache();
-        
+
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
     }
 }

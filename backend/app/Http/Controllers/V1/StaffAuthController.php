@@ -31,7 +31,7 @@ class StaffAuthController extends Controller
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
-        
+
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip(),
         ])->save();
@@ -50,7 +50,7 @@ class StaffAuthController extends Controller
         $request->validate([
             'service_no' => 'required|string',
             'password' => 'required|string',
-            'state' => 'required|exists:states,id', 
+            'state' => 'required|exists:states,id',
         ]);
 
         $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
@@ -58,7 +58,7 @@ class StaffAuthController extends Controller
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             return $this->errorResponse('Invalid login details', 401);
         }
-        
+
         if ($staff->status != 1) {
             return $this->errorResponse('Account is deactivated', 403);
         }
@@ -70,7 +70,7 @@ class StaffAuthController extends Controller
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
-        
+
         $tokenInstance->accessToken->forceFill([
             'ip_address' => $request->ip(),
         ])->save();

@@ -23,6 +23,7 @@ class SafeUrl implements ValidationRule
     {
         if (! filter_var($value, FILTER_VALIDATE_URL)) {
             $fail('The :attribute must be a valid URL.');
+
             return;
         }
 
@@ -30,6 +31,7 @@ class SafeUrl implements ValidationRule
 
         if (! $host) {
             $fail('The :attribute must have a valid host.');
+
             return;
         }
 
@@ -42,6 +44,7 @@ class SafeUrl implements ValidationRule
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             if (! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                 $fail('The :attribute must resolve to a public IP address.');
+
                 return;
             }
         } else {
@@ -51,12 +54,14 @@ class SafeUrl implements ValidationRule
             if ($ips === false) {
                 // If we can't resolve it, and it wasn't whitelisted, it's unsafe or invalid
                 $fail('The :attribute host could not be resolved.');
+
                 return;
             }
 
             foreach ($ips as $ip) {
                 if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                     $fail('The :attribute must resolve to a public IP address.');
+
                     return;
                 }
             }

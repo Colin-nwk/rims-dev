@@ -51,7 +51,8 @@ trait HasRolesTrait
      */
     public function getCachedRoleIds(): array
     {
-        $key = "user_roles_{$this->id}_" . get_class($this);
+        $key = "user_roles_{$this->id}_".get_class($this);
+
         return \Illuminate\Support\Facades\Cache::rememberForever($key, function () {
             // Reload relation to be safe, or just use $this->roles if loaded
             return $this->roles()->pluck('id')->toArray();
@@ -63,7 +64,7 @@ trait HasRolesTrait
      */
     public function flushRoleCache(): void
     {
-        $key = "user_roles_{$this->id}_" . get_class($this);
+        $key = "user_roles_{$this->id}_".get_class($this);
         \Illuminate\Support\Facades\Cache::forget($key);
     }
 }

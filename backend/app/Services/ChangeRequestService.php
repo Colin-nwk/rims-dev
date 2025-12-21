@@ -14,15 +14,15 @@ class ChangeRequestService
     public function submit(string $modelType, string $type, array $data, $requestedBy, ?string $serviceNo = null, $modelId = null)
     {
         // Simple duplicate check or validation logic could go here
-        
-        $request = new ChangeRequest();
+
+        $request = new ChangeRequest;
         $request->model_type = $modelType;
         $request->model_id = $modelId;
         $request->service_no = $serviceNo;
         $request->type = $type;
         $request->data = $data;
         $request->status = 'PENDING';
-        
+
         $request->requestedBy()->associate($requestedBy);
         $request->save();
 
@@ -38,15 +38,15 @@ class ChangeRequestService
     public function approve($requestId, $approverId)
     {
         $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
-        
+
         $request = ChangeRequest::findOrFail($requestId);
 
         if ($request->status !== 'PENDING') {
-            throw new Exception("Request is not pending.");
+            throw new Exception('Request is not pending.');
         }
 
         $service = $this->resolveService($request->model_type);
-        
+
         // Execute the service logic
         $result = $service->executeRequest($request);
 
@@ -67,7 +67,7 @@ class ChangeRequestService
         $request = ChangeRequest::findOrFail($requestId);
 
         if ($request->status !== 'PENDING') {
-            throw new Exception("Request is not pending.");
+            throw new Exception('Request is not pending.');
         }
 
         $request->status = 'REJECTED';

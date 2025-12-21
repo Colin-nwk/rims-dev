@@ -39,11 +39,11 @@ class ChangeRequestControllerTest extends TestCase
                 'service_no' => 'SVC_APP_CONT',
                 'surname' => 'ControllerApprove',
                 'first_name' => 'Test',
-                'status' => 1
+                'status' => 1,
             ],
             'requested_by_id' => null,
             'requested_by_type' => null,
-            'approved_by' => null
+            'approved_by' => null,
         ]);
 
         $response = $this->postJson("/api/v1/change-requests/{$cr->id}/approve");
@@ -64,19 +64,19 @@ class ChangeRequestControllerTest extends TestCase
             'status' => 'PENDING',
             'requested_by_id' => null,
             'requested_by_type' => null,
-            'approved_by' => null
+            'approved_by' => null,
         ]);
 
         $response = $this->postJson("/api/v1/change-requests/{$cr->id}/reject", [
-            'reason' => 'Bad Data'
+            'reason' => 'Bad Data',
         ]);
 
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('change_requests', [
-            'id' => $cr->id, 
+            'id' => $cr->id,
             'status' => 'REJECTED',
-            'rejection_reason' => 'Bad Data'
+            'rejection_reason' => 'Bad Data',
         ]);
     }
 }

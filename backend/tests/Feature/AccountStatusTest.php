@@ -28,13 +28,13 @@ class AccountStatusTest extends TestCase
         ]);
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'Account is deactivated']);
+            ->assertJson(['message' => 'Account is deactivated']);
     }
 
     public function test_staff_can_login_if_status_is_active()
     {
         RateLimiter::clear('auth:'.request()->ip());
-        
+
         $staff = Staff::create([
             'service_no' => 'active_staff',
             'file_no' => 'FILE_ACT',
@@ -64,7 +64,7 @@ class AccountStatusTest extends TestCase
         ]);
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'Account is deactivated']);
+            ->assertJson(['message' => 'Account is deactivated']);
     }
 
     public function test_user_can_login_if_status_is_active()

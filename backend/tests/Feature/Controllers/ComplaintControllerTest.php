@@ -23,7 +23,6 @@ class ComplaintControllerTest extends TestCase
         (new \App\Providers\AppServiceProvider($this->app))->boot(); // Reboot gates
     }
 
-
     public function test_unauthenticated_user_cannot_access_complaints()
     {
         $response = $this->getJson('/api/v1/complaints');
@@ -107,7 +106,7 @@ class ComplaintControllerTest extends TestCase
     public function test_staff_can_update_complaint_status()
     {
         $staff = Staff::factory()->create();
-        
+
         // Assign resolve permission
         $role = Role::create(['name' => 'Resolver', 'slug' => 'resolver', 'scopeless' => true]);
         $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.resolve']));
@@ -156,7 +155,7 @@ class ComplaintControllerTest extends TestCase
     public function test_staff_can_delete_complaint()
     {
         $staff = Staff::factory()->create();
-        
+
         // Assign delete permission
         $role = Role::create(['name' => 'Deleter', 'slug' => 'deleter', 'scopeless' => true]);
         $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.delete']));

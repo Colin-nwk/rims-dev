@@ -31,10 +31,10 @@ Route::prefix('staff')->group(function () {
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
     Route::post('register', [StaffAuthController::class, 'register'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
-    
+
     // Public ID Card lookup (for QR code generation)
     Route::get('id-card/{serviceNo}', [StaffController::class, 'idCard']);
-    
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('user', function (Request $request) {
             return $request->user();
@@ -55,7 +55,7 @@ Route::prefix('user')->group(function () {
         Route::get('me', function (Request $request) {
             return $request->user();
         });
-        
+
         // User CRUD
         Route::apiResource('users', UserController::class);
         Route::post('users/{user}/roles', [UserController::class, 'assignRole']);
@@ -68,21 +68,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('change-requests', [ChangeRequestController::class, 'index']);
     Route::post('change-requests/{id}/approve', [ChangeRequestController::class, 'approve']);
     Route::post('change-requests/{id}/reject', [ChangeRequestController::class, 'reject']);
-    
+
     // Dashboard Stats
     Route::get('dashboard', [DashboardController::class, 'index']);
-    
+
     // Roles & Permissions
     Route::apiResource('roles', \App\Http\Controllers\V1\RoleController::class);
     Route::post('roles/{role}/permissions/sync', [\App\Http\Controllers\V1\RoleController::class, 'syncPermissions']);
     Route::post('roles/{role}/permissions/attach', [\App\Http\Controllers\V1\RoleController::class, 'attachPermission']);
     Route::post('roles/{role}/permissions/detach', [\App\Http\Controllers\V1\RoleController::class, 'detachPermission']);
     Route::get('permissions', [\App\Http\Controllers\V1\PermissionController::class, 'index']);
-    
+
     // Role Assignment
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
     Route::delete('staff/{staff}/roles/{role}', [StaffController::class, 'removeRole']);
-    
+
     // Complaints / Ticketing System
     Route::apiResource('complaints', ComplaintController::class)->except(['update']);
     Route::patch('complaints/{complaint}/status', [ComplaintController::class, 'updateStatus']);

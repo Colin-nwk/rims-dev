@@ -25,7 +25,7 @@ class StaffDetail extends Model
         'number_of_children',
         'bank_name',
         'account_number',
-        'account_name'
+        'account_name',
     ];
 
     public function staff()

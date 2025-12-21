@@ -19,7 +19,7 @@ class StaffRoleTest extends TestCase
         $role = Role::create(['name' => 'Staff Role', 'slug' => 'staff-role']);
 
         $response = $this->actingAs($admin)->postJson("/api/v1/staff/{$staff->service_no}/roles", [
-            'role_id' => $role->id
+            'role_id' => $role->id,
         ]);
 
         $response->assertStatus(200);

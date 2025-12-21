@@ -2,16 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\ChangeRequest;
 use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ChangeRequestWorkflowTest extends TestCase
 {
-    // use RefreshDatabase; // Enable if we want fresh DB, but might wipe data I want to keep? 
+    // use RefreshDatabase; // Enable if we want fresh DB, but might wipe data I want to keep?
     // Usually Feature tests use RefreshDatabase. I'll use it to be safe and clean.
 
     use RefreshDatabase;
@@ -51,10 +49,10 @@ class ChangeRequestWorkflowTest extends TestCase
                     'institution' => 'Test Uni',
                     'type' => 'BSc',
                     'start_date' => '2008-01-01',
-                    'url' => \Illuminate\Http\UploadedFile::fake()->create('degree.pdf', 100)
-                ]
+                    'url' => \Illuminate\Http\UploadedFile::fake()->create('degree.pdf', 100),
+                ],
             ],
-            'photo' => \Illuminate\Http\UploadedFile::fake()->image('photo.jpg')
+            'photo' => \Illuminate\Http\UploadedFile::fake()->image('photo.jpg'),
         ];
 
         // 1. Store (Submit Request)
@@ -62,12 +60,12 @@ class ChangeRequestWorkflowTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'PENDING');
-            
+
         // Additional Check: Verify request data contains a path string, not a file object (implicit by JSON structure)
         $responseData = $response->json('data.data');
         $this->assertTrue(is_string($responseData['education'][0]['url']), 'URL should be converted to a file path string.');
         $this->assertStringContainsString('SVC_TEST_01_BSc_', $responseData['education'][0]['url']);
-        
+
         $this->assertTrue(is_string($responseData['photo']), 'Photo should be converted to a file path string.');
         $this->assertStringContainsString('SVC_TEST_01_photo_', $responseData['photo']);
 
@@ -77,7 +75,7 @@ class ChangeRequestWorkflowTest extends TestCase
             'id' => $requestId,
             'status' => 'PENDING',
             'model_type' => 'App\Models\Staff',
-            'type' => 'CREATE'
+            'type' => 'CREATE',
         ]);
 
         $this->assertDatabaseMissing('staff', ['service_no' => 'SVC_TEST_01']);
@@ -91,7 +89,7 @@ class ChangeRequestWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('change_requests', [
             'id' => $requestId,
-            'status' => 'APPROVED'
+            'status' => 'APPROVED',
         ]);
 
         $this->assertDatabaseHas('staff', ['service_no' => 'SVC_TEST_01']);
@@ -127,7 +125,7 @@ class ChangeRequestWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('change_requests', [
             'id' => $requestId,
-            'status' => 'APPROVED'
+            'status' => 'APPROVED',
         ]);
 
         $this->assertDatabaseHas('users', ['email' => 'newuser@example.com']);

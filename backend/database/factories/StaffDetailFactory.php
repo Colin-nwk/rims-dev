@@ -28,7 +28,7 @@ class StaffDetailFactory extends Factory
             'spouse_name' => $this->faker->name(),
             'spouse_phone' => $this->faker->phoneNumber(),
             'number_of_children' => $this->faker->numberBetween(0, 5),
-            'bank_name' => $this->faker->company() . ' Bank',
+            'bank_name' => $this->faker->company().' Bank',
             'account_name' => $this->faker->name(),
             'account_number' => $this->faker->numerify('##########'),
         ];

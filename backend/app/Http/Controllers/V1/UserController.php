@@ -14,6 +14,7 @@ class UserController extends Controller
     use ApiResponseTrait;
 
     protected $changeRequestService;
+
     protected $userService;
 
     public function __construct(
@@ -27,6 +28,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = $this->userService->all($request->all());
+
         return $this->collectionResponse($users);
     }
 
@@ -87,6 +89,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
         return response()->noContent();
     }
 
@@ -98,7 +101,7 @@ class UserController extends Controller
 
         $user->roles()->syncWithoutDetaching([$request->role_id]);
         $user->flushRoleCache();
-        
+
         return $this->successResponse($user->load('roles'), 'Role assigned successfully');
     }
 
@@ -106,7 +109,7 @@ class UserController extends Controller
     {
         $user->roles()->detach($roleId);
         $user->flushRoleCache();
-        
+
         return $this->successResponse($user->load('roles'), 'Role removed successfully');
     }
 }

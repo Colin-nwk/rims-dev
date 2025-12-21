@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Staff;
-use App\Models\ChangeRequest;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -63,8 +62,8 @@ class StaffService extends BaseService
             }
 
             // Update Education - Strategy: Delete all and recreate? Or smart update?
-            // For simplicity and avoiding complex ID matching, we'll wipe and recreate for now, 
-            // OR if IDs are provided, update. 
+            // For simplicity and avoiding complex ID matching, we'll wipe and recreate for now,
+            // OR if IDs are provided, update.
             // Simplest robust approach for this context:
             if (isset($data['education']) && is_array($data['education'])) {
                 // Determine if we are replacing all or adding/updating.
@@ -82,6 +81,7 @@ class StaffService extends BaseService
     public function delete($id)
     {
         $staff = $this->find($id);
+
         return $staff->delete();
     }
 
@@ -103,13 +103,13 @@ class StaffService extends BaseService
     public function executeRequest($request)
     {
         $data = $request->data;
-        
+
         if ($request->type === 'CREATE') {
             return $this->create($data);
         } elseif ($request->type === 'UPDATE') {
             return $this->update($request->model_id, $data);
         }
-        
-        throw new Exception("Invalid request type: " . $request->type);
+
+        throw new Exception('Invalid request type: '.$request->type);
     }
 }

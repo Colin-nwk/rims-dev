@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\RetirementTrait, \App\Traits\HasRolesTrait, \App\Traits\AuthorizesScopedAccess;
+    use \App\Traits\AuthorizesScopedAccess, \App\Traits\FilterableTrait, \App\Traits\HasRolesTrait, \App\Traits\RetirementTrait, HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'service_no',
@@ -40,10 +40,10 @@ class Staff extends Authenticatable
     ];
 
     public $searchable = [
-        'service_no', 
-        'surname', 
-        'first_name', 
-        'email', 
+        'service_no',
+        'surname',
+        'first_name',
+        'email',
         'file_no',
     ];
 
@@ -62,11 +62,11 @@ class Staff extends Authenticatable
     }
 
     public $filterable = [
-        'status', 
-        'assigned_state', 
-        'prison', 
-        'sex', 
-        'initial_rank', 
+        'status',
+        'assigned_state',
+        'prison',
+        'sex',
+        'initial_rank',
         'present_rank',
         'level',
         'department',

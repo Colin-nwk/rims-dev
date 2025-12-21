@@ -21,7 +21,7 @@ class UserControllerTest extends TestCase
         $admin = User::factory()->create();
 
         $response = $this->actingAs($admin)->postJson('/api/v1/user/users', [
-            'name' => 'John' 
+            'name' => 'John',
             // Missing email, password
         ]);
 
@@ -47,13 +47,13 @@ class UserControllerTest extends TestCase
             ->assertJsonPath('data.status', 'PENDING')
             ->assertJsonPath('data.model_type', 'App\Models\User')
             ->assertJsonPath('data.type', 'CREATE');
-        
+
         $this->assertDatabaseHas('change_requests', [
             'type' => 'CREATE',
             'model_type' => 'App\Models\User',
-            'status' => 'PENDING'
+            'status' => 'PENDING',
         ]);
-        
+
         $this->assertDatabaseMissing('users', ['email' => 'new@test.com']);
     }
 
@@ -65,7 +65,7 @@ class UserControllerTest extends TestCase
         $user = User::factory()->create(['email' => 'old@test.com', 'name' => 'Old Name']);
 
         $data = [
-            'name' => 'Updated Name'
+            'name' => 'Updated Name',
         ];
 
         $response = $this->putJson("/api/v1/user/users/{$user->id}", $data);
@@ -77,9 +77,9 @@ class UserControllerTest extends TestCase
         $this->assertDatabaseHas('change_requests', [
             'model_id' => $user->id,
             'type' => 'UPDATE',
-            'status' => 'PENDING'
+            'status' => 'PENDING',
         ]);
-        
+
         // Ensure user is NOT updated yet
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Old Name']);
     }

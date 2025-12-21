@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Illuminate\Support\Facades\Validator;
+use Tests\TestCase;
 
 class GlobalSafeUrlTest extends TestCase
 {
@@ -23,7 +23,7 @@ class GlobalSafeUrlTest extends TestCase
         );
         $this->assertFalse($validator->passes(), 'Private IP should fail global validation');
         $this->assertEquals(
-            'The website must be a safe URL (publicly accessible).', 
+            'The website must be a safe URL (publicly accessible).',
             $validator->errors()->first('website')
         );
     }

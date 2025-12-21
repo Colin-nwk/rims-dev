@@ -22,7 +22,7 @@ class UpdateStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_no' => 'sometimes|required|string|unique:staff,service_no,' . $this->staff->id,
+            'service_no' => 'sometimes|required|string|unique:staff,service_no,'.$this->staff->id,
             'surname' => 'sometimes|required|string',
             'first_name' => 'sometimes|required|string',
             'status' => 'sometimes|required|integer',
