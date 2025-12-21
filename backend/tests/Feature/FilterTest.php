@@ -22,6 +22,7 @@ class FilterTest extends TestCase
         Staff::factory()->create(['service_no' => 'SVC003', 'surname' => 'Smith', 'status' => 1]);
 
         // Test Search
+        \Illuminate\Support\Facades\Gate::define('staff.view', fn() => true);
         $response = $this->getJson('/api/v1/staff?search=Smith');
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data.data'); // Should find SVC001 and SVC003

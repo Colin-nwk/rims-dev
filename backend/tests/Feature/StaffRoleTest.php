@@ -18,6 +18,8 @@ class StaffRoleTest extends TestCase
         $staff = Staff::factory()->create();
         $role = Role::create(['name' => 'Staff Role', 'slug' => 'staff-role']);
 
+        \Illuminate\Support\Facades\Gate::define('staff.delete', fn() => true);
+
         $response = $this->actingAs($admin)->postJson("/api/v1/staff/{$staff->service_no}/roles", [
             'role_id' => $role->id,
         ]);
@@ -32,6 +34,8 @@ class StaffRoleTest extends TestCase
         $staff = Staff::factory()->create();
         $role = Role::create(['name' => 'Staff Role', 'slug' => 'staff-role']);
         $staff->roles()->attach($role);
+
+        \Illuminate\Support\Facades\Gate::define('staff.delete', fn() => true);
 
         $response = $this->actingAs($admin)->deleteJson("/api/v1/staff/{$staff->service_no}/roles/{$role->id}");
 

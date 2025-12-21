@@ -29,6 +29,7 @@ class StaffController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('staff.view');
         $staff = $this->staffService->all($request->all());
 
         return $this->collectionResponse($staff);
@@ -36,6 +37,7 @@ class StaffController extends Controller
 
     public function store(StoreStaffRequest $request)
     {
+         $this->authorize('staff.create');
         try {
             $data = $request->validated();
 
@@ -82,12 +84,19 @@ class StaffController extends Controller
 
     public function show(Staff $staff)
     {
-        return $staff->load(['details', 'education']);
+        $this->authorize('staff.view');
+        return $this->successResponse($staff->load(['details', 'education']));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)
     {
-        // $this->authorize('staff.edit');
+        // Allow if user has permission OR if user is updating their own record
+        $user = $request->user();
+        $isSelf = ($user instanceof Staff && $user->id === $staff->id) || ($user->service_no ?? null) === $staff->service_no;
+
+        if (! $isSelf) {
+            $this->authorize('staff.edit');
+        }
 
         try {
             $data = $request->validated();
@@ -166,6 +175,7 @@ class StaffController extends Controller
 
     public function destroy(Staff $staff)
     {
+        $this->authorize('staff.delete');
         $staff->delete();
 
         return response()->noContent();
@@ -173,6 +183,7 @@ class StaffController extends Controller
 
     public function idCard(string $serviceNo)
     {
+        $this->authorize('staff.view');
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
 
         if (! $staff) {
@@ -195,6 +206,7 @@ class StaffController extends Controller
 
     public function assignRole(Request $request, Staff $staff)
     {
+         $this->authorize('staff.delete');
         $request->validate([
             'role_id' => 'required|exists:roles,id',
         ]);
@@ -207,6 +219,7 @@ class StaffController extends Controller
 
     public function removeRole(Staff $staff, $roleId)
     {
+         $this->authorize('staff.delete');
         $staff->roles()->detach($roleId);
         $staff->flushRoleCache();
 

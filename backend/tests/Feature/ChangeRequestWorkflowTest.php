@@ -19,6 +19,8 @@ class ChangeRequestWorkflowTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        \Illuminate\Support\Facades\Gate::define('staff.create', fn() => true);
+
         $staffData = [
             'service_no' => 'SVC_TEST_01',
             'surname' => 'Test',
@@ -231,5 +233,34 @@ class ChangeRequestWorkflowTest extends TestCase
             'id' => $cr->id,
             'status' => 'APPROVED',
         ]);
+    }
+
+    public function test_staff_can_update_own_record_without_permission()
+    {
+        // 1. Create a User who IS a Staff member
+        $staff = \App\Models\Staff::create([
+            'service_no' => 'SVC_SELF_01',
+            'surname' => 'Self',
+            'first_name' => 'Service',
+            'email' => 'self@example.com',
+            'status' => 1,
+        ]);
+
+        // Act as this Staff member
+        $this->actingAs($staff);
+
+        // Ensure Staff has NO permissions
+        $this->assertTrue($staff->roles->isEmpty());
+
+        $updateData = ['surname' => 'Updated Self'];
+
+        // 2. Attempt update
+        $response = $this->putJson("/api/v1/staff/{$staff->service_no}", $updateData);
+
+        // 3. Verify success (200 OK -> means it passed authorization)
+        $response->assertStatus(200);
+        
+        // Verify Change Request created (Standard flow)
+        $response->assertJsonPath('data.standard.type', 'UPDATE');
     }
 }
