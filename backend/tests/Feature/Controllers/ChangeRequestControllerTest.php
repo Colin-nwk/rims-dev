@@ -17,6 +17,13 @@ class ChangeRequestControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant View All permission
+        \Illuminate\Support\Facades\Gate::define('change_request.view_all', fn() => true);
+
+        // Assign Scopeless Role so filters don't hide everything
+        $role = \App\Models\Role::create(['name' => 'Admin', 'slug' => 'admin', 'scopeless' => true]);
+        $user->roles()->attach($role);
+
         ChangeRequest::factory()->count(3)->create(['status' => 'PENDING', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
         ChangeRequest::factory()->create(['status' => 'APPROVED', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
 

@@ -21,7 +21,8 @@ class ChangeRequestController extends Controller
 
     public function index(Request $request)
     {
-        $requests = ChangeRequest::filter($request->all())
+        $requests = ChangeRequest::visibleTo($request->user())
+            ->filter($request->all())
             ->latest()
             ->paginate($request->per_page ?? 15);
 

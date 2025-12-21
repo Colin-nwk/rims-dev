@@ -33,6 +33,7 @@ class PermissionSeeder extends Seeder
 
             // Change Requests
             ['name' => 'change_request.view', 'description' => 'View change requests', 'group' => 'change_request'],
+            ['name' => 'change_request.view_all', 'description' => 'View all change requests', 'group' => 'change_request'],
             ['name' => 'change_request.approve', 'description' => 'Approve change requests', 'group' => 'change_request'],
             ['name' => 'change_request.reject', 'description' => 'Reject change requests', 'group' => 'change_request'],
 
