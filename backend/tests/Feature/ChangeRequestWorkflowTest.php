@@ -19,7 +19,9 @@ class ChangeRequestWorkflowTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant Permissions
         \Illuminate\Support\Facades\Gate::define('staff.create', fn () => true);
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
 
         $staffData = [
             'service_no' => 'SVC_TEST_01',
@@ -106,6 +108,8 @@ class ChangeRequestWorkflowTest extends TestCase
     {
         $admin = User::factory()->create();
         $this->actingAs($admin);
+        
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
 
         $userData = [
             'name' => 'New User',

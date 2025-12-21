@@ -38,6 +38,9 @@ class ChangeRequestControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant permission
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
+
         $cr = ChangeRequest::factory()->create([
             'status' => 'PENDING',
             'model_type' => Staff::class,
@@ -66,6 +69,9 @@ class ChangeRequestControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+
+        // Grant permission
+        \Illuminate\Support\Facades\Gate::define('change_request.reject', fn () => true);
 
         $cr = ChangeRequest::factory()->create([
             'status' => 'PENDING',

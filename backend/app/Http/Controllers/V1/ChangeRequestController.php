@@ -31,6 +31,7 @@ class ChangeRequestController extends Controller
 
     public function approve(Request $request, $id)
     {
+          $this->authorize('change_request.approve');
         try {
             $approverId = $request->user()->id;
             $result = $this->changeRequestService->approve($id, $approverId);
@@ -43,6 +44,7 @@ class ChangeRequestController extends Controller
 
     public function reject(Request $request, $id)
     {
+          $this->authorize('change_request.reject');
         $request->validate(['reason' => 'required|string']);
 
         try {
