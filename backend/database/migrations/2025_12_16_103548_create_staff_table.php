@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('sex')->nullable();
             $table->string('initial_rank')->nullable();
             $table->string('present_rank')->nullable();
-            $table->string('level')->nullable();
+            $table->integer('level')->nullable();
             $table->string('step')->nullable();
             $table->date('dob')->nullable();
             $table->date('date_of_first_appointment')->nullable();
