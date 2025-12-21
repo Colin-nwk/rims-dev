@@ -17,6 +17,7 @@ class RoleController extends Controller
     {
         $this->authorize('role.view');
         $roles = Role::with('permissions', 'prison', 'state', 'zone')->get();
+
         return $this->successResponse($roles, 'Roles retrieved successfully');
     }
 
@@ -24,15 +25,15 @@ class RoleController extends Controller
     {
         $this->authorize('role.create');
         $validated = $request->validated();
-        
+
         $role = Role::create($validated);
-        
+
         if (isset($validated['permissions'])) {
             $role->permissions()->sync($validated['permissions']);
         }
-        
+
         $role->load('permissions', 'prison', 'state', 'zone');
-        
+
         return $this->successResponse($role, 'Role created successfully', 201);
     }
 
@@ -40,6 +41,7 @@ class RoleController extends Controller
     {
         $this->authorize('role.view');
         $role->load('permissions', 'prison', 'state', 'zone');
+
         return $this->successResponse($role, 'Role retrieved successfully');
     }
 
@@ -47,13 +49,13 @@ class RoleController extends Controller
     {
         $this->authorize('role.edit');
         $validated = $request->validated();
-        
+
         $role->update($validated);
 
         if (isset($validated['permissions'])) {
             $role->permissions()->sync($validated['permissions']);
         }
-        
+
         $role->load('permissions', 'prison', 'state', 'zone');
 
         return $this->successResponse($role, 'Role updated successfully');
@@ -63,6 +65,7 @@ class RoleController extends Controller
     {
         $this->authorize('role.delete');
         $role->delete();
+
         return $this->successResponse(null, 'Role deleted successfully');
     }
 
@@ -71,11 +74,11 @@ class RoleController extends Controller
         $this->authorize('role.edit');
         $request->validate([
             'permissions' => 'required|array',
-            'permissions.*' => 'exists:permissions,id'
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $role->permissions()->sync($request->permissions);
-        
+
         return $this->successResponse($role->load('permissions'), 'Permissions synced successfully');
     }
 
@@ -83,11 +86,11 @@ class RoleController extends Controller
     {
         $this->authorize('role.edit');
         $request->validate([
-            'permission_id' => 'required|exists:permissions,id'
+            'permission_id' => 'required|exists:permissions,id',
         ]);
 
         $role->permissions()->syncWithoutDetaching([$request->permission_id]);
-        
+
         return $this->successResponse($role->load('permissions'), 'Permission attached successfully');
     }
 
@@ -95,11 +98,11 @@ class RoleController extends Controller
     {
         $this->authorize('role.edit');
         $request->validate([
-            'permission_id' => 'required|exists:permissions,id'
+            'permission_id' => 'required|exists:permissions,id',
         ]);
 
         $role->permissions()->detach($request->permission_id);
-        
+
         return $this->successResponse($role->load('permissions'), 'Permission detached successfully');
     }
 }

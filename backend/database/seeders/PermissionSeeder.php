@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
@@ -18,7 +17,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'staff.create', 'description' => 'Create new staff records', 'group' => 'staff'],
             ['name' => 'staff.edit', 'description' => 'Edit existing staff records', 'group' => 'staff'],
             ['name' => 'staff.delete', 'description' => 'Delete staff records', 'group' => 'staff'],
-            
+
             // User Management
             ['name' => 'user.view', 'description' => 'View system users', 'group' => 'user'],
             ['name' => 'user.create', 'description' => 'Create new system users', 'group' => 'user'],
@@ -34,6 +33,7 @@ class PermissionSeeder extends Seeder
 
             // Change Requests
             ['name' => 'change_request.view', 'description' => 'View change requests', 'group' => 'change_request'],
+            ['name' => 'change_request.view_all', 'description' => 'View all change requests', 'group' => 'change_request'],
             ['name' => 'change_request.approve', 'description' => 'Approve change requests', 'group' => 'change_request'],
             ['name' => 'change_request.reject', 'description' => 'Reject change requests', 'group' => 'change_request'],
 
@@ -42,7 +42,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'role.create', 'description' => 'Create roles', 'group' => 'role'],
             ['name' => 'role.edit', 'description' => 'Edit roles', 'group' => 'role'],
             ['name' => 'role.delete', 'description' => 'Delete roles', 'group' => 'role'],
-            
+
             // Reports
             ['name' => 'report.view', 'description' => 'View system reports', 'group' => 'report'],
         ];
@@ -52,7 +52,7 @@ class PermissionSeeder extends Seeder
                 ['name' => $permission['name']],
                 [
                     'description' => $permission['description'],
-                    'group' => $permission['group']
+                    'group' => $permission['group'],
                 ]
             );
         }

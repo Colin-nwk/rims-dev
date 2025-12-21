@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
@@ -34,11 +33,11 @@ class RoleSeeder extends Seeder
                 'scopeless' => false, // Will depend on user's assignment scope logic if we want strict enforcement
             ]
         );
-        
+
         $staffPermissions = \App\Models\Permission::whereIn('name', [
             'complaint.create',
             'complaint.view',
-            'staff.view', 
+            'staff.view',
         ])->get();
 
         $staffRole->permissions()->sync($staffPermissions);

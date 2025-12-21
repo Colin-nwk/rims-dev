@@ -38,7 +38,7 @@ class ChangeRequestServiceTest extends TestCase
             'model_type' => Staff::class,
             'type' => 'CREATE',
             'status' => 'PENDING',
-            'service_no' => 'SVC001'
+            'service_no' => 'SVC001',
         ]);
         $this->assertEquals($data, $request->data);
     }
@@ -50,9 +50,9 @@ class ChangeRequestServiceTest extends TestCase
             'status' => 'PENDING',
             'requested_by_id' => null,
             'requested_by_type' => null,
-            'approved_by' => null 
+            'approved_by' => null,
         ]);
-        
+
         $found = $this->changeRequestService->find($cr->id);
         $this->assertEquals($cr->id, $found->id);
     }
@@ -61,10 +61,10 @@ class ChangeRequestServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $cr = ChangeRequest::factory()->create([
-             'status' => 'PENDING',
-             'requested_by_id' => $user->id,
-             'requested_by_type' => User::class,
-             'approved_by' => null 
+            'status' => 'PENDING',
+            'requested_by_id' => $user->id,
+            'requested_by_type' => User::class,
+            'approved_by' => null,
         ]);
 
         $rejected = $this->changeRequestService->reject($cr->id, $user, 'Invalid Data');
@@ -86,7 +86,7 @@ class ChangeRequestServiceTest extends TestCase
             'password' => 'password',
             'assigned_state' => 1,
             'prison' => 1,
-            'status' => 1
+            'status' => 1,
         ];
 
         // 1. Submit
@@ -109,7 +109,7 @@ class ChangeRequestServiceTest extends TestCase
         // 4. Verify Staff Created
         $this->assertDatabaseHas('staff', [
             'service_no' => 'SVC_APP_01',
-            'surname' => 'Approved'
+            'surname' => 'Approved',
         ]);
     }
 
@@ -138,7 +138,7 @@ class ChangeRequestServiceTest extends TestCase
         // 3. Verify Staff Updated
         $this->assertDatabaseHas('staff', [
             'id' => $staff->id,
-            'surname' => 'NewName'
+            'surname' => 'NewName',
         ]);
     }
 }

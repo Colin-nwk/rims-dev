@@ -5,7 +5,6 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
@@ -15,6 +14,7 @@ class PermissionController extends Controller
     {
         $this->authorize('role.view');
         $permissions = Permission::all();
+
         return $this->successResponse($permissions, 'Permissions retrieved successfully');
     }
 }

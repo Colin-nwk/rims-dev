@@ -17,6 +17,6 @@ Route::get('/', function () {
     return response()->json([
         'message' => 'Welcome to RIMS API',
         'version' => 'v1',
-        'documentation' => '/api/v1'
+        'documentation' => '/api/v1',
     ]);
 });
