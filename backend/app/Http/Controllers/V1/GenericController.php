@@ -23,6 +23,8 @@ class GenericController extends Controller
             'zones' => \App\Models\Zone::class,
             'states' => \App\Models\State::class,
             'prisons' => \App\Models\Prison::class,
+            'degree_types' => \App\Models\DegreeType::class,
+            'rankings' => \App\Models\Ranking::class,
         ];
 
         if (! isset($models[$name])) {
