@@ -171,4 +171,161 @@ class StatisticsServiceTest extends TestCase
 
         $this->assertEquals(1, $result['overview']['total_staff']);
     }
+
+    public function test_appointment_trends_filters_by_sex(): void
+    {
+        Staff::factory()->create(['sex' => 'Female', 'date_of_first_appointment' => '2020-05-15']);
+        Staff::factory()->create(['sex' => 'Female', 'date_of_first_appointment' => '2021-03-20']);
+        Staff::factory()->create(['sex' => 'Male', 'date_of_first_appointment' => '2020-08-10']);
+
+        $result = $this->service->getAppointmentTrends(['sex' => 'Female']);
+
+        $this->assertEquals(2, $result['summary']['with_date']);
+        $this->assertCount(2, $result['by_year']); // 2020 and 2021
+    }
+
+    public function test_appointment_trends_filters_by_state_of_origin(): void
+    {
+        Staff::factory()->create(['state_of_origin' => 'Lagos', 'date_of_first_appointment' => '2020-01-15']);
+        Staff::factory()->create(['state_of_origin' => 'Lagos', 'date_of_first_appointment' => '2021-06-20']);
+        Staff::factory()->create(['state_of_origin' => 'Kano', 'date_of_first_appointment' => '2020-03-10']);
+
+        $result = $this->service->getAppointmentTrends(['state_of_origin' => 'Lagos']);
+
+        $this->assertEquals(2, $result['summary']['with_date']);
+    }
+
+    public function test_gender_stats_filters_by_state_of_origin(): void
+    {
+        Staff::factory()->create(['sex' => 'Male', 'state_of_origin' => 'Lagos']);
+        Staff::factory()->create(['sex' => 'Female', 'state_of_origin' => 'Lagos']);
+        Staff::factory()->create(['sex' => 'Male', 'state_of_origin' => 'Kano']);
+
+        $result = $this->service->getGenderStats(['state_of_origin' => 'Lagos']);
+
+        $maleStats = collect($result)->firstWhere('label', 'Male');
+        $femaleStats = collect($result)->firstWhere('label', 'Female');
+
+        $this->assertEquals(1, $maleStats['count']);
+        $this->assertEquals(1, $femaleStats['count']);
+        $this->assertEquals(50, $maleStats['percentage']);
+    }
+
+    public function test_gender_stats_filters_by_year_range(): void
+    {
+        Staff::factory()->create(['sex' => 'Male', 'date_of_first_appointment' => '2019-01-01']);
+        Staff::factory()->create(['sex' => 'Male', 'date_of_first_appointment' => '2020-06-15']);
+        Staff::factory()->create(['sex' => 'Female', 'date_of_first_appointment' => '2020-08-20']);
+        Staff::factory()->create(['sex' => 'Female', 'date_of_first_appointment' => '2022-03-10']);
+
+        $result = $this->service->getGenderStats(['year_from' => 2020, 'year_to' => 2021]);
+
+        $maleStats = collect($result)->firstWhere('label', 'Male');
+        $femaleStats = collect($result)->firstWhere('label', 'Female');
+
+        $this->assertEquals(1, $maleStats['count']);
+        $this->assertEquals(1, $femaleStats['count']);
+    }
+
+    public function test_marital_status_stats_filters_by_sex(): void
+    {
+        $maleStaff1 = Staff::factory()->create(['sex' => 'Male']);
+        $maleStaff2 = Staff::factory()->create(['sex' => 'Male']);
+        $femaleStaff = Staff::factory()->create(['sex' => 'Female']);
+
+        StaffDetail::factory()->create(['service_no' => $maleStaff1->service_no, 'marital_status' => 'Married']);
+        StaffDetail::factory()->create(['service_no' => $maleStaff2->service_no, 'marital_status' => 'Single']);
+        StaffDetail::factory()->create(['service_no' => $femaleStaff->service_no, 'marital_status' => 'Married']);
+
+        $result = $this->service->getMaritalStatusStats(['sex' => 'Male']);
+
+        $marriedStats = collect($result)->firstWhere('label', 'Married');
+        $singleStats = collect($result)->firstWhere('label', 'Single');
+
+        $this->assertEquals(1, $marriedStats['count']);
+        $this->assertEquals(1, $singleStats['count']);
+    }
+
+    public function test_rank_stats_filters_by_state_of_origin(): void
+    {
+        Staff::factory()->create(['present_rank' => 'ASP', 'state_of_origin' => 'Lagos']);
+        Staff::factory()->create(['present_rank' => 'DSP', 'state_of_origin' => 'Lagos']);
+        Staff::factory()->create(['present_rank' => 'ASP', 'state_of_origin' => 'Kano']);
+
+        $result = $this->service->getRankStats(['state_of_origin' => 'Lagos']);
+
+        $aspStats = collect($result)->firstWhere('label', 'ASP');
+        $dspStats = collect($result)->firstWhere('label', 'DSP');
+
+        $this->assertEquals(1, $aspStats['count']);
+        $this->assertEquals(1, $dspStats['count']);
+    }
+
+    public function test_state_of_origin_stats_filters_by_sex(): void
+    {
+        Staff::factory()->create(['state_of_origin' => 'Lagos', 'sex' => 'Male']);
+        Staff::factory()->create(['state_of_origin' => 'Lagos', 'sex' => 'Female']);
+        Staff::factory()->create(['state_of_origin' => 'Kano', 'sex' => 'Male']);
+
+        $result = $this->service->getStateOfOriginStats(['sex' => 'Male']);
+
+        $lagosStats = collect($result)->firstWhere('label', 'Lagos');
+        $kanoStats = collect($result)->firstWhere('label', 'Kano');
+
+        $this->assertEquals(1, $lagosStats['count']);
+        $this->assertEquals(1, $kanoStats['count']);
+    }
+
+    public function test_assigned_state_stats_filters_by_department(): void
+    {
+        Staff::factory()->create(['department' => 'Operations', 'assigned_state' => null]);
+        Staff::factory()->create(['department' => 'Operations', 'assigned_state' => null]);
+        Staff::factory()->create(['department' => 'Admin', 'assigned_state' => null]);
+
+        $result = $this->service->getAssignedStateStats(['department' => 'Operations']);
+
+        $unassignedStats = collect($result)->firstWhere('label', 'Unassigned');
+
+        $this->assertEquals(2, $unassignedStats['count']);
+    }
+
+    public function test_filters_combine_across_all_parameters(): void
+    {
+        Staff::factory()->create([
+            'sex' => 'Female',
+            'state_of_origin' => 'Lagos',
+            'department' => 'Operations',
+            'level' => 10,
+            'status' => 1,
+            'date_of_first_appointment' => '2021-05-15',
+        ]);
+        Staff::factory()->create([
+            'sex' => 'Female',
+            'state_of_origin' => 'Lagos',
+            'department' => 'Operations',
+            'level' => 10,
+            'status' => 1,
+            'date_of_first_appointment' => '2022-03-20',
+        ]);
+        Staff::factory()->create([
+            'sex' => 'Male',
+            'state_of_origin' => 'Lagos',
+            'department' => 'Operations',
+            'level' => 10,
+            'status' => 1,
+            'date_of_first_appointment' => '2021-08-10',
+        ]);
+
+        $result = $this->service->getAppointmentTrends([
+            'sex' => 'Female',
+            'state_of_origin' => 'Lagos',
+            'department' => 'Operations',
+            'level' => 10,
+            'status' => 1,
+            'year_from' => 2021,
+            'year_to' => 2022,
+        ]);
+
+        $this->assertEquals(2, $result['summary']['with_date']);
+    }
 }
