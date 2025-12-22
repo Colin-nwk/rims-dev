@@ -85,6 +85,7 @@ class UserAuthControllerTest extends TestCase
             'tokenable_type' => User::class,
         ]);
     }
+
     public function test_user_login_with_no_roles_returns_empty_arrays()
     {
         $user = User::factory()->create([
@@ -103,7 +104,7 @@ class UserAuthControllerTest extends TestCase
                 'data' => [
                     'roles' => [],
                     'permissions' => [],
-                ]
+                ],
             ]);
     }
 }

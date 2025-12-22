@@ -15,6 +15,20 @@ class StaffDetail extends Model
         'pfa_name',
         'pension_pin',
         'ippis',
+        'nin',
+        'bvn',
+        'place_of_birth',
+        'contact_address',
+        'permanent_home_address',
+        'height',
+        'blood_group',
+        'genotype',
+        'complexion',
+        'hair_colour',
+        'is_deformed',
+        'deformity',
+        'is_convicted',
+        'previous_convictions',
         'next_of_kin_name',
         'next_of_kin_phone',
         'next_of_kin_relationship',
@@ -25,7 +39,7 @@ class StaffDetail extends Model
         'number_of_children',
         'bank_name',
         'account_number',
-        'account_name'
+        'account_name',
     ];
 
     public function staff()

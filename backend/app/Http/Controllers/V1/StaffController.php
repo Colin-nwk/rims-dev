@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Staff;
 use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
+use App\Models\Staff;
 use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
@@ -16,6 +16,7 @@ class StaffController extends Controller
     use ApiResponseTrait, FileUploadTrait;
 
     protected $changeRequestService;
+
     protected $staffService;
 
     public function __construct(
@@ -28,15 +29,18 @@ class StaffController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('staff.view');
         $staff = $this->staffService->all($request->all());
+
         return $this->collectionResponse($staff);
     }
 
     public function store(StoreStaffRequest $request)
     {
+        $this->authorize('staff.create');
         try {
             $data = $request->validated();
-            
+
             if (isset($data['education']) && is_array($data['education'])) {
                 foreach ($data['education'] as $index => &$edu) {
                     if (isset($edu['url']) && $request->hasFile("education.{$index}.url")) {
@@ -80,14 +84,55 @@ class StaffController extends Controller
 
     public function show(Staff $staff)
     {
-        return $staff->load(['details', 'education']);
+        $this->authorize('staff.view');
+
+        return $this->successResponse($staff->load(['details', 'education']));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)
     {
+        // Allow if user has permission OR if user is updating their own record
+        $user = $request->user();
+        $isSelf = ($user instanceof Staff && $user->id === $staff->id) || ($user->service_no ?? null) === $staff->service_no;
+
+        if (! $isSelf) {
+            $this->authorize('staff.edit');
+        }
+
         try {
             $data = $request->validated();
 
+            $sensitiveFields = [
+                'dob',
+                'date_of_first_appointment',
+                'file_no',
+                'service_no',
+                'ippis',
+                'phone_number',
+                'email',
+            ];
+
+            $sensitivePayload = [];
+            $standardPayload = [];
+
+            foreach ($data as $key => $value) {
+                if (in_array($key, $sensitiveFields)) {
+                    $sensitivePayload[$key] = $value;
+                } elseif ($key === 'details' && is_array($value)) {
+                    // Check for sensitive fields inside details (like ippis)
+                    if (array_key_exists('ippis', $value)) {
+                        $sensitivePayload['details']['ippis'] = $value['ippis'];
+                        unset($value['ippis']);
+                    }
+                    if (! empty($value)) {
+                        $standardPayload['details'] = $value;
+                    }
+                } else {
+                    $standardPayload[$key] = $value;
+                }
+            }
+
+            // Handle file uploads (Photo is standard)
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
                 $serviceNo = $staff->service_no;
@@ -95,20 +140,35 @@ class StaffController extends Controller
                 $filename = "{$serviceNo}_photo_{$timestamp}";
                 $path = $this->uploadFile($file, 'photos', 'public', $filename);
                 if ($path) {
-                    $data['photo'] = $path;
+                    $standardPayload['photo'] = $path;
                 }
             }
 
-            $changeRequest = $this->changeRequestService->submit(
-                'App\Models\Staff',
-                'UPDATE',
-                $data,
-                $request->user(),
-                $staff->service_no,
-                $staff->id
-            );
+            $responses = [];
 
-            return $this->successResponse($changeRequest, 'Staff update request submitted for approval.');
+            if (! empty($sensitivePayload)) {
+                $responses['sensitive'] = $this->changeRequestService->submit(
+                    'App\Models\Staff',
+                    'SENSITIVE',
+                    $sensitivePayload,
+                    $request->user(),
+                    $staff->service_no,
+                    $staff->id
+                );
+            }
+
+            if (! empty($standardPayload)) {
+                $responses['standard'] = $this->changeRequestService->submit(
+                    'App\Models\Staff',
+                    'UPDATE',
+                    $standardPayload,
+                    $request->user(),
+                    $staff->service_no,
+                    $staff->id
+                );
+            }
+
+            return $this->successResponse($responses, 'Staff update request(s) submitted for approval.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -116,15 +176,18 @@ class StaffController extends Controller
 
     public function destroy(Staff $staff)
     {
+        $this->authorize('staff.delete');
         $staff->delete();
+
         return response()->noContent();
     }
 
     public function idCard(string $serviceNo)
     {
+        $this->authorize('staff.view');
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
 
-        if (!$staff) {
+        if (! $staff) {
             return $this->errorResponse('Staff not found.', 404);
         }
 
@@ -144,21 +207,21 @@ class StaffController extends Controller
 
     public function assignRole(Request $request, Staff $staff)
     {
+        $this->authorize('staff.delete');
         $request->validate([
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        $staff->roles()->syncWithoutDetaching([$request->role_id]);
-        $staff->flushRoleCache();
-        
+        $staff->assignRole($request->role_id);
+
         return $this->successResponse($staff->load('roles'), 'Role assigned successfully');
     }
 
     public function removeRole(Staff $staff, $roleId)
     {
-        $staff->roles()->detach($roleId);
-        $staff->flushRoleCache();
-        
+        $this->authorize('staff.delete');
+        $staff->removeRole($roleId);
+
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
     }
 }

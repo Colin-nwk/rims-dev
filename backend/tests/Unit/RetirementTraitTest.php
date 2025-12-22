@@ -23,7 +23,7 @@ class RetirementTraitTest extends TestCase
         // Age retirement = dob + 65 = now + 40 years
         // Service comes first
         $expectedRetirement = Carbon::now()->subYears(5)->addYears(35);
-        
+
         $this->assertEquals($expectedRetirement->format('Y-m-d'), $staff->retirement_date_formatted);
         $this->assertFalse($staff->is_retired);
         $this->assertEquals('active', $staff->retirement_time_remaining['status']);
@@ -41,7 +41,7 @@ class RetirementTraitTest extends TestCase
         // Age retirement = dob + 65 = now + 10 years
         // Age comes first
         $expectedRetirement = Carbon::now()->subYears(55)->addYears(65);
-        
+
         $this->assertEquals($expectedRetirement->format('Y-m-d'), $staff->retirement_date_formatted);
         $this->assertFalse($staff->is_retired);
     }
@@ -66,7 +66,7 @@ class RetirementTraitTest extends TestCase
         ]);
 
         $remaining = $staff->retirement_time_remaining;
-        
+
         $this->assertArrayHasKey('status', $remaining);
         $this->assertArrayHasKey('years', $remaining);
         $this->assertArrayHasKey('months', $remaining);

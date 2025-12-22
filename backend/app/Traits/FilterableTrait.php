@@ -3,21 +3,18 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 trait FilterableTrait
 {
     /**
      * Scope a query to filter results.
      *
-     * @param Builder $query
-     * @param array $filters
      * @return Builder
      */
     public function scopeFilter(Builder $query, array $filters)
     {
         // 1. Search
-        if (isset($filters['search']) && !empty($filters['search'])) {
+        if (isset($filters['search']) && ! empty($filters['search'])) {
             $search = $filters['search'];
             $searchable = $this->searchable ?? [];
 
@@ -40,8 +37,8 @@ trait FilterableTrait
         // Define allowable filters in $filterable property on model
         $filterable = $this->filterable ?? [];
         foreach ($filters as $key => $value) {
-            if (in_array($key, $filterable) && !is_null($value)) {
-                 $query->where($key, $value);
+            if (in_array($key, $filterable) && ! is_null($value)) {
+                $query->where($key, $value);
             }
         }
 
@@ -51,7 +48,7 @@ trait FilterableTrait
             $query->orderBy($filters['sort'], $sortDir);
         } else {
             // Default sort constraint if not present
-             $query->latest(); 
+            $query->latest();
         }
 
         return $query;

@@ -4,11 +4,10 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
-use App\Models\ComplaintMessage;
 use App\Models\Staff;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
 {
@@ -17,35 +16,35 @@ class ComplaintController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         // Start building the query
         $query = Complaint::with(['creator', 'messages']);
 
         // Check if user has permission to view all complaints (scoped)
         // AND didn't explicitly ask for their own only
-        if ($user->can('complaint.view') && !$request->has('mine')) {
+        if ($user->can('complaint.view') && ! $request->has('mine')) {
             // Apply Scope Limits based on User's Role
             // We filter based on the *creator's* location since Complaint doesn't have location columns
-            
+
             // Check for Scoped Constraints (State, Zone, Prison)
             // If the user is restricted to a specific scope, enforce it.
             // If they are scopeless (Super Admin), no enforcement.
-            
+
             // We need to resolve the effective scope of the user.
-            // Since a user might have multiple roles, we take the most permissive? 
+            // Since a user might have multiple roles, we take the most permissive?
             // Or typically, we restrict if *all* roles are restricted.
             // However, the Gate logic usually handles "Can I access this resource?".
             // For a list, we need to construct a query that matches "resources I can access".
-            
+
             // Simplified Approach: Users usually have one primary role scope or mutually exclusive scopes.
             // We'll check the user's attributes directly if they have AuthorizesScopedAccess trait.
-            
+
             // But wait, the Role defines the scope, not the User table directly (though trait reads User).
-            // Let's rely on the user's `roles` relationship to find the widest scope? 
+            // Let's rely on the user's `roles` relationship to find the widest scope?
             // Actually, the `AuthorizesScopedAccess` trait provided `getPrisonId` etc. based on the Model's attributes, not the Role pivot.
             // Checking `Staff` model: it has `prison`, `assigned_state`, `zone_id`.
             // So the Staff's location IS their scope.
-            
+
             $prisonId = $user->prison ?? null; // Adjust if column name differs
             $stateId = $user->assigned_state ?? null;
             $zoneId = $user->zone_id ?? null;
@@ -56,7 +55,7 @@ class ComplaintController extends Controller
             // We check if they have ANY role that is 'scopeless'.
             $isScopeless = $user->roles()->where('scopeless', true)->exists();
 
-            if (!$isScopeless) {
+            if (! $isScopeless) {
                 $query->whereHas('creator', function ($q) use ($prisonId, $stateId, $zoneId) {
                     if ($prisonId) {
                         $q->where('prison', $prisonId);
@@ -70,13 +69,13 @@ class ComplaintController extends Controller
 
             // Apply Requested Filters (e.g. Admin filtering by State/Zone)
             if ($request->has('state_id')) {
-                $query->whereHas('creator', fn($q) => $q->where('assigned_state', $request->state_id));
+                $query->whereHas('creator', fn ($q) => $q->where('assigned_state', $request->state_id));
             }
             if ($request->has('zone_id')) {
-                $query->whereHas('creator', fn($q) => $q->where('zone_id', $request->zone_id));
+                $query->whereHas('creator', fn ($q) => $q->where('zone_id', $request->zone_id));
             }
             if ($request->has('prison_id')) {
-                $query->whereHas('creator', fn($q) => $q->where('prison', $request->prison_id));
+                $query->whereHas('creator', fn ($q) => $q->where('prison', $request->prison_id));
             }
 
         } else {
@@ -119,6 +118,7 @@ class ComplaintController extends Controller
     public function show(Complaint $complaint): JsonResponse
     {
         $complaint->load(['creator', 'messages']);
+
         return $this->successResponse($complaint);
     }
 
@@ -170,6 +170,7 @@ class ComplaintController extends Controller
         $this->authorize('complaint.delete', $complaint);
 
         $complaint->delete();
+
         return $this->successResponse(null, 'Complaint deleted successfully');
     }
 }

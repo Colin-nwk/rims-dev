@@ -21,17 +21,21 @@ class ChangeRequestController extends Controller
 
     public function index(Request $request)
     {
-        $requests = ChangeRequest::filter($request->all())
+        $requests = ChangeRequest::visibleTo($request->user())
+            ->filter($request->all())
             ->latest()
             ->paginate($request->per_page ?? 15);
+
         return $this->collectionResponse($requests);
     }
 
     public function approve(Request $request, $id)
     {
+        $this->authorize('change_request.approve');
         try {
-            $approverId = $request->user()->id; 
+            $approverId = $request->user()->id;
             $result = $this->changeRequestService->approve($id, $approverId);
+
             return $this->successResponse($result, 'Request approved and executed successfully.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);
@@ -40,11 +44,13 @@ class ChangeRequestController extends Controller
 
     public function reject(Request $request, $id)
     {
+        $this->authorize('change_request.reject');
         $request->validate(['reason' => 'required|string']);
 
         try {
             $approverId = $request->user()->id;
             $result = $this->changeRequestService->reject($id, $approverId, $request->reason);
+
             return $this->successResponse($result, 'Request rejected.');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);

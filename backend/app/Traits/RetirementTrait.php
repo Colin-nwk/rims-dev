@@ -14,7 +14,7 @@ trait RetirementTrait
      */
     public function getRetirementDateAttribute(): ?Carbon
     {
-        if (!$this->dob || !$this->date_of_first_appointment) {
+        if (! $this->dob || ! $this->date_of_first_appointment) {
             return null;
         }
 
@@ -37,9 +37,10 @@ trait RetirementTrait
      */
     public function getIsRetiredAttribute(): bool
     {
-        if (!$this->retirement_date) {
+        if (! $this->retirement_date) {
             return false;
         }
+
         return Carbon::now()->gte($this->retirement_date);
     }
 
@@ -48,7 +49,7 @@ trait RetirementTrait
      */
     public function getRetirementTimeRemainingAttribute(): ?array
     {
-        if (!$this->retirement_date) {
+        if (! $this->retirement_date) {
             return null;
         }
 
@@ -72,7 +73,7 @@ trait RetirementTrait
             'years' => $diff->y,
             'months' => $diff->m,
             'days' => $diff->d,
-            'human_readable' => $diff->y . ' years, ' . $diff->m . ' months, ' . $diff->d . ' days remaining',
+            'human_readable' => $diff->y.' years, '.$diff->m.' months, '.$diff->d.' days remaining',
         ];
     }
 }

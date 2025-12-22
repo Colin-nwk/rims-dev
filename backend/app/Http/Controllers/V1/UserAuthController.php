@@ -25,12 +25,16 @@ class UserAuthController extends Controller
             return $this->errorResponse('Invalid login details', 401);
         }
 
+        if ($user->status != 1) {
+            return $this->errorResponse('Account is deactivated', 403);
+        }
+
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $user->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
-        
+
         $tokenInstance->accessToken->forceFill([
-            'ip_address' => $request->ip()
+            'ip_address' => $request->ip(),
         ])->save();
 
         return $this->successResponse([

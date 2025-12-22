@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Staff;
-use App\Models\ChangeRequest;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -29,10 +28,24 @@ class StaffService extends BaseService
                 $staff->details()->create($data['details']);
             }
 
-            // Create Education
+            // Create Education - enforce one record per type (except 'Other')
             if (isset($data['education']) && is_array($data['education'])) {
                 foreach ($data['education'] as $edu) {
-                    $staff->education()->create($edu);
+                    $type = $edu['type'] ?? null;
+                    if (! $type) {
+                        continue;
+                    }
+
+                    if (strtolower($type) === 'other') {
+                        // 'Other' type can have multiple records
+                        $staff->education()->create($edu);
+                    } else {
+                        // For all other types, only one record per type allowed
+                        $staff->education()->updateOrCreate(
+                            ['service_no' => $staff->service_no, 'type' => $type],
+                            $edu
+                        );
+                    }
                 }
             }
 
@@ -62,16 +75,28 @@ class StaffService extends BaseService
                 );
             }
 
-            // Update Education - Strategy: Delete all and recreate? Or smart update?
-            // For simplicity and avoiding complex ID matching, we'll wipe and recreate for now, 
-            // OR if IDs are provided, update. 
-            // Simplest robust approach for this context:
+            // Update Education - Smart update by type
+            // Rules: Only one record per type (except 'Other' which allows multiple)
+            // - If type exists: update the existing record
+            // - If type doesn't exist: create new record
+            // - 'Other' type: always create new (never update)
             if (isset($data['education']) && is_array($data['education'])) {
-                // Determine if we are replacing all or adding/updating.
-                // Assuming full replacement of the list for simplicity in this iteration.
-                $staff->education()->delete();
                 foreach ($data['education'] as $edu) {
-                    $staff->education()->create($edu);
+                    $type = $edu['type'] ?? null;
+                    if (! $type) {
+                        continue;
+                    }
+
+                    if (strtolower($type) === 'other') {
+                        // 'Other' type can have multiple records - always create
+                        $staff->education()->create($edu);
+                    } else {
+                        // For all other types, only one record per type allowed
+                        $staff->education()->updateOrCreate(
+                            ['service_no' => $staff->service_no, 'type' => $type],
+                            $edu
+                        );
+                    }
                 }
             }
 
@@ -82,6 +107,7 @@ class StaffService extends BaseService
     public function delete($id)
     {
         $staff = $this->find($id);
+
         return $staff->delete();
     }
 
@@ -103,13 +129,13 @@ class StaffService extends BaseService
     public function executeRequest($request)
     {
         $data = $request->data;
-        
+
         if ($request->type === 'CREATE') {
             return $this->create($data);
-        } elseif ($request->type === 'UPDATE') {
+        } elseif ($request->type === 'UPDATE' || $request->type === 'SENSITIVE') {
             return $this->update($request->model_id, $data);
         }
-        
-        throw new Exception("Invalid request type: " . $request->type);
+
+        throw new Exception('Invalid request type: '.$request->type);
     }
 }

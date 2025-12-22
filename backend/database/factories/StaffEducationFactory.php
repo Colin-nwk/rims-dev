@@ -17,7 +17,7 @@ class StaffEducationFactory extends Factory
     public function definition(): array
     {
         return [
-            'institution' => $this->faker->city() . ' University',
+            'institution' => $this->faker->city().' University',
             'course' => $this->faker->jobTitle(),
             'type' => $this->faker->randomElement(['Primary', 'Secondary', 'Bachelors', 'Masters', 'PhD', 'Certification']),
             'start_date' => $this->faker->date(),

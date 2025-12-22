@@ -5,11 +5,8 @@ namespace Tests\Feature\Services;
 use App\Models\Staff;
 use App\Models\StaffDetail;
 use App\Models\StaffEducation;
-use App\Models\User;
 use App\Services\StaffService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StaffServiceTest extends TestCase
@@ -42,9 +39,9 @@ class StaffServiceTest extends TestCase
                     'institution' => 'Test Uni',
                     'type' => 'BSc',
                     'start_date' => '2010-01-01',
-                    'url' => 'uploads/degree.pdf'
-                ]
-            ]
+                    'url' => 'uploads/degree.pdf',
+                ],
+            ],
         ];
 
         $staff = $this->staffService->create($data);
@@ -65,8 +62,8 @@ class StaffServiceTest extends TestCase
         $updateData = [
             'surname' => 'NewName',
             'details' => [
-                'pfa_name' => 'New PFA'
-            ]
+                'pfa_name' => 'New PFA',
+            ],
         ];
 
         $updatedStaff = $this->staffService->update($staff->id, $updateData);
