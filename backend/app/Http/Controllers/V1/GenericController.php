@@ -25,6 +25,10 @@ class GenericController extends Controller
             'prisons' => \App\Models\Prison::class,
             'degree_types' => \App\Models\DegreeType::class,
             'rankings' => \App\Models\Ranking::class,
+            'blood_groups' => \App\Models\BloodGroup::class,
+            'blood_genotypes' => \App\Models\BloodGenotype::class,
+            'complexions' => \App\Models\Complexion::class,
+            'hair_colours' => \App\Models\HairColour::class,
         ];
 
         if (! isset($models[$name])) {

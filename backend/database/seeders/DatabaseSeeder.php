@@ -23,6 +23,15 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            // Reference data seeders (run first)
+            BloodGroupSeeder::class,
+            BloodGenotypeSeeder::class,
+            ComplexionSeeder::class,
+            HairColourSeeder::class,
+            DegreeTypeSeeder::class,
+            RankingSeeder::class,
+
+            // Main data seeders
             StaffSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
