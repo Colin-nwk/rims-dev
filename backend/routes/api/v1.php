@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use App\Http\Controllers\V1\StaffAuthController;
 use App\Http\Controllers\V1\StaffController;
+use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
 use Illuminate\Http\Request;
@@ -70,6 +71,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Dashboard ---
     Route::get('dashboard', [DashboardController::class, 'index']);
+
+    // --- Statistics ---
+    Route::prefix('statistics')->group(function () {
+        Route::get('/', [StatisticsController::class, 'index']);
+        Route::get('gender', [StatisticsController::class, 'gender']);
+        Route::get('marital-status', [StatisticsController::class, 'maritalStatus']);
+        Route::get('state-of-origin', [StatisticsController::class, 'stateOfOrigin']);
+        Route::get('assigned-state', [StatisticsController::class, 'assignedState']);
+        Route::get('rank', [StatisticsController::class, 'rank']);
+        Route::get('education-type', [StatisticsController::class, 'educationType']);
+        Route::get('appointment-trends', [StatisticsController::class, 'appointmentTrends']);
+    });
 
     // --- Staff Management ---
     Route::apiResource('staff', StaffController::class);

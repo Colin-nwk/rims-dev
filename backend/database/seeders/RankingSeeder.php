@@ -17,9 +17,9 @@ class RankingSeeder extends Seeder
             'CA I', 'CA II', 'CA III',
         ];
 
-        foreach ($types as $type) {
+        foreach ($ranks as $rank) {
             \App\Models\Ranking::firstOrCreate(
-                ['title' => $type],
+                ['title' => $rank],
                 ['status' => 1]
             );
         }

@@ -16,6 +16,26 @@ class StaffFactory extends Factory
      */
     public function definition(): array
     {
+        $nigerianStates = [
+            'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa',
+            'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo',
+            'Ekiti', 'Enugu', 'Gombe', 'Imo', 'Jigawa', 'Kaduna',
+            'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos',
+            'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo',
+            'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
+            'FCT',
+        ];
+
+        $lgas = [
+            'Aba North', 'Aba South', 'Ikeja', 'Surulere', 'Yaba', 'Apapa',
+            'Mushin', 'Alimosho', 'Oshodi-Isolo', 'Kosofe', 'Ikorodu',
+            'Enugu North', 'Enugu South', 'Nsukka', 'Udi', 'Awka North',
+            'Awka South', 'Onitsha North', 'Onitsha South', 'Owerri Municipal',
+            'Owerri North', 'Port Harcourt', 'Obio-Akpor', 'Eleme', 'Ikwerre',
+            'Kaduna North', 'Kaduna South', 'Zaria', 'Kano Municipal', 'Gwale',
+            'Tarauni', 'Kumbotso', 'Jos North', 'Jos South', 'Abuja Municipal',
+        ];
+
         return [
             'service_no' => $this->faker->unique()->regexify('[A-Z]{3}[0-9]{5}'),
             'email' => $this->faker->unique()->safeEmail(),
@@ -26,11 +46,11 @@ class StaffFactory extends Factory
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'initial_rank' => $this->faker->word(),
             'present_rank' => $this->faker->word(),
-            'level' => $this->faker->bothify('GL-##'),
+            'level' => $this->faker->numberBetween(1, 17), // Changed to integer
             'dob' => $this->faker->date(),
             'date_of_first_appointment' => $this->faker->date(),
-            'state_of_origin' => $this->faker->state(),
-            'lga' => $this->faker->city(),
+            'state_of_origin' => $this->faker->randomElement($nigerianStates),
+            'lga' => $this->faker->randomElement($lgas),
             'department' => $this->faker->word(),
             'file_no' => $this->faker->bothify('FILE-####'),
             'duty' => $this->faker->jobTitle(),
