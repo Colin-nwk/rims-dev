@@ -40,10 +40,9 @@ Route::prefix('user')->group(function () {
     Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
 });
 
-// Generic Read-Only Resources (Zones, States, Prisons)
-Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons');
-Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons');
-
+// Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings)
+Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings');
+Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings');
 
 // ==============================================================================
 // PROTECTED ROUTES (Sanctum Auth)
@@ -53,12 +52,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Authentication & Profile ---
     Route::post('logout', [AuthController::class, 'logout']);
-    
+
     // User Context
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
     // Legacy Staff Profile Endpoint (kept for compatibility)
     Route::prefix('staff')->group(function () {
         Route::get('user', fn (Request $request) => $request->user());
@@ -69,17 +68,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', fn (Request $request) => $request->user());
     });
 
-
     // --- Dashboard ---
     Route::get('dashboard', [DashboardController::class, 'index']);
-
 
     // --- Staff Management ---
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
     Route::delete('staff/{staff}/roles/{role}', [StaffController::class, 'removeRole']);
-
 
     // --- User Management ---
     Route::prefix('user')->group(function () {
@@ -88,7 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('users/{user}/roles/{role}', [UserController::class, 'removeRole']);
     });
 
-
     // --- Role & Permission Management (RBAC) ---
     Route::apiResource('roles', RoleController::class);
     Route::post('roles/{role}/permissions/sync', [RoleController::class, 'syncPermissions']);
@@ -96,22 +91,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('roles/{role}/permissions/detach', [RoleController::class, 'detachPermission']);
     Route::get('permissions', [PermissionController::class, 'index']);
 
-
     // --- Change Request Management ---
     Route::get('change-requests', [ChangeRequestController::class, 'index']);
     Route::post('change-requests/{id}/approve', [ChangeRequestController::class, 'approve']);
     Route::post('change-requests/{id}/reject', [ChangeRequestController::class, 'reject']);
-
 
     // --- Complaint / Ticketing System ---
     Route::apiResource('complaints', ComplaintController::class)->except(['update']);
     Route::patch('complaints/{complaint}/status', [ComplaintController::class, 'updateStatus']);
     Route::post('complaints/{complaint}/messages', [ComplaintController::class, 'addMessage']);
 
-
     // --- Generic Resources (Write) ---
-    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons');
-    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons');
-    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons');
+    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings');
+    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings');
+    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings');
 
 });
