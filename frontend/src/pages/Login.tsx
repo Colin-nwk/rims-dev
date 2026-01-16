@@ -25,7 +25,7 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
     await login(email, 'staff');
-    navigate('/');
+    navigate('/demo');
     setIsSubmitting(false);
   };
 
