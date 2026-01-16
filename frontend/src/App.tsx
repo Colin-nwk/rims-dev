@@ -17,6 +17,7 @@ import DemoApp, {
   type ApprovalContextType,
   type ComplaintContextType,
 } from './DemoApp';
+import { QueryProvider } from './providers/QueryProvider';
 
 // Re-export types for backwards compatibility
 export type {
@@ -46,23 +47,25 @@ export const useComplaints = useDemoComplaints;
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Demo routes - preserved for reference during migration */}
-        <Route path="/demo/*" element={<DemoApp />} />
+    <QueryProvider>
+      <Router>
+        <Routes>
+          {/* Demo routes - preserved for reference during migration */}
+          <Route path="/demo/*" element={<DemoApp />} />
 
-        {/* Production routes - add your new routes here as you migrate */}
-        {/* Example:
-        <Route path="/dashboard" element={<ProductionDashboard />} />
-        <Route path="/login" element={<ProductionLogin />} />
-        */}
+          {/* Production routes - add your new routes here as you migrate */}
+          {/* Example:
+          <Route path="/dashboard" element={<ProductionDashboard />} />
+          <Route path="/login" element={<ProductionLogin />} />
+          */}
 
-        {/* Default redirect - change this to your production home once ready */}
-        <Route path="/" element={<Navigate to="/demo" replace />} />
+          {/* Default redirect - change this to your production home once ready */}
+          <Route path="/" element={<Navigate to="/demo" replace />} />
 
-        {/* Catch-all redirect to demo for now */}
-        {/* <Route path="*" element={<Navigate to="/demo" replace />} /> */}
-      </Routes>
-    </Router>
+          {/* Catch-all redirect to demo for now */}
+          {/* <Route path="*" element={<Navigate to="/demo" replace />} */}
+        </Routes>
+      </Router>
+    </QueryProvider>
   );
 }
