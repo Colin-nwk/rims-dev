@@ -163,6 +163,59 @@ export function createQueryHooks<T, CreateDTO = Partial<T>, UpdateDTO = Partial<
     },
 
     /**
+     * Hook for creating item with file(s)
+     */
+    useCreateWithFiles: (
+      mutationOptions?: UseMutationOptions<
+        ApiResponse<T>,
+        ApiError,
+        { data: CreateDTO; files: File | File[]; fileFieldName?: string; options?: UploadOptions }
+      >
+    ) => {
+      const queryClient = useQueryClient();
+
+      return useMutation<
+        ApiResponse<T>,
+        ApiError,
+        { data: CreateDTO; files: File | File[]; fileFieldName?: string; options?: UploadOptions }
+      >({
+        mutationFn: ({ data, files, fileFieldName = 'file', options }) =>
+          service.createWithFiles(data, files, fileFieldName, options),
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: [queryKey] });
+        },
+        ...mutationOptions,
+      });
+    },
+
+    /**
+     * Hook for updating item with file(s)
+     */
+    useUpdateWithFiles: (
+      mutationOptions?: UseMutationOptions<
+        ApiResponse<T>,
+        ApiError,
+        { id: string | number; data: UpdateDTO; files: File | File[]; fileFieldName?: string; options?: UploadOptions }
+      >
+    ) => {
+      const queryClient = useQueryClient();
+
+      return useMutation<
+        ApiResponse<T>,
+        ApiError,
+        { id: string | number; data: UpdateDTO; files: File | File[]; fileFieldName?: string; options?: UploadOptions }
+      >({
+        mutationFn: ({ id, data, files, fileFieldName = 'file', options }) =>
+          service.updateWithFiles(id, data, files, fileFieldName, options),
+        onSuccess: (_, variables) => {
+          queryClient.invalidateQueries({ queryKey: [queryKey] });
+          queryClient.invalidateQueries({ queryKey: [queryKey, 'detail', variables.id] });
+        },
+        ...mutationOptions,
+      });
+    },
+
+    /**
      * Get the query key for manual invalidation
      */
     queryKey,

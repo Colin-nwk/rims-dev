@@ -2,6 +2,51 @@ import { apiClient } from './apiClient';
 import { ApiResponse, PaginatedResponse, QueryOptions, FilterConfig, UploadOptions } from './types';
 
 /**
+ * Builds FormData from data object and files
+ */
+function buildFormData(
+  data: Record<string, unknown>,
+  files: File | File[],
+  fileFieldName: string
+): FormData {
+  const formData = new FormData();
+
+  // Append data fields
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (item instanceof File) {
+          formData.append(`${key}[${index}]`, item);
+        } else if (typeof item === 'object') {
+          formData.append(`${key}[${index}]`, JSON.stringify(item));
+        } else {
+          formData.append(`${key}[${index}]`, String(item));
+        }
+      });
+    } else if (value instanceof File) {
+      formData.append(key, value);
+    } else if (typeof value === 'object') {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+
+  // Append files
+  if (Array.isArray(files)) {
+    files.forEach((file, index) => {
+      formData.append(`${fileFieldName}[${index}]`, file);
+    });
+  } else {
+    formData.append(fileFieldName, files);
+  }
+
+  return formData;
+}
+
+/**
  * Creates a reusable service with CRUD operations for a given endpoint
  */
 export function createService<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>>(endpoint: string) {
@@ -133,6 +178,59 @@ export function createService<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>>
       options?: UploadOptions
     ): Promise<ApiResponse<T>> {
       return this.upload(files, options, `${endpoint}/${id}/upload`);
+    },
+
+    /**
+     * Create new item with file(s) - sends as multipart/form-data
+     */
+    async createWithFiles(
+      data: CreateDTO,
+      files: File | File[],
+      fileFieldName = 'file',
+      options?: UploadOptions
+    ): Promise<ApiResponse<T>> {
+      const formData = buildFormData(data as Record<string, unknown>, files, fileFieldName);
+
+      const response = await apiClient.post<ApiResponse<T>>(endpoint, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: options?.onProgress
+          ? (progressEvent) => {
+              const progress = progressEvent.total
+                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                : 0;
+              options.onProgress!(progress);
+            }
+          : undefined,
+      });
+      return response.data;
+    },
+
+    /**
+     * Update item with file(s) - sends as multipart/form-data
+     */
+    async updateWithFiles(
+      id: string | number,
+      data: UpdateDTO,
+      files: File | File[],
+      fileFieldName = 'file',
+      options?: UploadOptions
+    ): Promise<ApiResponse<T>> {
+      const formData = buildFormData(data as Record<string, unknown>, files, fileFieldName);
+      // Laravel/PHP needs _method for PUT with FormData
+      formData.append('_method', 'PUT');
+
+      const response = await apiClient.post<ApiResponse<T>>(`${endpoint}/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: options?.onProgress
+          ? (progressEvent) => {
+              const progress = progressEvent.total
+                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                : 0;
+              options.onProgress!(progress);
+            }
+          : undefined,
+      });
+      return response.data;
     },
   };
 }
