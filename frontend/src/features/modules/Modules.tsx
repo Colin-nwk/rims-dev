@@ -47,6 +47,13 @@ const Modules = () => {
     const { mutate: logout, isPending } = useLogout();
     const navigate = useNavigate();
 
+    // Determine display name based on user type
+    const displayName = user
+        ? 'name' in user
+            ? user.name
+            : `${user.first_name} ${user.surname}`
+        : '';
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-navy-950 p-4 sm:p-8 transition-colors duration-200">
             {/* Header */}
@@ -61,18 +68,17 @@ const Modules = () => {
                     {user && (
                         <>
                             <div className="hidden sm:block text-right mr-2">
-                                <p className="text-sm font-medium text-navy-900 dark:text-white">{user.name}</p>
+                                <p className="text-sm font-medium text-navy-900 dark:text-white">{displayName}</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{roles.join(', ')}</p>
                             </div>
-                            {/* <img
-                                src={user || `https://ui-avatars.com/api/?name=${user.email}&background=fbbf24&color=0f172a`}
-                                alt="Profile"
-                                className="w-10 h-10 rounded-full border-2 border-white dark:border-navy-700 shadow-xs object-cover"
-                            /> */}
                         </>
                     )}
-                    <button onClick={() => logout} className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 ml-2">
-                        Sign Out
+                    <button
+                        onClick={() => logout()}
+                        disabled={isPending}
+                        className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 ml-2 disabled:opacity-50"
+                    >
+                        {isPending ? 'Signing Out...' : 'Sign Out'}
                     </button>
                 </div>
             </div>
@@ -80,7 +86,7 @@ const Modules = () => {
             {/* Grid */}
             <div className="max-w-6xl mx-auto">
                 <div className="mb-8 animate-in fade-in slide-in-from-left-4 duration-500 delay-100">
-                    <h1 className="text-3xl font-medium text-navy-900 dark:text-white">Welcome, {user?.email}</h1>
+                    <h1 className="text-3xl font-medium text-navy-900 dark:text-white">Welcome, {displayName}</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-2">Select a module to continue.</p>
                 </div>
 
