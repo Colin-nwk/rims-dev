@@ -34,9 +34,9 @@ import { useUserProfile } from '@/hooks/useAuth';
 
 interface LayoutProps {
     children: React.ReactNode;
-    user: User;
-    onLogout: () => void;
-    pendingApprovals?: number;
+    // user: User;
+    // onLogout: () => void;
+    // pendingApprovals?: number;
 }
 
 const NavigationItem = ({
@@ -411,7 +411,7 @@ export const MainLayout: React.FC<LayoutProps> = ({ children }) => {
                             >
                                 <div className="relative">
                                     <img
-                                        src={user?.photo || `https://ui-avatars.com/api/?name=${displayName}&background=fbbf24&color=0f172a`}
+                                        src={(user && 'photo' in user ? user.photo : null) || `https://ui-avatars.com/api/?name=${displayName}&background=fbbf24&color=0f172a`}
                                         alt="Profile"
                                         className="w-8 h-8 rounded-full border-2 border-white dark:border-navy-700 shadow-xs object-cover group-hover:scale-105 transition-transform"
                                     />

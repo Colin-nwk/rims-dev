@@ -1,3 +1,4 @@
+import { MainLayout } from '@/layouts/MainLayout';
 import { authService } from '@/services/authService';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 // import { authService } from '../../services/authService';
@@ -17,6 +18,11 @@ export function ProtectedRoute({ redirectTo = '/login' }: ProtectedRouteProps) {
     if (!isAuthenticated) {
         return <Navigate to={redirectTo} state={{ from: location }} replace />;
     }
+
+    // return (
+    //     <MainLayout>
+    //     <Outlet />
+    //     </MainLayout>);
 
     return <Outlet />;
 }

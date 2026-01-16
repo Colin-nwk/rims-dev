@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/layouts';
 import StaffLogin from '@/features/auth/StaffLogin';
 import AdminLogin from '@/features/auth/AdminLogin';
 import Modules from '@/features/modules/Modules';
+import { MainLayout } from '@/layouts/MainLayout';
 // import { DashboardLayout } from '../layouts/DashboardLayout';
 
 // Lazy load pages for code splitting
@@ -54,9 +55,9 @@ export const productionRoutes: RouteObject[] = [
         element: <ProtectedRoute />,
         children: [
             {
-                element: <DashboardLayout />,
+                element: <MainLayout />,
                 children: [
-                    // { path: '/dashboard', element: <Dashboard /> },
+                    { path: '/test', element: <p>Hello</p> },
                     // { path: '/profile', element: <Profile /> },
                     // { path: '/settings', element: <Settings /> },
 
