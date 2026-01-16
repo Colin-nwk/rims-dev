@@ -54,6 +54,12 @@ class Staff extends Authenticatable
         'file_no',
     ];
 
+
+     protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected $appends = [
         'retirement_date_formatted',
         'is_retired',
