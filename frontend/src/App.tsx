@@ -20,6 +20,9 @@ import DemoApp, {
 import { QueryProvider } from './providers/QueryProvider';
 import { ToastProvider } from './providers/ToastProvider';
 import { productionRoutes } from './routes';
+import { AuthProvider } from './contexts/AuthContext';
+// import { AuthProvider } from './contexts/AuthContext'; // Import AuthProvider
+
 
 // Re-export types for backwards compatibility
 export type {
@@ -57,20 +60,23 @@ function ProductionRoutes() {
 export default function App() {
   return (
     <QueryProvider>
-      <ToastProvider>
-        <Router>
-          <Routes>
-            {/* Demo routes - preserved for reference during migration */}
-            <Route path="/demo/*" element={<DemoApp />} />
+      <AuthProvider>
 
-            {/* Production routes */}
-            <Route path="/*" element={<ProductionRoutes />} />
+        <ToastProvider>
+          <Router>
+            <Routes>
+              {/* Demo routes - preserved for reference during migration */}
+              <Route path="/demo/*" element={<DemoApp />} />
 
-            {/* Default redirect - change this once production is ready */}
-            <Route path="/" element={<Navigate to="/demo" replace />} />
-          </Routes>
-        </Router>
-      </ToastProvider>
+              {/* Production routes */}
+              <Route path="/*" element={<ProductionRoutes />} />
+
+              {/* Default redirect - change this once production is ready */}
+              <Route path="/" element={<Navigate to="/demo" replace />} />
+            </Routes>
+          </Router>
+        </ToastProvider>
+      </AuthProvider>
     </QueryProvider>
   );
 }

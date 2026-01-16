@@ -4,6 +4,7 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts';
 import StaffLogin from '@/features/auth/StaffLogin';
 import AdminLogin from '@/features/auth/AdminLogin';
+import Modules from '@/features/modules/Modules';
 // import { DashboardLayout } from '../layouts/DashboardLayout';
 
 // Lazy load pages for code splitting
@@ -28,6 +29,10 @@ export const productionRoutes: RouteObject[] = [
     {
         path: '/admin/login',
         element: <AdminLogin />
+    },
+    {
+        path: '/modules',
+        element: <Modules />
     },
     // {
     //     element: <GuestRoute />,

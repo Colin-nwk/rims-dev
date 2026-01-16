@@ -15,8 +15,8 @@ export interface AdminLoginRequest {
 // Base user fields that both types share
 interface BaseUser {
   id: number;
-  email: string;
-  status: number;
+  email?: string;
+  status?: number;
   created_at: string;
   updated_at: string;
 }
