@@ -153,6 +153,15 @@ export const authService = {
   getToken(): string | null {
     return localStorage.getItem('auth_token');
   },
+
+  getDisplayName(user: StaffUser | AdminUser | null | undefined): string {
+    if (!user) return '';
+    if ('service_no' in user) {
+      return `${user.first_name} ${user.surname}`;
+    }
+    // AdminUser has 'name'
+    return (user as AdminUser).name || ''; 
+  },
 };
 
 

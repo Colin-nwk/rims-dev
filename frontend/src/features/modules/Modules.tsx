@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Building2, Wallet, Box, ArrowRight, LayoutGrid } from 'lucide-react';
 import { useProductionAuth } from '@/contexts/AuthContext';
-import { useLogout } from '@/hooks/useAuth';
+import { useLogout, useUserProfile } from '@/hooks/useAuth';
 
 
 const ModuleCard = ({ title, description, icon: Icon, onClick, color, active }: any) => (
@@ -45,14 +45,8 @@ const ModuleCard = ({ title, description, icon: Icon, onClick, color, active }: 
 const Modules = () => {
     const { user, roles, isAdmin, isStaff } = useProductionAuth();
     const { mutate: logout, isPending } = useLogout();
+    const { displayName } = useUserProfile();
     const navigate = useNavigate();
-
-    // Determine display name based on user type
-    const displayName = user
-        ? 'name' in user
-            ? user.name
-            : `${user.first_name} ${user.surname}`
-        : '';
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-navy-950 p-4 sm:p-8 transition-colors duration-200">

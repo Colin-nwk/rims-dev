@@ -115,6 +115,35 @@ export function useIsAdmin() {
   const { data: user } = useAuthUser();
   return user ? 'name' in user && !('service_no' in user) : false;
 }
+
+/**
+ * Hook for getting formatted user profile information
+ * abstracts away differences between StaffUser and AdminUser
+ */
+export function useUserProfile() {
+  const { data: user, isLoading } = useAuthUser();
+
+  const displayName = authService.getDisplayName(user);
+  
+  const initials = displayName
+    ? displayName
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '';
+
+  return {
+    user,
+    isLoading,
+    displayName,
+    initials,
+    email: user?.email,
+    isStaff: user ? 'service_no' in user : false,
+    isAdmin: user ? !('service_no' in user) : false,
+  };
+}
 /*
 * ----- TODO: OLD ------*
  * 
