@@ -21,7 +21,7 @@ class StaffAuthController extends Controller
         $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
-            return $this->errorResponse('Invalid login details', 401);
+            return $this->errorResponse('Invalid login details', 422);
         }
 
         if ($staff->status != 1) {
@@ -56,7 +56,7 @@ class StaffAuthController extends Controller
         $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
-            return $this->errorResponse('Invalid login details', 401);
+            return $this->errorResponse('Invalid login details', 422);
         }
 
         if ($staff->status != 1) {

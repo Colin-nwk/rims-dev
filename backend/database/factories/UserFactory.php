@@ -33,6 +33,26 @@ class UserFactory extends Factory
     }
 
     /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $role = \App\Models\Role::firstOrCreate(
+                ['slug' => 'super-admin'],
+                [
+                    'name' => 'Super Administrator',
+                    'scopeless' => true,
+                ]
+            );
+
+            $role->permissions()->sync(\App\Models\Permission::all());
+
+            $user->assignRole($role->id);
+        });
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static

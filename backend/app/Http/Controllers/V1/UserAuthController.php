@@ -22,7 +22,7 @@ class UserAuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return $this->errorResponse('Invalid login details', 401);
+            return $this->errorResponse('Invalid login details', 422);
         }
 
         if ($user->status != 1) {
