@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\FilterableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\FilterableTrait;
 
 class Complaint extends Model
 {
-    use HasFactory, FilterableTrait;
+    use FilterableTrait, HasFactory;
 
     protected $searchable = [
         'subject',

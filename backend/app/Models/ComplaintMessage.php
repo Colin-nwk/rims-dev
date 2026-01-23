@@ -43,16 +43,18 @@ class ComplaintMessage extends Model
     public function getSenderNameAttribute(): ?string
     {
         $sender = $this->sender;
-        if (!$sender) return 'Unknown';
-        
+        if (! $sender) {
+            return 'Unknown';
+        }
+
         if ($sender instanceof Staff) {
             return "{$sender->first_name} {$sender->surname}";
         }
-        
+
         if ($sender instanceof User) {
             return $sender->name;
         }
-        
+
         return 'Unknown';
     }
 
@@ -61,6 +63,7 @@ class ComplaintMessage extends Model
         if ($this->sender_type === User::class) {
             return 'admin';
         }
+
         return 'staff';
     }
 

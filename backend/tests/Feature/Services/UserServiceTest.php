@@ -25,7 +25,7 @@ class UserServiceTest extends TestCase
         $data = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => 'secret123'
+            'password' => 'secret123',
         ];
 
         $user = $this->userService->create($data);

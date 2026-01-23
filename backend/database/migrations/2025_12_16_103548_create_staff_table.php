@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('service_no')->unique();
             $table->string('email')->nullable();
             $table->string('password')->nullable();
+            $table->string('phone_number')->nullable();
             $table->unsignedBigInteger('assigned_state')->nullable();
             $table->unsignedBigInteger('prison')->nullable();
             $table->string('surname')->nullable();
@@ -24,9 +25,14 @@ return new class extends Migration
             $table->string('sex')->nullable();
             $table->string('initial_rank')->nullable();
             $table->string('present_rank')->nullable();
-            $table->string('level')->nullable();
+            $table->integer('level')->nullable();
+            $table->string('step')->nullable();
             $table->date('dob')->nullable();
             $table->date('date_of_first_appointment')->nullable();
+            $table->date('present_appointment_date')->nullable();
+            $table->date('command_post_date')->nullable();
+            $table->string('initial_command')->nullable();
+            $table->string('present_command')->nullable();
             $table->string('state_of_origin')->nullable();
             $table->string('lga')->nullable();
             $table->string('department')->nullable();
@@ -35,6 +41,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->text('photo')->nullable();
             $table->timestamp('last_login')->nullable();
+            $table->boolean('is_verified')->default(false);
             $table->integer('status');
             $table->unsignedBigInteger('zone_id')->nullable();
             $table->rememberToken();

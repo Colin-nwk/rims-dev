@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChangeRequest extends Model
 {
-    use HasFactory, \App\Traits\FilterableTrait;
+    use \App\Traits\FilterableTrait, HasFactory;
 
     public $searchable = ['service_no', 'model_type', 'type', 'status'];
+
     public $filterable = ['status', 'type', 'model_type', 'service_no', 'requested_by_id'];
 
     protected $fillable = [
@@ -37,5 +38,50 @@ class ChangeRequest extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function model()
+    {
+        return $this->morphTo();
+    }
+
+    public function scopeVisibleTo($query, $user)
+    {
+        if ($user->cannot('change_request.view_all')) {
+            return $query->where('requested_by_id', $user->id);
+        }
+
+        $roles = $user->roles;
+        if ($roles->contains('scopeless', true)) {
+            return $query;
+        }
+
+        $stateIds = $roles->pluck('state_id')->filter()->values()->toArray();
+        $zoneIds = $roles->pluck('zone_id')->filter()->values()->toArray();
+
+        return $query->where(function ($q) use ($user, $stateIds, $zoneIds) {
+            // Match via Model (Updates)
+            $q->whereHasMorph('model', [\App\Models\Staff::class], function ($sq) use ($stateIds, $zoneIds) {
+                $sq->where(function ($iq) use ($stateIds, $zoneIds) {
+                    if (! empty($stateIds)) {
+                        $iq->orWhereIn('assigned_state', $stateIds);
+                    }
+                    if (! empty($zoneIds)) {
+                        $iq->orWhereIn('zone_id', $zoneIds);
+                    }
+                });
+            });
+
+            // Match via Data JSON (Creates)
+            if (! empty($stateIds)) {
+                $q->orWhereIn('data->assigned_state', $stateIds);
+            }
+            if (! empty($zoneIds)) {
+                $q->orWhereIn('data->zone_id', $zoneIds);
+            }
+
+            // Always allow seeing own requests
+            $q->orWhere('requested_by_id', $user->id);
+        });
     }
 }

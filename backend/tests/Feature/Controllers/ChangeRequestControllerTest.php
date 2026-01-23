@@ -17,6 +17,13 @@ class ChangeRequestControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant View All permission
+        \Illuminate\Support\Facades\Gate::define('change_request.view_all', fn () => true);
+
+        // Assign Scopeless Role so filters don't hide everything
+        $role = \App\Models\Role::create(['name' => 'Admin', 'slug' => 'admin', 'scopeless' => true]);
+        $user->roles()->attach($role);
+
         ChangeRequest::factory()->count(3)->create(['status' => 'PENDING', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
         ChangeRequest::factory()->create(['status' => 'APPROVED', 'requested_by_id' => null, 'requested_by_type' => null, 'approved_by' => null]);
 
@@ -31,6 +38,9 @@ class ChangeRequestControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant permission
+        \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
+
         $cr = ChangeRequest::factory()->create([
             'status' => 'PENDING',
             'model_type' => Staff::class,
@@ -39,11 +49,11 @@ class ChangeRequestControllerTest extends TestCase
                 'service_no' => 'SVC_APP_CONT',
                 'surname' => 'ControllerApprove',
                 'first_name' => 'Test',
-                'status' => 1
+                'status' => 1,
             ],
             'requested_by_id' => null,
             'requested_by_type' => null,
-            'approved_by' => null
+            'approved_by' => null,
         ]);
 
         $response = $this->postJson("/api/v1/change-requests/{$cr->id}/approve");
@@ -60,23 +70,26 @@ class ChangeRequestControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Grant permission
+        \Illuminate\Support\Facades\Gate::define('change_request.reject', fn () => true);
+
         $cr = ChangeRequest::factory()->create([
             'status' => 'PENDING',
             'requested_by_id' => null,
             'requested_by_type' => null,
-            'approved_by' => null
+            'approved_by' => null,
         ]);
 
         $response = $this->postJson("/api/v1/change-requests/{$cr->id}/reject", [
-            'reason' => 'Bad Data'
+            'reason' => 'Bad Data',
         ]);
 
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('change_requests', [
-            'id' => $cr->id, 
+            'id' => $cr->id,
             'status' => 'REJECTED',
-            'rejection_reason' => 'Bad Data'
+            'rejection_reason' => 'Bad Data',
         ]);
     }
 }

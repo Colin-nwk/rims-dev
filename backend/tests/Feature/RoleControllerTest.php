@@ -4,10 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class RoleControllerTest extends TestCase
@@ -19,17 +17,17 @@ class RoleControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create necessary permissions for role management
         $permissions = [
-            'role.view', 'role.create', 'role.edit', 'role.delete'
+            'role.view', 'role.create', 'role.edit', 'role.delete',
         ];
-        
+
         $rolePermissions = [];
         foreach ($permissions as $name) {
             $rolePermissions[] = Permission::create(['name' => $name]);
         }
-        
+
         // Create Super Admin role
         $role = Role::create(['name' => 'Super Admin', 'slug' => 'super-admin', 'scopeless' => true]);
         $role->permissions()->saveMany($rolePermissions); // Attach all permissions
@@ -45,10 +43,10 @@ class RoleControllerTest extends TestCase
     public function test_cannot_access_without_permission()
     {
         $user = User::factory()->create(); // User without roles
-        
+
         $response = $this->actingAs($user)->getJson('/api/v1/roles');
         $response->assertStatus(403);
-        
+
         // Provide valid data so validation passes and we hit the controller's authorization check.
         $response = $this->actingAs($user)->postJson('/api/v1/roles', ['name' => 'Fail', 'slug' => 'fail']);
         $response->assertStatus(403);
@@ -72,14 +70,14 @@ class RoleControllerTest extends TestCase
         $payload = [
             'name' => 'Manager',
             'slug' => 'manager',
-            'permissions' => [$permission->id]
+            'permissions' => [$permission->id],
         ];
 
         $response = $this->actingAs($this->admin)->postJson('/api/v1/roles', $payload);
 
         $response->assertStatus(201)
             ->assertJsonPath('data.name', 'Manager');
-            
+
         $this->assertDatabaseHas('roles', ['slug' => 'manager']);
         $this->assertDatabaseHas('permission_role', ['permission_id' => $permission->id]);
     }
@@ -113,7 +111,7 @@ class RoleControllerTest extends TestCase
         $p2 = Permission::create(['name' => 'p2']);
 
         $response = $this->actingAs($this->admin)->postJson("/api/v1/roles/{$role->id}/permissions/sync", [
-            'permissions' => [$p1->id, $p2->id]
+            'permissions' => [$p1->id, $p2->id],
         ]);
 
         $response->assertStatus(200);

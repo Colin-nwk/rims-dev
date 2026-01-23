@@ -10,12 +10,13 @@ use Laravel\Sanctum\HasApiTokens;
 class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\RetirementTrait, \App\Traits\HasRolesTrait, \App\Traits\AuthorizesScopedAccess;
+    use \App\Traits\AuthorizesScopedAccess, \App\Traits\FilterableTrait, \App\Traits\HasRolesTrait, \App\Traits\RetirementTrait, HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'service_no',
         'email',
         'password',
+        'phone_number',
         'assigned_state',
         'prison',
         'surname',
@@ -25,8 +26,13 @@ class Staff extends Authenticatable
         'initial_rank',
         'present_rank',
         'level',
+        'step',
         'dob',
         'date_of_first_appointment',
+        'present_appointment_date',
+        'command_post_date',
+        'initial_command',
+        'present_command',
         'state_of_origin',
         'lga',
         'department',
@@ -35,16 +41,23 @@ class Staff extends Authenticatable
         'description',
         'photo',
         'last_login',
+        'is_verified',
         'status',
         'zone_id',
     ];
 
     public $searchable = [
-        'service_no', 
-        'surname', 
-        'first_name', 
-        'email', 
+        'service_no',
+        'surname',
+        'first_name',
+        'email',
         'file_no',
+    ];
+
+
+     protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     protected $appends = [
@@ -62,11 +75,11 @@ class Staff extends Authenticatable
     }
 
     public $filterable = [
-        'status', 
-        'assigned_state', 
-        'prison', 
-        'sex', 
-        'initial_rank', 
+        'status',
+        'assigned_state',
+        'prison',
+        'sex',
+        'initial_rank',
         'present_rank',
         'level',
         'department',

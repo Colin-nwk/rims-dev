@@ -25,7 +25,7 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
     await login(email, 'staff');
-    navigate('/');
+    navigate('/demo');
     setIsSubmitting(false);
   };
 
@@ -73,7 +73,7 @@ const Login = () => {
             </label>
             <button
               type="button"
-              onClick={() => navigate('/forgot-password')}
+              onClick={() => navigate('/demo/forgot-password')}
               className="text-navy-900 dark:text-gold-500 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors"
             >
               Forgot password?

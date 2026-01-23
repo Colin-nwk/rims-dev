@@ -20,6 +20,29 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
+            // Register global 'safe_url' validation rule
+            \Illuminate\Support\Facades\Validator::extend('safe_url', function ($attribute, $value, $parameters, $validator) {
+                $rule = new \App\Rules\SafeUrl;
+                $passes = true;
+                $fail = function ($message) use (&$passes) {
+                    $passes = false;
+                };
+
+                $rule->validate($attribute, $value, $fail);
+
+                return $passes;
+            }, 'The :attribute must be a safe URL (publicly accessible).');
+
+            // Global API Rate Limiter
+            \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            });
+
+            // Strict Auth Rate Limiter (Login/Register/Reset)
+            \Illuminate\Support\Facades\RateLimiter::for('auth', function (\Illuminate\Http\Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+            });
+
             // Cache permissions indefinitely to handle high scale
             $permissions = \Illuminate\Support\Facades\Cache::rememberForever('app.permissions', function () {
                 return \App\Models\Permission::with('roles')->get();
@@ -30,20 +53,22 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Support\Facades\Gate::define($permission->name, function ($user, $target = null) use ($permission) {
                     // Reload the permission from the (potentially refreshed) cache to handle runtime updates (like in tests)
                     $cachedPermissions = \Illuminate\Support\Facades\Cache::rememberForever('app.permissions', function () {
-                         return \App\Models\Permission::with('roles')->get();
+                        return \App\Models\Permission::with('roles')->get();
                     });
-                    
+
                     // Find the specific permission object in the fresh collection
                     $currentPermission = $cachedPermissions->firstWhere('id', $permission->id);
-                    
-                    if (!$currentPermission) return false;
+
+                    if (! $currentPermission) {
+                        return false;
+                    }
 
                     // 1. Get user's roles CACHED to avoid per-request DB query.
                     // We assume $user has the HasRolesTrait.
-                    $userRoleIds = method_exists($user, 'getCachedRoleIds') 
-                        ? $user->getCachedRoleIds() 
+                    $userRoleIds = method_exists($user, 'getCachedRoleIds')
+                        ? $user->getCachedRoleIds()
                         : $user->roles->pluck('id')->toArray();
-                    
+
                     // Use the CACHED relationship
                     $authorizedRoles = $currentPermission->roles->filter(function ($role) use ($userRoleIds) {
                         return in_array($role->id, $userRoleIds);
@@ -63,8 +88,8 @@ class AppServiceProvider extends ServiceProvider
                         // If there is a target resource, check scope match
                         if ($target) {
                             // Helper to get ID safely
-                            $getScopeId = fn($obj, $method) => method_exists($obj, $method) ? $obj->$method() : null;
-                            
+                            $getScopeId = fn ($obj, $method) => method_exists($obj, $method) ? $obj->$method() : null;
+
                             // Prison Scope
                             if ($role->prison_id) {
                                 $targetPrisonId = $getScopeId($target, 'getPrisonId');

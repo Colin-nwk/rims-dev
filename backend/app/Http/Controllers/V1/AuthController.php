@@ -16,7 +16,7 @@ class AuthController extends Controller
 
         // Flush role cache as requested
         if (method_exists($request->user(), 'flushRoleCache')) {
-             $request->user()->flushRoleCache();
+            $request->user()->flushRoleCache();
         }
 
         return $this->successResponse(null, 'Logged out successfully', 204);

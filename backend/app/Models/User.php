@@ -11,15 +11,17 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, \App\Traits\FilterableTrait, \App\Traits\HasRolesTrait;
+    use \App\Traits\FilterableTrait, \App\Traits\HasRolesTrait, HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'status',
     ];
 
     public $searchable = ['name', 'email'];
+
     public $filterable = ['id']; // Minimal filters for user for now
 
     /**

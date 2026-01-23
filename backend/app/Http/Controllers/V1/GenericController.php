@@ -23,12 +23,18 @@ class GenericController extends Controller
             'zones' => \App\Models\Zone::class,
             'states' => \App\Models\State::class,
             'prisons' => \App\Models\Prison::class,
+            'degree_types' => \App\Models\DegreeType::class,
+            'rankings' => \App\Models\Ranking::class,
+            'blood_groups' => \App\Models\BloodGroup::class,
+            'blood_genotypes' => \App\Models\BloodGenotype::class,
+            'complexions' => \App\Models\Complexion::class,
+            'hair_colours' => \App\Models\HairColour::class,
         ];
 
-        if (!isset($models[$name])) {
+        if (! isset($models[$name])) {
             abort(404, 'Resource not found.');
         }
-        
+
         return $models[$name];
     }
 
@@ -36,6 +42,7 @@ class GenericController extends Controller
     {
         $modelClass = $this->resolveModel($model);
         $items = $modelClass::paginate(15);
+
         return $this->collectionResponse($items);
     }
 
@@ -43,6 +50,7 @@ class GenericController extends Controller
     {
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::findOrFail($id);
+
         return $this->successResponse($item);
     }
 
@@ -50,6 +58,7 @@ class GenericController extends Controller
     {
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::create($request->all());
+
         return $this->successResponse($item, 'Created successfully.', 201);
     }
 
@@ -58,6 +67,7 @@ class GenericController extends Controller
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::findOrFail($id);
         $item->update($request->all());
+
         return $this->successResponse($item, 'Updated successfully.');
     }
 
@@ -66,6 +76,7 @@ class GenericController extends Controller
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::findOrFail($id);
         $item->delete();
+
         return response()->noContent();
     }
 }

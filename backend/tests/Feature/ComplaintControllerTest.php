@@ -7,7 +7,6 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Staff;
 use App\Models\State;
-use App\Models\Zone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -102,15 +101,15 @@ class ComplaintControllerTest extends TestCase
     {
         $user = Staff::factory()->create();
         $complaint = Complaint::create([
-            'subject' => 'Test', 
-            'category' => 'IT', 
+            'subject' => 'Test',
+            'category' => 'IT',
             'created_by' => $user->id,
-            'status' => 'open'
+            'status' => 'open',
         ]);
 
         // User does not have complaint.resolve permission
         $response = $this->actingAs($user)->patchJson("/api/v1/complaints/{$complaint->id}/status", [
-            'status' => 'resolved'
+            'status' => 'resolved',
         ]);
 
         // Should be forbidden (403)
@@ -121,13 +120,13 @@ class ComplaintControllerTest extends TestCase
     {
         $admin = Staff::factory()->create();
         $role = Role::create(['name' => 'Resolver', 'slug' => 'resolver', 'scopeless' => true]);
-        $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.resolve'])); 
+        $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.resolve']));
         $admin->roles()->attach($role);
 
         $complaint = Complaint::create(['subject' => 'Test', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id]);
 
         $response = $this->actingAs($admin)->patchJson("/api/v1/complaints/{$complaint->id}/status", [
-            'status' => 'resolved'
+            'status' => 'resolved',
         ]);
 
         $response->assertStatus(200);
@@ -149,7 +148,7 @@ class ComplaintControllerTest extends TestCase
         $complaint = Complaint::create(['subject' => 'Out of Scope', 'category' => 'IT', 'created_by' => $targetStaff->id]);
 
         $response = $this->actingAs($admin)->patchJson("/api/v1/complaints/{$complaint->id}/status", [
-            'status' => 'resolved'
+            'status' => 'resolved',
         ]);
 
         $response->assertStatus(403);

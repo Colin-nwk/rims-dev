@@ -51,19 +51,35 @@ trait HasRolesTrait
      */
     public function getCachedRoleIds(): array
     {
-        $key = "user_roles_{$this->id}_" . get_class($this);
+        $key = "user_roles_{$this->id}_".get_class($this);
+
         return \Illuminate\Support\Facades\Cache::rememberForever($key, function () {
             // Reload relation to be safe, or just use $this->roles if loaded
             return $this->roles()->pluck('id')->toArray();
         });
     }
 
-    /**
-     * Flush the user's role cache.
-     */
     public function flushRoleCache(): void
     {
-        $key = "user_roles_{$this->id}_" . get_class($this);
+        $key = "user_roles_{$this->id}_".get_class($this);
         \Illuminate\Support\Facades\Cache::forget($key);
+    }
+
+    /**
+     * Assign a role to the user/staff.
+     */
+    public function assignRole(int $roleId): void
+    {
+        $this->roles()->syncWithoutDetaching([$roleId]);
+        $this->flushRoleCache();
+    }
+
+    /**
+     * Remove a role from the user/staff.
+     */
+    public function removeRole(int $roleId): void
+    {
+        $this->roles()->detach($roleId);
+        $this->flushRoleCache();
     }
 }
