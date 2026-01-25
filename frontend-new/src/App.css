@@ -56,26 +56,16 @@
 }
 
 @theme {
-  --color-navy-50: #effef4;
-  --color-navy-100: #d9fce3;
-  --color-navy-200: #b5f8cc;
-  --color-navy-300: #7ef0ac;
-  --color-navy-400: #43e087;
-  --color-navy-500: #1ac267;
-  --color-navy-600: #008751;
-  --color-navy-700: #0b7f43;
-  --color-navy-800: #0e6538;
-  --color-navy-900: #064e3b;
-  --color-navy-950: #022c22;
-
-  --color-gold-50: #fffbeb;
-  --color-gold-100: #fef3c7;
-  --color-gold-200: #fde68a;
-  --color-gold-300: #fcd34d;
-  --color-gold-400: #fbbf24;
-  --color-gold-500: #f59e0b;
-  --color-gold-600: #d97706;
-  --color-gold-700: #b45309;
-  --color-gold-800: #92400e;
-  --color-gold-900: #78350f;
+  /* NCoS Custom Green theme colors */
+  --color-ncos-green-50: #effef4;
+  --color-ncos-green-100: #d9fce3;
+  --color-ncos-green-200: #b5f8cc;
+  --color-ncos-green-300: #7ef0ac;
+  --color-ncos-green-400: #43e087;
+  --color-ncos-green-500: #1ac267;
+  --color-ncos-green-600: #008751;
+  --color-ncos-green-700: #0b7f43;
+  --color-ncos-green-800: #0e6538;
+  --color-ncos-green-900: #064e3b;
+  --color-ncos-green-950: #022c22;
 }

@@ -31,9 +31,6 @@ Route::prefix('staff')->group(function () {
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
     Route::post('register', [StaffAuthController::class, 'register'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
-
-    // Public Staff Resources
-    Route::get('id-card/{serviceNo}', [StaffController::class, 'idCard']);
 });
 
 // User Authentication
@@ -85,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Staff Management ---
+    Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);

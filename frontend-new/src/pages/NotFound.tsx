@@ -6,11 +6,11 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex flex-col min-h-screen overflow-hidden bg-navy-950">
+    <div className="relative flex flex-col min-h-screen overflow-hidden bg-ncos-green-950">
       {/* Abstract Background Shapes */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
         <div className="absolute w-48 h-48 rounded-full -top-12 -right-12 sm:-top-24 sm:-right-24 sm:w-96 sm:h-96 bg-gold-500 blur-3xl animate-pulse" />
-        <div className="absolute rounded-full top-1/2 -left-12 sm:-left-24 w-36 h-36 sm:w-72 sm:h-72 bg-navy-600 blur-3xl animate-pulse" />
+        <div className="absolute rounded-full top-1/2 -left-12 sm:-left-24 w-36 h-36 sm:w-72 sm:h-72 bg-ncos-green-600 blur-3xl animate-pulse" />
         <div className="absolute w-40 h-40 rounded-full bottom-10 right-1/3 sm:w-64 sm:h-64 bg-gold-400 blur-3xl animate-pulse" />
       </div>
 
@@ -63,7 +63,7 @@ export default function NotFound() {
               </Button>
               <Button
                 onClick={() => navigate("/dashboard")}
-                className="w-full gap-2 text-sm font-semibold transition-all shadow-lg sm:w-auto bg-gold-500 hover:bg-gold-600 text-navy-900 shadow-gold-500/30 hover:shadow-gold-500/50 sm:text-base"
+                className="w-full gap-2 text-sm font-semibold transition-all shadow-lg sm:w-auto bg-gold-500 hover:bg-gold-600 text-ncos-green-900 shadow-gold-500/30 hover:shadow-gold-500/50 sm:text-base"
                 size="lg"
               >
                 <Home className="w-4 h-4 sm:w-5 sm:h-5" />

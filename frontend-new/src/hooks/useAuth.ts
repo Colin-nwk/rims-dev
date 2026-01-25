@@ -9,11 +9,6 @@ import type {
 import { getDisplayName, getUserInitials } from "@/lib/api/auth/types";
 import type { ApiResponse, ApiError } from "@/lib/api/types";
 
-/**
- * React Query Hooks for Authentication
- * Enhanced from legacy with better type inference and error handling
- */
-
 const AUTH_QUERY_KEY = "auth";
 
 /**
