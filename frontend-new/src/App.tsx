@@ -10,11 +10,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { queryClient } from "@/lib/api/queryClient";
 import AdminLogin from "@/pages/auth/AdminLogin";
+import StaffLogin from "@/pages/auth/StaffLogin";
+import NotFound from "@/pages/NotFound";
+import Dashboard from "./pages/Dashboard";
 
-/**
- * Main Application Component
- * Sets up providers and routing structure
- */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -22,15 +21,17 @@ function App() {
         <Routes>
           {/* Auth Routes */}
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/staff-login" element={<StaffLogin />} />
 
           {/* Protected Routes - Add your dashboard and other routes here */}
           {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Default Redirect */}
           <Route path="/" element={<Navigate to="/admin-login" replace />} />
 
           {/* 404 Not Found */}
-          <Route path="*" element={<Navigate to="/admin-login" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
 

@@ -30,6 +30,25 @@
     width: 100%;
     min-height: 100vh;
   }
+
+  /* Cursor pointer for interactive elements */
+  button,
+  a,
+  [role="button"],
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  a:disabled,
+  [role="button"]:disabled,
+  [type="button"]:disabled,
+  [type="submit"]:disabled,
+  [type="reset"]:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .test {

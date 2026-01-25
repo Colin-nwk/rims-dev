@@ -7,14 +7,10 @@ import { z } from "zod";
 
 // Admin login form schema
 export const adminLoginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+  email: z.email("Enter a valid email address"),
   password: z
-    .string()
-    .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .string({ error: "Password is required" })
+    .min(1, "Password is required"),
 });
 
 export type AdminLoginFormData = z.infer<typeof adminLoginSchema>;
@@ -22,13 +18,11 @@ export type AdminLoginFormData = z.infer<typeof adminLoginSchema>;
 // Staff login form schema
 export const staffLoginSchema = z.object({
   service_no: z
-    .string()
-    .min(1, "Service number is required")
-    .regex(/^\d+$/, "Service number must contain only digits"),
+    .string({ error: "Service number is required" })
+    .min(1, "Service number is required"),
   password: z
-    .string()
-    .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .string({ error: "Password is required" })
+    .min(1, "Password is required"),
 });
 
 export type StaffLoginFormData = z.infer<typeof staffLoginSchema>;
