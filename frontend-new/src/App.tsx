@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { queryClient } from "@/lib/api/queryClient";
+import AdminLogin from "@/pages/auth/AdminLogin";
 
+/**
+ * Main Application Component
+ * Sets up providers and routing structure
+ */
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          {/* Auth Routes */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+
+          {/* Protected Routes - Add your dashboard and other routes here */}
+          {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
+
+          {/* Default Redirect */}
+          <Route path="/" element={<Navigate to="/admin-login" replace />} />
+
+          {/* 404 Not Found */}
+          <Route path="*" element={<Navigate to="/admin-login" replace />} />
+        </Routes>
+      </Router>
+
+      {/* Toast Container - handles all toast notifications */}
+      <ToastContainer />
+
+      {/* React Query DevTools - only in development */}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
