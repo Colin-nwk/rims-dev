@@ -11,15 +11,16 @@ import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
 import StaffDirectory from "@/pages/StaffDirectory";
 
-/**
- * Application Routes Configuration
- *
- * Structure:
- * - Guest routes: Login pages (redirect to dashboard if authenticated)
- * - Protected routes: Dashboard and all authenticated pages (wrapped with MainLayout)
- * - Public routes: 404, etc.
- */
+// Public pages
+import StaffProfile from "@/pages/StaffProfile";
+
 export const routes = [
+  // Public route - (no auth or redirection required)
+  {
+    path: ROUTES.STAFF_PROFILE,
+    element: <StaffProfile />,
+  },
+
   // Guest routes - redirect to dashboard if already authenticated
   {
     element: <GuestRoute />,
@@ -45,31 +46,45 @@ export const routes = [
       },
       {
         path: ROUTES.POLICIES,
-        element: <div className="text-slate-600">Policies page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">Policies page coming soon...</div>
+        ),
       },
       {
         path: ROUTES.DOCUMENTS,
-        element: <div className="text-slate-600">Documents page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">Documents page coming soon...</div>
+        ),
       },
       {
         path: ROUTES.HELP_DESK,
-        element: <div className="text-slate-600">Help Desk page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">Help Desk page coming soon...</div>
+        ),
       },
       {
         path: ROUTES.STAFF_DIRECTORY,
-        element: <StaffDirectory/>,
+        element: <StaffDirectory />,
       },
       {
         path: ROUTES.APPROVALS,
-        element: <div className="text-slate-600">Approvals page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">Approvals page coming soon...</div>
+        ),
       },
       {
         path: ROUTES.ROLES_PERMISSIONS,
-        element: <div className="text-slate-600">Roles & Permissions page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">
+            Roles & Permissions page coming soon...
+          </div>
+        ),
       },
       {
         path: ROUTES.SETTINGS,
-        element: <div className="text-slate-600">Settings page coming soon...</div>,
+        element: (
+          <div className="text-slate-600">Settings page coming soon...</div>
+        ),
       },
     ],
   },

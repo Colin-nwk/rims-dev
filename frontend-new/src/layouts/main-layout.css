@@ -1,9 +1,8 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --font-*: initial;
-  --font-outfit: 'DM Sans', sans-serif;
-
+  --font-outfit: "DM Sans", sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -196,23 +195,32 @@
 }
 
 @utility menu-item-active {
-  background-color: color-mix(in srgb, var(--color-primary) 15%, var(--color-ncos-green-800));
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary) 15%,
+    var(--color-ncos-green-800)
+  );
   color: var(--color-primary);
   border-left: 3px solid var(--color-primary);
 }
 
 @utility menu-item-inactive {
-  @apply text-ncos-green-200 hover:text-white;
+  color: var(--color-ncos-green-200);
   background-color: transparent;
   border-left: 3px solid transparent;
 
   &:hover {
-    background-color: color-mix(in srgb, var(--color-ncos-green-700) 50%, transparent);
+    color: white;
+    background-color: color-mix(
+      in srgb,
+      var(--color-ncos-green-700) 50%,
+      transparent
+    );
   }
 }
 
 @utility menu-item-icon {
-  @apply text-ncos-green-400;
+  color: var(--color-ncos-green-400);
 }
 
 @utility menu-item-icon-active {
@@ -220,10 +228,10 @@
 }
 
 @utility menu-item-icon-inactive {
-  @apply text-ncos-green-400;
+  color: var(--color-ncos-green-400);
 
   .group:hover & {
-    @apply text-ncos-green-200;
+    color: var(--color-ncos-green-200);
   }
 }
 
@@ -237,10 +245,10 @@
 }
 
 @utility menu-item-arrow-inactive {
-  @apply text-ncos-green-400;
+  color: var(--color-ncos-green-400);
 
   .group:hover & {
-    @apply text-ncos-green-200;
+    color: var(--color-ncos-green-200);
   }
 }
 
@@ -249,15 +257,24 @@
 }
 
 @utility menu-dropdown-item-active {
-  background-color: color-mix(in srgb, var(--color-primary) 15%, var(--color-ncos-green-800));
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary) 15%,
+    var(--color-ncos-green-800)
+  );
   color: var(--color-primary);
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-ncos-green-300 hover:text-white;
+  color: var(--color-ncos-green-300);
 
   &:hover {
-    background-color: color-mix(in srgb, var(--color-ncos-green-700) 50%, transparent);
+    color: white;
+    background-color: color-mix(
+      in srgb,
+      var(--color-ncos-green-700) 50%,
+      transparent
+    );
   }
 }
 
@@ -267,14 +284,26 @@
 }
 
 @utility menu-dropdown-badge-active {
-  background-color: color-mix(in srgb, var(--color-primary) 20%, var(--color-ncos-green-800));
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary) 20%,
+    var(--color-ncos-green-800)
+  );
 }
 
 @utility menu-dropdown-badge-inactive {
-  background-color: color-mix(in srgb, var(--color-primary) 10%, var(--color-ncos-green-800));
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary) 10%,
+    var(--color-ncos-green-800)
+  );
 
   .group:hover & {
-    background-color: color-mix(in srgb, var(--color-primary) 15%, var(--color-ncos-green-800));
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary) 15%,
+      var(--color-ncos-green-800)
+    );
   }
 }
 
@@ -300,4 +329,3 @@
     @apply bg-gray-200 rounded-full;
   }
 }
-

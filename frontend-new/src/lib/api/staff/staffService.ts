@@ -2,14 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
 import type { ApiResponse, PaginatedResponse, QueryOptions } from "../types";
 import type {
-  Staff,
-  CreateStaffDTO,
-  UpdateStaffDTO,
-  StaffIDCardData,
   AssignRoleDTO,
-  StaffFilters,
   ChangeRequestResponse,
+  CreateStaffDTO,
   Role,
+  Staff,
+  StaffFilters,
+  StaffIDCardData,
+  UpdateStaffDTO,
 } from "./types";
 
 /**
@@ -89,11 +89,12 @@ class StaffService {
   }
 
   /**
-   * Get ID card data
+   * Get ID card data (public endpoint - no authentication required)
    */
   async getIDCard(serviceNo: string): Promise<ApiResponse<StaffIDCardData>> {
     const response = await apiClient.get<ApiResponse<StaffIDCardData>>(
       `/staff/id-card/${serviceNo}`,
+      { withCredentials: false },
     );
     return response.data;
   }
@@ -237,14 +238,15 @@ export const useStaff = (serviceNo: string, enabled: boolean = true) => {
 };
 
 /**
- * Hook to fetch staff ID card data
+ * Hook to fetch staff ID card data (public endpoint)
  */
-export const useStaffIDCard = (serviceNo: string, enabled: boolean = false) => {
+export const useStaffIDCard = (serviceNo: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: staffQueryKeys.idCard(serviceNo),
     queryFn: () => staffService.getIDCard(serviceNo),
     enabled: enabled && !!serviceNo,
     staleTime: 1000 * 60 * 10,
+    retry: 2,
   });
 };
 
@@ -258,9 +260,9 @@ export const useCreateStaff = () => {
     mutationFn: (data: CreateStaffDTO) => staffService.create(data),
     onSuccess: () => {
       // Invalidate all staff-related queries to ensure fresh data
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: staffQueryKeys.all,
-        refetchType: 'all',
+        refetchType: "all",
       });
     },
   });
@@ -282,9 +284,9 @@ export const useUpdateStaff = () => {
     }) => staffService.update(serviceNo, data),
     onSuccess: (_, variables) => {
       // Invalidate all staff-related queries to ensure fresh data
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: staffQueryKeys.all,
-        refetchType: 'all',
+        refetchType: "all",
       });
       queryClient.invalidateQueries({
         queryKey: staffQueryKeys.detail(variables.serviceNo),
@@ -303,9 +305,9 @@ export const useDeleteStaff = () => {
     mutationFn: (serviceNo: string) => staffService.delete(serviceNo),
     onSuccess: () => {
       // Invalidate all staff-related queries to ensure fresh data
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: staffQueryKeys.all,
-        refetchType: 'all',
+        refetchType: "all",
       });
     },
   });

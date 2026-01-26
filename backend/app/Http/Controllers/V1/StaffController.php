@@ -184,7 +184,6 @@ class StaffController extends Controller
 
     public function idCard(string $serviceNo)
     {
-        $this->authorize('staff.view');
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
 
         if (! $staff) {

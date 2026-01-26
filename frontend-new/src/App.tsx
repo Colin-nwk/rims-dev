@@ -16,16 +16,6 @@ function AppRoutes() {
   const element = useRoutes(routes);
   return element;
 }
-
-/**
- * Main Application Component
- *
- * Provider hierarchy:
- * 1. QueryClientProvider - React Query for server state
- * 2. AuthProvider - Authentication context (depends on QueryClient)
- * 3. SidebarProvider - Sidebar state management
- * 4. Router - React Router for navigation
- */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>

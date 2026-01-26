@@ -42,6 +42,9 @@ Route::prefix('user')->group(function () {
 Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings');
 Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings');
 
+// Staff ID Card - Public access (for QR code scanning)
+Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
+
 // ==============================================================================
 // PROTECTED ROUTES (Sanctum Auth)
 // ==============================================================================
@@ -82,7 +85,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Staff Management ---
-    Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);

@@ -18,6 +18,7 @@ export const ROUTES = {
   SETTINGS: "/settings",
 
   // Public
+  STAFF_PROFILE: "/staff/:serviceNo",
   NOT_FOUND: "/404",
 } as const;
 
