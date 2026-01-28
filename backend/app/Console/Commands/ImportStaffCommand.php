@@ -8,11 +8,11 @@ use Illuminate\Console\Command;
 class ImportStaffCommand extends Command
 {
     protected $signature = 'staff:import 
-        {--file= : Path to the CSV file to import}
+        {--file= : Path to the file (Excel/CSV) to import}
         {--dry-run : Preview changes without saving}
         {--skip-existing : Skip records that already exist}';
 
-    protected $description = 'Import staff data from a CSV file';
+    protected $description = 'Import staff data from an Excel or CSV file';
 
     public function __construct(protected StaffImportService $importService)
     {
@@ -49,7 +49,7 @@ class ImportStaffCommand extends Command
         }
 
         try {
-            $rows = $this->importService->parseCsvFile($filePath);
+            $rows = $this->importService->parseFile($filePath);
             $this->info('Found '.count($rows).' rows to process');
 
             $progressBar = $this->output->createProgressBar(count($rows));

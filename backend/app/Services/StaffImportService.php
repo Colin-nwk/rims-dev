@@ -289,36 +289,25 @@ class StaffImportService
     }
 
     /**
-     * Parse CSV file into rows array
+     * Parse file (Excel/CSV) into rows array
      */
-    public function parseCsvFile(string $filePath): array
+    public function parseFile(string $filePath): array
     {
         if (! file_exists($filePath)) {
             throw new Exception("File not found: {$filePath}");
         }
 
-        $rows = [];
-        $handle = fopen($filePath, 'r');
-
-        if ($handle === false) {
-            throw new Exception("Cannot open file: {$filePath}");
-        }
-
-        $headers = fgetcsv($handle);
-
-        if ($headers === false) {
-            fclose($handle);
-            throw new Exception('Cannot read CSV headers');
-        }
-
-        while (($data = fgetcsv($handle)) !== false) {
-            if (count($data) === count($headers)) {
-                $rows[] = array_combine($headers, $data);
+        // Use anonymous class to handle import with headers
+        $import = new class implements \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow, \Maatwebsite\Excel\Concerns\SkipsEmptyRows
+        {
+            public function array(array $array)
+            {
+                return $array;
             }
-        }
+        };
 
-        fclose($handle);
+        $sheets = \Maatwebsite\Excel\Facades\Excel::toArray($import, $filePath);
 
-        return $rows;
+        return $sheets[0] ?? [];
     }
 }
