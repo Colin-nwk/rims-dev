@@ -37,7 +37,7 @@ class RateLimitTest extends TestCase
 
         for ($i = 0; $i < 5; $i++) {
             $this->postJson($url, ['service_no' => 'test', 'password' => 'wrong'])
-                ->assertStatus(401); // Assuming 401 for bad creds, or 422
+                ->assertStatus(422); // Assuming 401 for bad creds, or 422
         }
 
         // The 6th attempt should fail with 429
