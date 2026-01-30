@@ -125,18 +125,28 @@ full_migration() {
         print_info "Starting full migration..."
         print_warning "This may take 2-4 hours for 50K records"
         echo ""
-        read -p "Run in screen session? (recommended) (y/n): " use_screen
         
-        if [ "$use_screen" == "y" ]; then
-            print_info "Starting migration in screen session 'rims-migration'"
-            print_info "Use 'screen -r rims-migration' to reattach"
-            screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 --no-interaction; echo 'Migration completed. Press Enter to exit.'; read"
-            print_success "Migration started in background screen session"
-            print_info "To monitor: screen -r rims-migration"
+        # Check if screen is installed
+        if command -v screen &> /dev/null; then
+            read -p "Run in screen session? (recommended) (y/n): " use_screen
+            
+            if [ "$use_screen" == "y" ]; then
+                print_info "Starting migration in screen session 'rims-migration'"
+                print_info "Use 'screen -r rims-migration' to reattach"
+                screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 --no-interaction; echo 'Migration completed. Press Enter to exit.'; read"
+                print_success "Migration started in background screen session"
+                print_info "To monitor: screen -r rims-migration"
+                echo ""
+                read -p "Press Enter to continue..."
+                show_menu
+                return
+            fi
         else
-            # php artisan rims:migrate --batch-size=250
-             php artisan app:migrate-rims-data-command --batch-size=250
+            print_info "Screen utility not found. Running in foreground."
         fi
+
+        # Run in foreground
+        php artisan app:migrate-rims-data-command --batch-size=250
     fi
     echo ""
     read -p "Press Enter to continue..."
@@ -161,7 +171,7 @@ batch_migration() {
     for ((i=0; i<$num_batches; i++)); do
         offset=$((i * 5000))
         print_info "Processing batch $((i+1))/$num_batches (offset: $offset)"
-        php artisan rims:migrate --limit=5000 --offset=$offset --batch-size=250
+        php artisan app:migrate-rims-data-command --limit=5000 --offset=$offset --batch-size=250
         print_success "Batch $((i+1)) completed"
         sleep 2
     done
