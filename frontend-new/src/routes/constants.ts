@@ -5,13 +5,14 @@ export const ROUTES = {
 
   // Protected - Staff Module
   DASHBOARD: "/dashboard",
-  POLICIES: "/policies",
   DOCUMENTS: "/documents",
   HELP_DESK: "/help-desk",
 
   // Protected - Management
   STAFF_DIRECTORY: "/staff",
+  ADMIN_USERS_DIRECTORY: "/admin-users",
   APPROVALS: "/approvals",
+  STATISTICS: "/statistics",
 
   // Protected - System
   ROLES_PERMISSIONS: "/admin/roles",

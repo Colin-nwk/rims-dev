@@ -272,9 +272,9 @@ const AppSidebar: React.FC<{
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 py-2 bg-ncos-green-900 text-white h-screen transition-all duration-300 ease-in-out z-50 border-ncos-green-800
         ${
           isExpanded || isMobileOpen
-            ? "w-72.5"
+            ? "w-64"
             : isHovered
-              ? "w-72.5"
+              ? "w-64"
               : "w-22.5"
         }
         ${
@@ -287,7 +287,7 @@ const AppSidebar: React.FC<{
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-6 hidden lg:flex  ${
+        className={`py-6 hidden lg:flex ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >

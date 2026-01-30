@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import html2canvas from "html2canvas";
 import { Download, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getFileUrl } from "@/lib/api/apiClient";
+import { imageUrlToBase64 } from "@/lib/api/apiClient";
 import { StaffIDCardData } from "@/lib/api/staff";
 
 interface StaffIDCardProps {
@@ -35,11 +35,13 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [photoBase64, setPhotoBase64] = useState<string>("");
 
   useEffect(() => {
     if (staffData && isOpen) {
       const verificationUrl = `${window.location.origin}/staff/${staffData.service_no}`;
 
+      // Generate QR code
       QRCode.toDataURL(verificationUrl, {
         width: 200,
         margin: 1,
@@ -51,6 +53,14 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
         })
         .catch((err: unknown) => {
           console.error("Error generating QR code", err);
+        });
+
+      imageUrlToBase64(staffData.photo)
+        .then((base64) => {
+          setPhotoBase64(base64);
+        })
+        .catch((err: unknown) => {
+          console.error("Error converting photo to base64", err);
         });
     }
   }, [staffData, isOpen]);
@@ -125,7 +135,6 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
 
   const fullName =
     `${staffData.surname} ${staffData.first_name} ${staffData.other_names || ""}`.trim();
-  const photoUrl = getFileUrl(staffData.photo);
 
   return (
     <div
@@ -272,16 +281,15 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
-                {photoUrl ? (
+                {photoBase64 ? (
                   <img
-                    src={photoUrl}
+                    src={photoBase64}
                     alt={fullName}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
                     }}
-                    crossOrigin="anonymous"
                   />
                 ) : (
                   <div

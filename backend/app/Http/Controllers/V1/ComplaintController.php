@@ -100,14 +100,15 @@ class ComplaintController extends Controller
             'priority' => 'sometimes|in:low,medium,high,critical',
         ]);
 
-        $staff = $request->user();
+        $creator = $request->user();
 
         $complaint = Complaint::create([
             'subject' => $validated['subject'],
             'category' => $validated['category'],
             'priority' => $validated['priority'] ?? 'medium',
             'status' => 'open',
-            'created_by' => $staff->id,
+            'created_by' => $creator->id,
+            'created_by_type' => get_class($creator),
         ]);
 
         $complaint->load(['creator', 'messages']);
@@ -154,6 +155,11 @@ class ComplaintController extends Controller
 
         // Update complaint timestamp
         $complaint->touch();
+
+        // Auto-mark as in-progress when any reply is added to an open ticket
+        if ($complaint->status === 'open') {
+            $complaint->update(['status' => 'in-progress']);
+        }
 
         // Reopen if resolved and new message added
         if ($complaint->status === 'resolved') {

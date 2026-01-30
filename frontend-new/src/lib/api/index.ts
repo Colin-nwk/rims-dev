@@ -14,3 +14,6 @@ export type {
 } from "./types";
 export * from "./change-requests";
 export * from "./roles";
+export * from "./complaints";
+export * from "./statistics";
+export * from "./users";

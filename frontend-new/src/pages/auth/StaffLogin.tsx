@@ -126,20 +126,7 @@ export default function StaffLogin() {
             )}
           </Formik>
 
-          {/* Footer Links */}
-          <div className="mt-5 text-center sm:mt-6">
-            <p className="text-xs sm:text-sm text-slate-600">
-              Administrator?{" "}
-              <button
-                type="button"
-                onClick={() => navigate("/admin-login")}
-                className="font-medium transition-colors text-ncos-green-900 hover:text-gold-600 active:text-gold-700"
-                disabled={isPending}
-              >
-                Admin Login
-              </button>
-            </p>
-          </div>
+          
         </Card>
       </div>
 

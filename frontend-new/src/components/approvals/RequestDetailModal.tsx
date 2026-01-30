@@ -6,6 +6,7 @@ import {
   getModelName,
   getStatusColor,
   getTypeColor,
+  getIdentifier,
 } from "@/lib/api/change-requests";
 import {
   User,
@@ -36,13 +37,14 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-NG", {
+    return date.toLocaleString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -68,10 +70,46 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
       .trim();
   };
 
+  // Check if a string looks like an ISO date
+  const isISODateString = (value: string): boolean => {
+    // Match ISO 8601 date formats like "2025-01-06T00:00:00.000000Z" or "2025-01-06"
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/;
+    return isoDateRegex.test(value);
+  };
+
+  // Format a date value nicely
+  const formatDateValue = (dateString: string): string => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    // Check if time is midnight (date only)
+    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0 || date.getSeconds() !== 0;
+    
+    if (hasTime) {
+      return date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+    
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   // Format data value for display
   const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return "-";
     if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (typeof value === "string" && isISODateString(value)) {
+      return formatDateValue(value);
+    }
     if (typeof value === "object") return JSON.stringify(value, null, 2);
     return String(value);
   };
@@ -124,14 +162,23 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                   </span>
                 </div>
               </div>
-              {request.service_no && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">Service No</span>
-                  <span className="font-mono text-sm font-medium text-slate-900">
-                    {request.service_no}
-                  </span>
-                </div>
-              )}
+              {(() => {
+                const identifier = getIdentifier(request);
+                if (identifier === "-") return null;
+                const isEmail = identifier.includes("@");
+                return (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-500">
+                      {isEmail ? "Email" : "Service No"}
+                    </span>
+                    <span
+                      className={`text-sm font-medium text-slate-900 ${isEmail ? "" : "font-mono"}`}
+                    >
+                      {identifier}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

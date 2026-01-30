@@ -22,6 +22,7 @@ class ChangeRequestController extends Controller
     public function index(Request $request)
     {
         $requests = ChangeRequest::visibleTo($request->user())
+            ->with(['requestedBy', 'approvedBy'])
             ->filter($request->all())
             ->latest()
             ->paginate($request->per_page ?? 15);

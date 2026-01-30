@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import Backdrop from "./Backdrop";
 import AppSidebar from "../components/ui/AppSidebar";
 import AppHeader from "../components/ui/AppHeader";
-import "./main-layout.css"
+import "./main-layout.css";
 
 export default function MainLayout({
   children,
@@ -25,8 +25,8 @@ export default function MainLayout({
   const mainContentMargin = isMobileOpen
     ? "ml-0"
     : isExpanded || isHovered
-    ? "lg:ml-[290px]"
-    : "lg:ml-[90px]";
+      ? "lg:ml-[256px]"
+      : "lg:ml-[90px]";
 
   return (
     <div className="min-h-screen overflow-hidden xl:flex">

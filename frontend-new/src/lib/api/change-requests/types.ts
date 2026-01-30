@@ -4,7 +4,7 @@
  */
 
 // Request type enum values
-export const REQUEST_TYPES = ["CREATE", "UPDATE"] as const;
+export const REQUEST_TYPES = ["CREATE", "UPDATE", "SENSITIVE"] as const;
 export type RequestType = (typeof REQUEST_TYPES)[number];
 
 // Request status enum values
@@ -94,7 +94,41 @@ export function getTypeColor(type: RequestType): string {
       return "bg-blue-100 text-blue-800";
     case "UPDATE":
       return "bg-purple-100 text-purple-800";
+    case "SENSITIVE":
+      return "bg-orange-100 text-orange-800";
     default:
       return "bg-slate-100 text-slate-800";
   }
+}
+
+/**
+ * Helper to get a display identifier for a change request.
+ * Returns service_no for Staff, email for User, or fallback values.
+ */
+export function getIdentifier(request: ChangeRequest): string {
+  // First try service_no (for Staff records)
+  if (request.service_no) {
+    return request.service_no;
+  }
+
+  // For User model, try to get email from the data payload
+  const modelName = getModelName(request.model_type);
+  if (modelName === "User" && request.data) {
+    const email = request.data.email as string | undefined;
+    if (email) {
+      return email;
+    }
+  }
+
+  // Fallback to requester's email if available
+  if (request.requested_by?.email) {
+    return request.requested_by.email;
+  }
+
+  // Fallback to requester's service_no if they are Staff
+  if (request.requested_by?.service_no) {
+    return request.requested_by.service_no;
+  }
+
+  return "-";
 }

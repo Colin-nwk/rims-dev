@@ -10,8 +10,11 @@ import StaffLogin from "@/pages/auth/StaffLogin";
 import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
 import StaffDirectory from "@/pages/StaffDirectory";
+import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
 import RolesPermissions from "@/pages/RolesPermissions";
+import Complaints from "@/pages/Complaints";
+import Statistics from "@/pages/Statistics";
 
 // Public pages
 import StaffProfile from "@/pages/StaffProfile";
@@ -47,12 +50,6 @@ export const routes = [
         element: <Dashboard />,
       },
       {
-        path: ROUTES.POLICIES,
-        element: (
-          <div className="text-slate-600">Policies page coming soon...</div>
-        ),
-      },
-      {
         path: ROUTES.DOCUMENTS,
         element: (
           <div className="text-slate-600">Documents page coming soon...</div>
@@ -60,17 +57,23 @@ export const routes = [
       },
       {
         path: ROUTES.HELP_DESK,
-        element: (
-          <div className="text-slate-600">Help Desk page coming soon...</div>
-        ),
+        element: <Complaints />,
       },
       {
         path: ROUTES.STAFF_DIRECTORY,
         element: <StaffDirectory />,
       },
       {
+        path: ROUTES.ADMIN_USERS_DIRECTORY,
+        element: <AdminUsers />,
+      },
+      {
         path: ROUTES.APPROVALS,
         element: <Approvals />,
+      },
+      {
+        path: ROUTES.STATISTICS,
+        element: <Statistics />,
       },
       {
         path: ROUTES.ROLES_PERMISSIONS,

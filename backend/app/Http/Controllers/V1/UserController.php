@@ -58,7 +58,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return $user;
+        return $user->load('roles');
     }
 
     public function update(Request $request, User $user)

@@ -26,6 +26,7 @@ export {
   getModelName,
   getStatusColor,
   getTypeColor,
+  getIdentifier,
 } from "./types";
 
 export { rejectRequestSchema, changeRequestFiltersSchema } from "./schemas";

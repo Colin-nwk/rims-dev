@@ -14,6 +14,7 @@ import {
   getModelName,
   getStatusColor,
   getTypeColor,
+  getIdentifier,
 } from "@/lib/api/change-requests";
 import {
   ChevronUp,
@@ -79,12 +80,13 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-NG", {
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -139,7 +141,7 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
     },
     {
       id: "model",
-      header: "Model",
+      header: "Account Type",
       accessorFn: (row) => getModelName(row.model_type),
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
@@ -157,13 +159,21 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
       ),
     },
     {
-      accessorKey: "service_no",
-      header: "Service No",
-      cell: ({ row }) => (
-        <span className="font-mono text-sm text-slate-900">
-          {row.original.service_no || "-"}
-        </span>
-      ),
+      id: "identifier",
+      header: "Service No / Email",
+      accessorFn: (row) => getIdentifier(row),
+      cell: ({ row }) => {
+        const identifier = getIdentifier(row.original);
+        const isEmail = identifier.includes("@");
+        return (
+          <span
+            className={`text-sm text-slate-900 ${isEmail ? "" : "font-mono"}`}
+            title={identifier}
+          >
+            {identifier}
+          </span>
+        );
+      },
     },
     {
       id: "requester",

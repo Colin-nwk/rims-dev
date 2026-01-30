@@ -1,10 +1,10 @@
 import UserDropdown from "@/components/ui/UserDropdown";
 import { useSidebar } from "@/hooks/useSidebar";
-import { Menu, Search } from "lucide-react";
+import { Search, SquareChevronLeft, SquareChevronRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const AppHeader = () => {
-  const { toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const { toggleSidebar, toggleMobileSidebar, isExpanded } = useSidebar();
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -54,11 +54,16 @@ const AppHeader = () => {
           </span>
 
           <button
-            className="flex items-center justify-center w-10 h-10 text-gray-700 transition-all border-2 border-gray-300 rounded-lg z-99999 hover:bg-gray-50 hover:border-gray-500"
+            className="flex items-center justify-center w-10 h-10 text-ncos-green-700 transition-all border-2 border-ncos-green-700 rounded-lg z-99999 hover:bg-ncos-green-50"
             onClick={handleToggle}
             aria-label="Toggle Sidebar"
+            title={isExpanded ? "Minimize Sidebar" : "Expand Sidebar"}
           >
-            <Menu className="w-5 h-5" />
+            {isExpanded ? (
+              <SquareChevronLeft className="w-5 h-5" />
+            ) : (
+              <SquareChevronRight className="w-5 h-5" />
+            )}
           </button>
 
           <div className="hidden">
