@@ -5,6 +5,9 @@ import type {
   StaffLoginRequest,
   LoginResponse,
   User,
+  RegisterRequest,
+  RegisterResponse,
+  SetPasswordRequest,
 } from "@/lib/api/auth/types";
 import { getDisplayName, getUserInitials } from "@/lib/api/auth/types";
 import type { ApiResponse, ApiError } from "@/lib/api/types";
@@ -67,6 +70,27 @@ export function useLogout() {
     onSuccess: () => {
       queryClient.clear();
     },
+  });
+}
+
+/**
+ * Hook for staff registration mutation (Step 1)
+ * Confirms service number, file number, and IPPIS
+ */
+export function useRegister() {
+  return useMutation<ApiResponse<RegisterResponse>, ApiError, RegisterRequest>({
+    mutationFn: (data) => authService.register(data),
+  });
+}
+
+/**
+ * Hook for set password mutation (Step 2)
+ * Sets password for newly registered staff
+ * User will be redirected to login page after success
+ */
+export function useSetPassword() {
+  return useMutation<ApiResponse<{ message: string }>, ApiError, SetPasswordRequest>({
+    mutationFn: (data) => authService.setPassword(data),
   });
 }
 

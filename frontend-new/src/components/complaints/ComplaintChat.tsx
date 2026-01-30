@@ -184,18 +184,16 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
         )}
 
         {/* Delete button for owner */}
-        {canManage
-          ? complaint.created_by === currentUserId && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                onClick={onDelete}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )
-          : null}
+        {complaint.created_by === currentUserId && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            onClick={onDelete}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       {/* Messages */}
@@ -259,6 +257,26 @@ interface MessageBubbleProps {
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
   const isSystem = message.content.startsWith("***");
 
+  // Format timestamp to show AM/PM
+  const formatTime = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) {
+        // If it's not a valid date, return as-is (might be pre-formatted)
+        return timestamp;
+      }
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return timestamp;
+    }
+  };
+
   // System messages (status changes, escalations)
   if (isSystem) {
     return (
@@ -304,7 +322,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
               isOwn ? "text-ncos-green-200" : "text-slate-400"
             }`}
           >
-            {message.timestamp}
+            {formatTime(message.timestamp)}
           </span>
         </div>
 

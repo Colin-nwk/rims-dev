@@ -39,45 +39,45 @@ const retirementTimeRemainingSchema = z.object({
 // Base user schema
 const baseUserSchema = z.object({
   id: z.number(),
-  email: z.string().email().optional(),
-  status: z.number().optional(),
+  email: z.string().email().nullish(), // Can be null or undefined
+  status: z.number().nullish(),
   created_at: z.string(),
   updated_at: z.string(),
 });
 
-// Staff user schema
+// Staff user schema - fields are nullable to support newly registered users
 export const staffUserSchema = baseUserSchema.extend({
   service_no: z.string(),
-  phone_number: z.string().nullable(),
-  assigned_state: z.string().nullable(),
-  prison: z.string().nullable(),
-  surname: z.string(),
-  first_name: z.string(),
-  other_names: z.string(),
-  sex: z.string(),
-  initial_rank: z.string(),
-  present_rank: z.string(),
-  level: z.number(),
-  step: z.number().nullable(),
-  dob: z.string(),
-  date_of_first_appointment: z.string(),
-  present_appointment_date: z.string().nullable(),
-  command_post_date: z.string().nullable(),
-  initial_command: z.string().nullable(),
-  present_command: z.string().nullable(),
-  state_of_origin: z.string(),
-  lga: z.string(),
-  department: z.string(),
-  file_no: z.string(),
-  duty: z.string(),
-  description: z.string(),
-  photo: z.string().nullable(),
-  last_login: z.string().nullable(),
-  is_verified: z.number(),
-  zone_id: z.number().nullable(),
-  retirement_date_formatted: z.string(),
-  is_retired: z.boolean(),
-  retirement_time_remaining: retirementTimeRemainingSchema,
+  phone_number: z.string().nullish(),
+  assigned_state: z.string().nullish(),
+  prison: z.string().nullish(),
+  surname: z.string().nullish(),
+  first_name: z.string().nullish(),
+  other_names: z.string().nullish(),
+  sex: z.string().nullish(),
+  initial_rank: z.string().nullish(),
+  present_rank: z.string().nullish(),
+  level: z.number().nullish(),
+  step: z.number().nullish(),
+  dob: z.string().nullish(),
+  date_of_first_appointment: z.string().nullish(),
+  present_appointment_date: z.string().nullish(),
+  command_post_date: z.string().nullish(),
+  initial_command: z.string().nullish(),
+  present_command: z.string().nullish(),
+  state_of_origin: z.string().nullish(),
+  lga: z.string().nullish(),
+  department: z.string().nullish(),
+  file_no: z.string().nullish(),
+  duty: z.string().nullish(),
+  description: z.string().nullish(),
+  photo: z.string().nullish(),
+  last_login: z.string().nullish(),
+  is_verified: z.number().nullish(),
+  zone_id: z.number().nullish(),
+  retirement_date_formatted: z.string().nullish(),
+  is_retired: z.boolean().nullish(),
+  retirement_time_remaining: retirementTimeRemainingSchema.nullish(),
 });
 
 // Admin user schema
@@ -97,3 +97,36 @@ export const loginResponseSchema = z.object({
   roles: z.array(z.string()),
   permissions: z.array(z.string()),
 });
+
+// Staff registration schema (Step 1: Confirm service number)
+export const registerSchema = z.object({
+  service_no: z
+    .string({ error: "Service number is required" })
+    .min(1, "Service number is required"),
+  file_no: z
+    .string({ error: "File number is required" })
+    .min(1, "File number is required"),
+  ippis: z
+    .string({ error: "IPPIS number is required" })
+    .min(1, "IPPIS number is required"),
+});
+
+export type RegisterFormData = z.infer<typeof registerSchema>;
+
+// Set password schema (Step 2: Set password after registration)
+export const setPasswordSchema = z
+  .object({
+    service_no: z.string(),
+    password: z
+      .string({ error: "Password is required" })
+      .min(8, "Password must be at least 8 characters"),
+    password_confirmation: z
+      .string({ error: "Please confirm your password" })
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
+
+export type SetPasswordFormData = z.infer<typeof setPasswordSchema>;

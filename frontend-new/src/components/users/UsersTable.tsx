@@ -149,7 +149,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
             );
           }
           return (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex gap-1 whitespace-nowrap">
               {roles.slice(0, 2).map((role) => (
                 <span
                   key={role.id}

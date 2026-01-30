@@ -46,7 +46,7 @@ const InfoItem = ({
       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
         {label}
       </p>
-      <p className="text-sm font-semibold text-slate-900 mt-0.5 break-words">
+      <p className="text-sm font-semibold text-slate-900 mt-0.5 wrap-break-word">
         {value || "-"}
       </p>
     </div>
@@ -80,7 +80,7 @@ const ProfileCard = ({
 
 // Staff profile component
 const StaffProfile = ({ user }: { user: StaffUser }) => {
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -89,30 +89,40 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
     });
   };
 
-  // Calculate retirement progress
+  // Calculate retirement progress (handle null retirement info)
   const retirementInfo = user.retirement_time_remaining;
   const totalYears = 35; // Assuming 35 years of service
-  const yearsServed = totalYears - retirementInfo.years;
-  const progressPercent = Math.min(100, Math.max(0, (yearsServed / totalYears) * 100));
+  const yearsServed = retirementInfo ? totalYears - retirementInfo.years : 0;
+  const progressPercent = retirementInfo
+    ? Math.min(100, Math.max(0, (yearsServed / totalYears) * 100))
+    : 0;
 
   return (
     <div className="space-y-6">
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <p className="text-2xl font-bold text-slate-900">{user.level}</p>
+          <p className="text-2xl font-bold text-slate-900">
+            {user.level ?? "-"}
+          </p>
           <p className="text-xs text-slate-500 mt-1">Current Level</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <p className="text-2xl font-bold text-slate-900">{user.step || "-"}</p>
+          <p className="text-2xl font-bold text-slate-900">
+            {user.step ?? "-"}
+          </p>
           <p className="text-xs text-slate-500 mt-1">Current Step</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <p className="text-2xl font-bold text-slate-900">{retirementInfo.years}</p>
+          <p className="text-2xl font-bold text-slate-900">
+            {retirementInfo?.years ?? "-"}
+          </p>
           <p className="text-xs text-slate-500 mt-1">Years to Retire</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <p className="text-lg font-bold text-slate-900 truncate">{user.present_rank}</p>
+          <p className="text-lg font-bold text-slate-900 truncate">
+            {user.present_rank ?? "-"}
+          </p>
           <p className="text-xs text-slate-500 mt-1">Current Rank</p>
         </div>
       </div>
@@ -122,10 +132,25 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
         {/* Personal Information */}
         <ProfileCard title="Personal Information" icon={User}>
           <div className="space-y-4">
-            <InfoItem icon={User} label="Full Name" value={`${user.first_name} ${user.other_names} ${user.surname}`} />
-            <InfoItem icon={Calendar} label="Date of Birth" value={formatDate(user.dob)} />
+            <InfoItem
+              icon={User}
+              label="Full Name"
+              value={
+                `${user.first_name || ""} ${user.other_names || ""} ${user.surname || ""}`.trim() ||
+                "-"
+              }
+            />
+            <InfoItem
+              icon={Calendar}
+              label="Date of Birth"
+              value={formatDate(user.dob)}
+            />
             <InfoItem icon={Users} label="Sex" value={user.sex} />
-            <InfoItem icon={Phone} label="Phone Number" value={user.phone_number} />
+            <InfoItem
+              icon={Phone}
+              label="Phone Number"
+              value={user.phone_number}
+            />
             <InfoItem icon={Mail} label="Email" value={user.email} />
           </div>
         </ProfileCard>
@@ -133,17 +158,33 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
         {/* Origin Information */}
         <ProfileCard title="Origin" icon={Flag}>
           <div className="space-y-4">
-            <InfoItem icon={MapPin} label="State of Origin" value={user.state_of_origin} />
-            <InfoItem icon={Building2} label="Local Government" value={user.lga} />
+            <InfoItem
+              icon={MapPin}
+              label="State of Origin"
+              value={user.state_of_origin}
+            />
+            <InfoItem
+              icon={Building2}
+              label="Local Government"
+              value={user.lga}
+            />
           </div>
         </ProfileCard>
 
         {/* Service Information */}
         <ProfileCard title="Service Information" icon={Briefcase}>
           <div className="space-y-4">
-            <InfoItem icon={Hash} label="Service Number" value={user.service_no} />
+            <InfoItem
+              icon={Hash}
+              label="Service Number"
+              value={user.service_no}
+            />
             <InfoItem icon={Hash} label="File Number" value={user.file_no} />
-            <InfoItem icon={GraduationCap} label="Department" value={user.department} />
+            <InfoItem
+              icon={GraduationCap}
+              label="Department"
+              value={user.department}
+            />
             <InfoItem icon={Briefcase} label="Duty" value={user.duty} />
           </div>
         </ProfileCard>
@@ -151,8 +192,16 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
         {/* Rank Information */}
         <ProfileCard title="Rank & Grade" icon={Shield}>
           <div className="space-y-4">
-            <InfoItem icon={Shield} label="Initial Rank" value={user.initial_rank} />
-            <InfoItem icon={Shield} label="Present Rank" value={user.present_rank} />
+            <InfoItem
+              icon={Shield}
+              label="Initial Rank"
+              value={user.initial_rank}
+            />
+            <InfoItem
+              icon={Shield}
+              label="Present Rank"
+              value={user.present_rank}
+            />
             <InfoItem icon={GraduationCap} label="Level" value={user.level} />
             <InfoItem icon={GraduationCap} label="Step" value={user.step} />
           </div>
@@ -161,88 +210,133 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
         {/* Assignment Information */}
         <ProfileCard title="Current Assignment" icon={MapPin}>
           <div className="space-y-4">
-            <InfoItem icon={MapPin} label="Assigned State" value={user.assigned_state} />
+            <InfoItem
+              icon={MapPin}
+              label="Assigned State"
+              value={user.assigned_state}
+            />
             <InfoItem icon={Building2} label="Prison" value={user.prison} />
-            <InfoItem icon={Building2} label="Present Command" value={user.present_command} />
-            <InfoItem icon={Building2} label="Initial Command" value={user.initial_command} />
+            <InfoItem
+              icon={Building2}
+              label="Present Command"
+              value={user.present_command}
+            />
+            <InfoItem
+              icon={Building2}
+              label="Initial Command"
+              value={user.initial_command}
+            />
           </div>
         </ProfileCard>
 
         {/* Appointment Dates */}
         <ProfileCard title="Appointment History" icon={Calendar}>
           <div className="space-y-4">
-            <InfoItem icon={Calendar} label="First Appointment" value={formatDate(user.date_of_first_appointment)} />
-            <InfoItem icon={Calendar} label="Present Appointment" value={formatDate(user.present_appointment_date)} />
-            <InfoItem icon={Calendar} label="Command Post Date" value={formatDate(user.command_post_date)} />
+            <InfoItem
+              icon={Calendar}
+              label="First Appointment"
+              value={formatDate(user.date_of_first_appointment)}
+            />
+            <InfoItem
+              icon={Calendar}
+              label="Present Appointment"
+              value={formatDate(user.present_appointment_date)}
+            />
+            <InfoItem
+              icon={Calendar}
+              label="Command Post Date"
+              value={formatDate(user.command_post_date)}
+            />
           </div>
         </ProfileCard>
       </div>
 
-      {/* Retirement Card - Full Width */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm overflow-hidden relative">
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-4">
-            <Timer className="w-5 h-5 text-slate-600" />
-            <h3 className="font-semibold text-slate-900">Retirement Countdown</h3>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-6">
-            {/* Progress Section */}
-            <div>
-              <p className="text-slate-500 text-sm mb-3">Service Progress</p>
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-2">
-                <div
-                  className="h-full bg-slate-600 rounded-full transition-all duration-1000"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-slate-500">
-                {progressPercent.toFixed(0)}% of service completed
-              </p>
+      {/* Retirement Card - Full Width (only show if retirement info available) */}
+      {retirementInfo ? (
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm overflow-hidden relative">
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-4">
+              <Timer className="w-5 h-5 text-slate-600" />
+              <h3 className="font-semibold text-slate-900">
+                Retirement Countdown
+              </h3>
             </div>
 
-            {/* Countdown Section */}
-            <div>
-              <p className="text-slate-500 text-sm mb-3">Time Remaining</p>
-              <div className="flex items-baseline gap-1 flex-wrap">
-                <span className="text-3xl font-bold text-slate-900">
-                  {retirementInfo.years}
-                </span>
-                <span className="text-slate-500 text-sm">years</span>
-                <span className="text-2xl font-bold text-slate-700 mx-1">
-                  {retirementInfo.months}
-                </span>
-                <span className="text-slate-500 text-sm">months</span>
-                <span className="text-xl font-bold text-slate-500 mx-1">
-                  {retirementInfo.days}
-                </span>
-                <span className="text-slate-500 text-sm">days</span>
-              </div>
-              <p className="text-sm text-slate-500 mt-2">
-                {retirementInfo.human_readable}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="grid sm:grid-cols-2 gap-6">
+              {/* Progress Section */}
               <div>
-                <p className="text-xs text-slate-500">Expected Retirement Date</p>
-                <p className="text-sm font-medium text-slate-900">{user.retirement_date_formatted}</p>
+                <p className="text-slate-500 text-sm mb-3">Service Progress</p>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-slate-600 rounded-full transition-all duration-1000"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">
+                  {progressPercent.toFixed(0)}% of service completed
+                </p>
               </div>
-              <div
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  user.is_retired
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-emerald-100 text-emerald-700"
-                }`}
-              >
-                {user.is_retired ? "Retired" : "Active Service"}
+
+              {/* Countdown Section */}
+              <div>
+                <p className="text-slate-500 text-sm mb-3">Time Remaining</p>
+                <div className="flex items-baseline gap-1 flex-wrap">
+                  <span className="text-3xl font-bold text-slate-900">
+                    {retirementInfo.years}
+                  </span>
+                  <span className="text-slate-500 text-sm">years</span>
+                  <span className="text-2xl font-bold text-slate-700 mx-1">
+                    {retirementInfo.months}
+                  </span>
+                  <span className="text-slate-500 text-sm">months</span>
+                  <span className="text-xl font-bold text-slate-500 mx-1">
+                    {retirementInfo.days}
+                  </span>
+                  <span className="text-slate-500 text-sm">days</span>
+                </div>
+                <p className="text-sm text-slate-500 mt-2">
+                  {retirementInfo.human_readable}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <p className="text-xs text-slate-500">
+                    Expected Retirement Date
+                  </p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {user.retirement_date_formatted ?? "-"}
+                  </p>
+                </div>
+                <div
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    user.is_retired
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
+                  {user.is_retired ? "Retired" : "Active Service"}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Timer className="w-5 h-5 text-slate-400" />
+            <h3 className="font-semibold text-slate-900">
+              Retirement Information
+            </h3>
+          </div>
+          <p className="text-slate-500 text-sm">
+            Retirement information is not available. Please complete your
+            profile to see retirement details.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -331,7 +425,7 @@ const AdminProfile = ({ user }: { user: AdminUser }) => {
 
 // Loading skeleton
 const ProfileSkeleton = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 animate-pulse">
+  <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 animate-pulse">
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header skeleton */}
       <div className="bg-white rounded-2xl p-6 mb-6">
@@ -369,7 +463,7 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
         <div className="text-center">
           <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <p className="text-slate-600">Please log in to view your profile</p>
@@ -382,18 +476,20 @@ const Profile = () => {
   const photoUrl = isStaff && user.photo ? getFileUrl(user.photo) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-          <p className="text-slate-500 text-sm mt-1">View and manage your account information</p>
+          <p className="text-slate-500 text-sm mt-1">
+            View and manage your account information
+          </p>
         </div>
 
         {/* Profile Header */}
         <div className="relative mb-8">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 rounded-3xl overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-r from-slate-800 via-slate-700 to-slate-800 rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
           </div>
 

@@ -7,11 +7,18 @@ import {
   Search,
   CheckCircle2,
   UserCog,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { type AdminUser, getUserInitials } from "@/lib/api/users";
-import { useRoles } from "@/lib/api/roles";
+import { useRoles, type Role } from "@/lib/api/roles";
+
+interface ConfirmAction {
+  type: "attach" | "detach";
+  role: Role;
+}
 
 interface UserRoleModalProps {
   isOpen: boolean;
@@ -34,6 +41,7 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [removingRoleId, setRemovingRoleId] = useState<number | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const { data: allRoles = [], isLoading: loadingRoles } = useRoles();
 
   if (!user) return null;
@@ -44,9 +52,28 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
     r.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleRemove = (roleId: number) => {
-    setRemovingRoleId(roleId);
-    onRemoveRole(user.id, roleId);
+  const handleRemoveClick = (role: Role) => {
+    setConfirmAction({ type: "detach", role });
+  };
+
+  const handleAssignClick = (role: Role) => {
+    setConfirmAction({ type: "attach", role });
+  };
+
+  const handleConfirm = () => {
+    if (!confirmAction) return;
+
+    if (confirmAction.type === "attach") {
+      onAssignRole(user.id, confirmAction.role.id);
+    } else {
+      setRemovingRoleId(confirmAction.role.id);
+      onRemoveRole(user.id, confirmAction.role.id);
+    }
+    setConfirmAction(null);
+  };
+
+  const handleCancelConfirm = () => {
+    setConfirmAction(null);
   };
 
   return (
@@ -71,6 +98,68 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
           </div>
         </div>
 
+        {/* Confirmation Dialog */}
+        {confirmAction && (
+          <div className="p-4 rounded-xl border-2 border-amber-200 bg-amber-50">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-amber-800">
+                  {confirmAction.type === "attach"
+                    ? "Confirm Role Assignment"
+                    : "Confirm Role Removal"}
+                </h4>
+                <p className="text-sm text-amber-700 mt-1">
+                  {confirmAction.type === "attach" ? (
+                    <>
+                      Are you sure you want to assign the role{" "}
+                      <span className="font-semibold">
+                        "{confirmAction.role.name}"
+                      </span>{" "}
+                      to this user?
+                    </>
+                  ) : (
+                    <>
+                      Are you sure you want to remove the role{" "}
+                      <span className="font-semibold">
+                        "{confirmAction.role.name}"
+                      </span>{" "}
+                      from this user?
+                    </>
+                  )}
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    variant={confirmAction.type === "attach" ? "primary" : "danger"}
+                    onClick={handleConfirm}
+                    disabled={isAssigning || isRemoving}
+                    isLoading={isAssigning || isRemoving}
+                  >
+                    {confirmAction.type === "attach" ? "Yes, Assign" : "Yes, Remove"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelConfirm}
+                    disabled={isAssigning || isRemoving}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+              <button
+                onClick={handleCancelConfirm}
+                className="p-1 hover:bg-amber-200 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4 text-amber-600" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Current Roles */}
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -84,7 +173,7 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
           </div>
 
           {user.roles && user.roles.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2">
               {user.roles.map((role) => (
                 <div
                   key={role.id}
@@ -102,15 +191,15 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
                     </span>
                   </div>
                   <button
-                    onClick={() => handleRemove(role.id)}
+                    onClick={() => handleRemoveClick(role)}
                     disabled={isRemoving && removingRoleId === role.id}
-                    className="p-1.5 rounded-lg hover:bg-red-100 text-red-400 hover:text-red-600 transition-all disabled:opacity-50 opacity-0 group-hover:opacity-100"
-                    title="Remove role"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700 font-medium text-xs transition-all disabled:opacity-50"
+                    title="Remove role from user"
                   >
                     {isRemoving && removingRoleId === role.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     )}
                   </button>
                 </div>
@@ -156,11 +245,11 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
               <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
             </div>
           ) : filteredAvailableRoles.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2 max-h-48 overflow-y-auto pr-1">
+            <div className="grid gap-2 max-h-48 overflow-y-auto pr-1">
               {filteredAvailableRoles.map((role) => (
                 <button
                   key={role.id}
-                  onClick={() => onAssignRole(user.id, role.id)}
+                  onClick={() => handleAssignClick(role)}
                   disabled={isAssigning}
                   className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-ncos-green-300 hover:bg-ncos-green-50 transition-all duration-200 group disabled:opacity-50 text-left"
                 >
@@ -172,11 +261,10 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
                       {role.name}
                     </span>
                   </div>
-                  {isAssigning ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 shrink-0" />
-                  ) : (
-                    <Plus className="w-4 h-4 text-slate-400 group-hover:text-ncos-green-600 shrink-0 transition-colors" />
-                  )}
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-ncos-green-100 text-ncos-green-700 text-xs font-medium group-hover:bg-ncos-green-200 transition-colors shrink-0">
+                    <Plus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Assign</span>
+                  </span>
                 </button>
               ))}
             </div>

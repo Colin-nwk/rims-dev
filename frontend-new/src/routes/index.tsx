@@ -5,6 +5,7 @@ import { ROUTES } from "./constants";
 // Auth pages
 import AdminLogin from "@/pages/auth/AdminLogin";
 import StaffLogin from "@/pages/auth/StaffLogin";
+import Register from "@/pages/auth/Register";
 
 // Protected pages
 import Dashboard from "@/pages/Dashboard";
@@ -38,6 +39,10 @@ export const routes = [
       {
         path: ROUTES.STAFF_LOGIN,
         element: <StaffLogin />,
+      },
+      {
+        path: ROUTES.REGISTER,
+        element: <Register />,
       },
     ],
   },

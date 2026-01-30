@@ -2,6 +2,7 @@ import UserDropdown from "@/components/ui/UserDropdown";
 import { useSidebar } from "@/hooks/useSidebar";
 import { Search, SquareChevronLeft, SquareChevronRight } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const AppHeader = () => {
   const { toggleSidebar, toggleMobileSidebar, isExpanded } = useSidebar();
@@ -35,7 +36,7 @@ const AppHeader = () => {
     <header className="fixed top-0 left-0 right-0 z-50 flex w-full bg-white border-gray-200 lg:sticky lg:left-auto lg:right-auto lg:border-b-2">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
-          <a href="/" className="lg:hidden">
+          <Link to="/" className="lg:hidden">
             <img
               width={40}
               height={40}
@@ -43,7 +44,7 @@ const AppHeader = () => {
               alt="Logo"
               className="object-contain"
             />
-          </a>
+          </Link>
 
           <span className="text-base font-semibold text-gray-900 lg:hidden sm:hidden">
             NCoS RIMS

@@ -5,8 +5,10 @@ import type {
   StaffLoginRequest,
   LoginResponse,
   User,
+  RegisterRequest,
+  RegisterResponse,
+  SetPasswordRequest,
 } from "./types";
-import { loginResponseSchema } from "./schemas";
 
 /**
  * Enhanced Authentication Service
@@ -32,11 +34,10 @@ class AuthService {
       credentials,
     );
 
-    // Validate response with Zod
-    const validatedData = loginResponseSchema.parse(response.data.data);
-
     // Store auth data
-    this.storeAuthData(validatedData);
+    if (response.data.data) {
+      this.storeAuthData(response.data.data);
+    }
 
     return response.data;
   }
@@ -52,11 +53,10 @@ class AuthService {
       credentials,
     );
 
-    // Validate response with Zod
-    const validatedData = loginResponseSchema.parse(response.data.data);
-
     // Store auth data
-    this.storeAuthData(validatedData);
+    if (response.data.data) {
+      this.storeAuthData(response.data.data);
+    }
 
     return response.data;
   }
@@ -70,6 +70,33 @@ class AuthService {
     } finally {
       this.clearAuthData();
     }
+  }
+
+  /**
+   * Register staff - Step 1: Confirm service number, file number, and IPPIS
+   */
+  async register(
+    data: RegisterRequest,
+  ): Promise<ApiResponse<RegisterResponse>> {
+    const response = await apiClient.post<ApiResponse<RegisterResponse>>(
+      "/staff/register",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Set password - Step 2: Set password for newly registered staff
+   * Note: We don't validate/store auth data here since user will be redirected to login
+   */
+  async setPassword(
+    data: SetPasswordRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      "/staff/set-password",
+      data,
+    );
+    return response.data;
   }
 
   /**

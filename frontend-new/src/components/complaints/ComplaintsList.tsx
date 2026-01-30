@@ -218,7 +218,7 @@ export const ComplaintsList: React.FC<ComplaintsListProps> = ({
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-1.5 overflow-x-auto pb-3 scrollbar-hide">
           {STATUS_FILTERS.map((filter) => {
             const count = statusCounts[filter.key as keyof StatusCount];
             const isActive = statusFilter === filter.key;

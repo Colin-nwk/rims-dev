@@ -2,6 +2,7 @@ export const ROUTES = {
   // Auth
   STAFF_LOGIN: "/staff-login",
   ADMIN_LOGIN: "/admin-login",
+  REGISTER: "/register",
 
   // Protected - Staff Module
   DASHBOARD: "/dashboard",
