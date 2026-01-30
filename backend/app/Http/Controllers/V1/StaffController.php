@@ -86,7 +86,7 @@ class StaffController extends Controller
     {
         $this->authorize('staff.view');
 
-        return $this->successResponse($staff->load(['details', 'education']));
+        return $this->successResponse($staff->load(['details', 'education', 'roles']));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)

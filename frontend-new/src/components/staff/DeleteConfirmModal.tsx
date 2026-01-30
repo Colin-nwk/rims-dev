@@ -2,6 +2,7 @@ import React from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { Modal, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import { getFileUrl } from "@/lib/api/apiClient";
 import { Staff } from "@/lib/api/staff";
 
 interface DeleteConfirmModalProps {
@@ -23,6 +24,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   const fullName =
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
+  const photoUrl = getFileUrl(staff.photo);
 
   return (
     <Modal
@@ -52,14 +54,14 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         {/* Staff Info Card */}
         <div className="p-3 mb-6 text-left rounded-lg bg-slate-50">
           <div className="flex items-center gap-3">
-            {staff.photo ? (
+            {photoUrl ? (
               <img
-                src={staff.photo}
+                src={photoUrl}
                 alt={fullName}
                 className="object-cover w-12 h-12 rounded-lg"
               />
             ) : (
-              <div className="flex items-center justify-center w-12 h-12 text-sm font-bold text-white rounded-lg bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
+              <div className="flex items-center justify-center w-12 h-12 text-sm font-bold text-white rounded-lg bg-gradient-to-br from-ncos-green-500 to-ncos-green-700">
                 {staff.first_name?.[0]}
                 {staff.surname?.[0]}
               </div>

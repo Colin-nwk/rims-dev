@@ -13,3 +13,4 @@ export type {
   UploadProgressCallback,
 } from "./types";
 export * from "./change-requests";
+export * from "./roles";

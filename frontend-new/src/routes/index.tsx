@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
 import StaffDirectory from "@/pages/StaffDirectory";
 import Approvals from "@/pages/Approvals";
+import RolesPermissions from "@/pages/RolesPermissions";
 
 // Public pages
 import StaffProfile from "@/pages/StaffProfile";
@@ -73,11 +74,7 @@ export const routes = [
       },
       {
         path: ROUTES.ROLES_PERMISSIONS,
-        element: (
-          <div className="text-slate-600">
-            Roles & Permissions page coming soon...
-          </div>
-        ),
+        element: <RolesPermissions />,
       },
       {
         path: ROUTES.SETTINGS,

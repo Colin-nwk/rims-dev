@@ -388,6 +388,7 @@ const StaffDirectory = () => {
           onClose={handleRoleModalClose}
           staff={selectedStaff}
           onSuccess={handleRoleSuccess}
+          onStaffUpdate={setSelectedStaff}
         />
       </div>
     </div>

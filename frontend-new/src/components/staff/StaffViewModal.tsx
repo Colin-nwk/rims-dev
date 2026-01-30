@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Modal, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import { getFileUrl } from "@/lib/api/apiClient";
 import { Staff } from "@/lib/api/staff";
 
 interface StaffViewModalProps {
@@ -74,6 +75,7 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
 
   const fullName =
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
+  const photoUrl = getFileUrl(staff.photo);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Staff Details" size="2xl">
@@ -82,14 +84,14 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
         <div className="flex items-start gap-6 p-4 rounded-xl bg-slate-50">
           {/* Photo */}
           <div className="shrink-0">
-            {staff.photo ? (
+            {photoUrl ? (
               <img
-                src={staff.photo}
+                src={photoUrl}
                 alt={fullName}
                 className="object-cover w-24 h-24 border-4 border-white shadow-lg rounded-xl"
               />
             ) : (
-              <div className="flex items-center justify-center w-24 h-24 text-2xl font-bold text-white border-4 border-white shadow-lg rounded-xl bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
+              <div className="flex items-center justify-center w-24 h-24 text-2xl font-bold text-white border-4 border-white shadow-lg rounded-xl bg-gradient-to-br from-ncos-green-500 to-ncos-green-700">
                 {staff.first_name?.[0]}
                 {staff.surname?.[0]}
               </div>

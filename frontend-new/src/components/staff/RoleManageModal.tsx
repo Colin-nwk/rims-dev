@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { Shield, Plus, Trash2, Loader2 } from "lucide-react";
 import { Modal, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import { getFileUrl } from "@/lib/api/apiClient";
 import {
   Staff,
   useRoles,
@@ -19,6 +20,7 @@ interface RoleManageModalProps {
   onClose: () => void;
   staff: Staff | null;
   onSuccess?: () => void;
+  onStaffUpdate?: (staff: Staff) => void;
 }
 
 export const RoleManageModal: React.FC<RoleManageModalProps> = ({
@@ -26,8 +28,15 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
   onClose,
   staff,
   onSuccess,
+  onStaffUpdate,
 }) => {
   const [removingRoleId, setRemovingRoleId] = useState<number | null>(null);
+  const [localRoles, setLocalRoles] = useState(staff?.roles || []);
+
+  // Sync local roles when staff prop changes
+  React.useEffect(() => {
+    setLocalRoles(staff?.roles || []);
+  }, [staff?.service_no, staff?.roles]);
 
   const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const assignRole = useAssignRole();
@@ -37,8 +46,9 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
 
   const fullName =
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
-  const currentRoles = staff.roles || [];
+  const currentRoles = localRoles;
   const availableRoles = rolesData?.data || [];
+  const photoUrl = getFileUrl(staff.photo);
 
   // Filter out roles that are already assigned
   const unassignedRoles = availableRoles.filter(
@@ -54,9 +64,20 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
         serviceNo: staff.service_no,
         data: values,
       });
+
+      // Find the assigned role and add it to local state
+      const assignedRole = availableRoles.find((r) => r.id === values.role_id);
+      if (assignedRole) {
+        const newRoles = [...localRoles, assignedRole];
+        setLocalRoles(newRoles);
+        // Update parent state
+        onStaffUpdate?.({ ...staff, roles: newRoles });
+      }
+
       toast.success("Role assigned successfully!");
       resetForm();
       onSuccess?.();
+      onClose();
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Failed to assign role";
@@ -73,6 +94,13 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
         serviceNo: staff.service_no,
         roleId,
       });
+
+      // Remove role from local state
+      const newRoles = localRoles.filter((r) => r.id !== roleId);
+      setLocalRoles(newRoles);
+      // Update parent state
+      onStaffUpdate?.({ ...staff, roles: newRoles });
+
       toast.success(`Role "${roleName}" removed successfully!`);
       onSuccess?.();
     } catch (error: unknown) {
@@ -95,9 +123,9 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
       <div className="space-y-6">
         {/* Staff Info */}
         <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50">
-          {staff.photo ? (
+          {photoUrl ? (
             <img
-              src={staff.photo}
+              src={photoUrl}
               alt={fullName}
               className="object-cover w-12 h-12 rounded-lg"
             />

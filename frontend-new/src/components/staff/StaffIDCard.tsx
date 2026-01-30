@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import html2canvas from "html2canvas";
 import { Download, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getFileUrl } from "@/lib/api/apiClient";
 import { StaffIDCardData } from "@/lib/api/staff";
 
 interface StaffIDCardProps {
@@ -124,6 +125,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
 
   const fullName =
     `${staffData.surname} ${staffData.first_name} ${staffData.other_names || ""}`.trim();
+  const photoUrl = getFileUrl(staffData.photo);
 
   return (
     <div
@@ -270,9 +272,9 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
-                {staffData.photo ? (
+                {photoUrl ? (
                   <img
-                    src={staffData.photo}
+                    src={photoUrl}
                     alt={fullName}
                     style={{
                       width: "100%",

@@ -113,12 +113,12 @@ class StaffService extends BaseService
 
     public function find($id)
     {
-        return Staff::with(['details', 'education'])->findOrFail($id);
+        return Staff::with(['details', 'education', 'roles'])->findOrFail($id);
     }
 
     public function all(array $filters = [])
     {
-        return Staff::with(['details', 'education'])
+        return Staff::with(['details', 'education', 'roles'])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }

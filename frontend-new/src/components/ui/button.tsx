@@ -1,5 +1,5 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
+import * as React from "react";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -31,13 +31,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-indigo-900 text-white hover:bg-indigo-800 focus:ring-indigo-600 shadow-lg shadow-indigo-900/20",
+        "bg-ncos-green-600 text-white hover:bg-ncos-green-700 focus:ring-ncos-green-500 shadow-lg shadow-ncos-green-600/20",
       secondary:
         "bg-gold-500 text-white hover:bg-gold-600 focus:ring-gold-500 shadow-sm",
       outline:
         "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-300",
       ghost:
-        "text-slate-600 hover:bg-slate-100 hover:text-indigo-900 focus:ring-slate-300",
+        "text-slate-600 hover:bg-slate-100 hover:text-ncos-green-700 focus:ring-slate-300",
       danger:
         "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600 shadow-sm",
     };

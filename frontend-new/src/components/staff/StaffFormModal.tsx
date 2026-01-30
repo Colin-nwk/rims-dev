@@ -1,5 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Formik, Form, type FormikHelpers, type FormikProps, type FormikErrors } from "formik";
+import {
+  Formik,
+  Form,
+  type FormikHelpers,
+  type FormikProps,
+  type FormikErrors,
+} from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-toastify";
 import {
@@ -25,6 +31,7 @@ import {
   createStaffSchema,
   sexOptions,
 } from "@/lib/api/staff";
+import { getFileUrl } from "@/lib/api";
 
 // Form values type that allows photo to be File or string (for edit mode)
 type StaffFormValues = Omit<CreateStaffFormData, "photo"> & {
@@ -46,10 +53,61 @@ interface StepConfig {
 }
 
 const steps: StepConfig[] = [
-  { id: 1, title: "Official Info", icon: Briefcase, fields: ["service_no", "file_no", "department", "duty", "present_rank", "initial_rank", "level", "step"] },
-  { id: 2, title: "Personal Details", icon: User, fields: ["surname", "first_name", "other_names", "sex", "dob", "email", "phone_number"] },
-  { id: 3, title: "Posting & Origin", icon: MapPin, fields: ["state_of_origin", "lga", "assigned_state", "prison", "initial_command", "present_command", "command_post_date"] },
-  { id: 4, title: "Documents", icon: FileText, fields: ["photo", "date_of_first_appointment", "present_appointment_date", "status", "is_verified"] },
+  {
+    id: 1,
+    title: "Official Info",
+    icon: Briefcase,
+    fields: [
+      "service_no",
+      "file_no",
+      "department",
+      "duty",
+      "present_rank",
+      "initial_rank",
+      "level",
+      "step",
+    ],
+  },
+  {
+    id: 2,
+    title: "Personal Details",
+    icon: User,
+    fields: [
+      "surname",
+      "first_name",
+      "other_names",
+      "sex",
+      "dob",
+      "email",
+      "phone_number",
+    ],
+  },
+  {
+    id: 3,
+    title: "Posting & Origin",
+    icon: MapPin,
+    fields: [
+      "state_of_origin",
+      "lga",
+      "assigned_state",
+      "prison",
+      "initial_command",
+      "present_command",
+      "command_post_date",
+    ],
+  },
+  {
+    id: 4,
+    title: "Documents",
+    icon: FileText,
+    fields: [
+      "photo",
+      "date_of_first_appointment",
+      "present_appointment_date",
+      "status",
+      "is_verified",
+    ],
+  },
 ];
 
 // Helper to get which step a field belongs to
@@ -63,13 +121,19 @@ const getStepForField = (fieldName: string): number => {
 };
 
 // Helper to get errors for a specific step
-const getErrorsForStep = (errors: FormikErrors<StaffFormValues>, stepIndex: number): string[] => {
+const getErrorsForStep = (
+  errors: FormikErrors<StaffFormValues>,
+  stepIndex: number,
+): string[] => {
   const stepFields = steps[stepIndex].fields;
   return stepFields.filter((field) => errors[field as keyof StaffFormValues]);
 };
 
 // Helper to check if a step has errors
-const stepHasErrors = (errors: FormikErrors<StaffFormValues>, stepIndex: number): boolean => {
+const stepHasErrors = (
+  errors: FormikErrors<StaffFormValues>,
+  stepIndex: number,
+): boolean => {
   return getErrorsForStep(errors, stepIndex).length > 0;
 };
 
@@ -186,7 +250,10 @@ const Select: React.FC<
         )}
       </div>
       {error && (
-        <p className="flex items-center gap-1 text-xs font-medium text-red-600" role="alert">
+        <p
+          className="flex items-center gap-1 text-xs font-medium text-red-600"
+          role="alert"
+        >
           <AlertCircle className="w-3 h-3" />
           {error}
         </p>
@@ -207,7 +274,7 @@ const PhotoUpload: React.FC<{
   React.useEffect(() => {
     if (value instanceof File) {
       const url = URL.createObjectURL(value);
-      setPreview(url);
+      setPreview(getFileUrl(url));
       return () => URL.revokeObjectURL(url);
     } else if (typeof value === "string" && value) {
       setPreview(value);
@@ -284,7 +351,8 @@ const OfficialInfoStep: React.FC<{
   formik: FormikProps<StaffFormValues>;
   isEdit: boolean;
 }> = ({ formik, isEdit }) => {
-  const { values, errors, touched, handleChange, handleBlur, setFieldValue } = formik;
+  const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
+    formik;
 
   return (
     <div className="space-y-4 duration-300 animate-in fade-in slide-in-from-right-4">
@@ -778,12 +846,10 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
   const isPending = createStaff.isPending || updateStaff.isPending;
 
   // Handle form submission with validation
-  const handleFormSubmit = async (
-    formik: FormikProps<StaffFormValues>,
-  ) => {
+  const handleFormSubmit = async (formik: FormikProps<StaffFormValues>) => {
     // Validate all fields
     const errors = await formik.validateForm();
-    
+
     if (Object.keys(errors).length > 0) {
       // Mark all fields as touched to show errors
       const touchedFields: Record<string, boolean> = {};
@@ -799,7 +865,9 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         setCurrentStep(firstErrorStep);
 
         // Count errors per step for the toast message
-        const errorsByStep = steps.map((_, idx) => getErrorsForStep(errors, idx).length);
+        const errorsByStep = steps.map(
+          (_, idx) => getErrorsForStep(errors, idx).length,
+        );
         const stepsWithErrors = errorsByStep
           .map((count, idx) => (count > 0 ? steps[idx].title : null))
           .filter(Boolean);
@@ -813,7 +881,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
               ))}
             </ul>
           </div>,
-          { autoClose: 5000 }
+          { autoClose: 5000 },
         );
       }
       return;
@@ -854,19 +922,21 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
             />
 
             {/* Error summary banner */}
-            {Object.keys(formik.errors).length > 0 && formik.submitCount > 0 && (
-              <div className="flex items-start gap-3 p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
-                <AlertCircle className="w-5 h-5 mt-0.5 text-red-500 shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-red-800">
-                    Please correct the errors before submitting
-                  </p>
-                  <p className="mt-1 text-xs text-red-600">
-                    Click on the highlighted steps above to navigate to fields with errors
-                  </p>
+            {Object.keys(formik.errors).length > 0 &&
+              formik.submitCount > 0 && (
+                <div className="flex items-start gap-3 p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
+                  <AlertCircle className="w-5 h-5 mt-0.5 text-red-500 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-800">
+                      Please correct the errors before submitting
+                    </p>
+                    <p className="mt-1 text-xs text-red-600">
+                      Click on the highlighted steps above to navigate to fields
+                      with errors
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <div className="min-h-75">
               {currentStep === 0 && (
