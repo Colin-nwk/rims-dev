@@ -80,16 +80,16 @@ class RimsMigrationService
                 'email' => $oldStaffRecord->email ?: '',
                 'password' => $oldStaffRecord->pwrd ?: Hash::make('password'),
                 'phone_number' => $oldStaffRecord->phone,
-                'assigned_state' => $oldStaffRecord->assigned_state ?: null,
-                'prison' => $oldStaffRecord->prison,
+                'assigned_state' => $this->parseInteger($oldStaffRecord->assigned_state),
+                'prison' => $this->parseInteger($oldStaffRecord->prison),
                 'surname' => $oldStaffRecord->sname,
                 'first_name' => $oldStaffRecord->fname,
                 'other_names' => $oldStaffRecord->othernames,
                 'sex' => $oldStaffRecord->sex,
                 'initial_rank' => $oldStaffRecord->iniRank,
                 'present_rank' => $oldStaffRecord->presentRank,
-                'level' => $oldStaffRecord->level,
-                'step' => $oldStaffRecord->Step,
+                'level' => $this->parseInteger($oldStaffRecord->level),
+                'step' => $this->parseInteger($oldStaffRecord->Step),
                 'dob' => $this->parseDate($oldStaffRecord->dob),
                 'date_of_first_appointment' => $this->parseDate($oldStaffRecord->first_appt_date),
                 'present_appointment_date' => $this->parseDate($oldStaffRecord->present_appt_date),
@@ -105,7 +105,7 @@ class RimsMigrationService
                 'photo' => $oldStaffRecord->photo,
                 'last_login' => $oldStaffRecord->last_login,
                 'is_verified' => $oldStaffRecord->verified,
-                'status' => $oldStaffRecord->status,
+                'status' => $this->parseInteger($oldStaffRecord->status),
                 'zone_id' => $this->mapZone($oldStaffRecord->presentZone),
             ]);
 
@@ -120,7 +120,7 @@ class RimsMigrationService
                 'place_of_birth' => $oldStaffRecord->place_of_birth,
                 'contact_address' => $oldStaffRecord->contact_address,
                 'permanent_home_address' => $oldStaffRecord->permanent_home_address,
-                'height' => $oldStaffRecord->height,
+                'height' => $this->parseFloat($oldStaffRecord->height), // Use float for height
                 'blood_group' => $oldStaffRecord->blood_group,
                 'genotype' => $oldStaffRecord->blood_genotype,
                 'complexion' => $oldStaffRecord->complexion,
@@ -136,7 +136,7 @@ class RimsMigrationService
                 'marital_status' => $oldStaffRecord->marital_status,
                 'spouse_name' => null, // Not in old schema
                 'spouse_phone' => null, // Not in old schema
-                'number_of_children' => $oldStaffRecord->no_of_children,
+                'number_of_children' => $this->parseInteger($oldStaffRecord->no_of_children),
                 'bank_name' => $oldStaffRecord->bank,
                 'account_number' => $oldStaffRecord->account_no,
                 'account_name' => null, // Not in old schema
@@ -151,7 +151,7 @@ class RimsMigrationService
     {
         $qualifications = DB::connection($this->oldConnection)
             ->table('qualifications')
-            ->where('service_no', $serviceNo)
+            ->where('serviceNo', $serviceNo)
             ->where('status', '!=', '0')
             ->get();
 
@@ -215,6 +215,24 @@ class RimsMigrationService
         
         $value = strtolower(trim($value));
         return in_array($value, ['yes', '1', 'true', 'y']);
+    }
+
+    protected function parseInteger($value)
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+        
+        return (int) $value;
+    }
+
+    protected function parseFloat($value)
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+        
+        return (float) $value;
     }
 
     protected function mapZone($oldZone)
