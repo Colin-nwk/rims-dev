@@ -21,6 +21,7 @@ import {
   getComplaintStatusColor,
   formatRelativeTime,
 } from "@/lib/api/complaints";
+import { useIsAdmin } from "@/hooks/useAuth";
 
 // Date filter options
 export type DateFilter = "all" | "today" | "week" | "month";
@@ -207,10 +208,12 @@ export const ComplaintsList: React.FC<ComplaintsListProps> = ({
                 </span>
               )}
             </Button>
-            <Button size="sm" onClick={onNewTicket}>
-              <Plus className="w-4 h-4 mr-1" />
-              New
-            </Button>
+            {useIsAdmin() ? null : (
+              <Button size="sm" onClick={onNewTicket}>
+                <Plus className="w-4 h-4 mr-1" />
+                New
+              </Button>
+            )}
           </div>
         </div>
 
@@ -448,7 +451,7 @@ export const ComplaintsList: React.FC<ComplaintsListProps> = ({
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              
+
               {/* Page numbers */}
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum: number;

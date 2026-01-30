@@ -184,16 +184,18 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
         )}
 
         {/* Delete button for owner */}
-        {complaint.created_by === currentUserId && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-            onClick={onDelete}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        )}
+        {canManage
+          ? complaint.created_by === currentUserId && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={onDelete}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )
+          : null}
       </div>
 
       {/* Messages */}

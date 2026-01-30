@@ -56,7 +56,7 @@ export interface StaffUser extends BaseUser {
 // Admin user with basic information
 export interface AdminUser extends BaseUser {
   name: string;
-  email_verified_at: string;
+  email_verified_at: string | null;
 }
 
 // Union type for any authenticated user

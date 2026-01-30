@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dropdown } from "./Dropdown";
 import { DropdownItem } from "./DropdownItem";
 import { Settings, LogOut, UserCircle2 } from "lucide-react";
@@ -19,6 +19,24 @@ const getUserAccountType = (user: User): string => {
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   async function handleLogout() {
     try {
@@ -31,7 +49,7 @@ export default function UserDropdown() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       {/* Trigger */}
       <button
         onClick={() => setIsOpen((v) => !v)}
@@ -45,10 +63,10 @@ export default function UserDropdown() {
         </span>
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown - using noop onClose since we handle it ourselves */}
       <Dropdown
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {}}
         className="absolute right-0 mt-3 overflow-hidden bg-white border border-gray-100 shadow-lg w-72 rounded-xl"
       >
         {/* User card */}
@@ -66,12 +84,12 @@ export default function UserDropdown() {
           <li>
             <DropdownItem
               tag="a"
-              href="#"
+              href="/profile"
               onItemClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               <Settings className="w-4 h-4 text-gray-500" />
-              Profile settings
+              Profile
             </DropdownItem>
           </li>
         </ul>

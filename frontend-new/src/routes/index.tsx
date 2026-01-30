@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute, GuestRoute } from "./guards";
+import { ProtectedRoute, GuestRoute, AdminOnlyRoute } from "./guards";
 import { ROUTES } from "./constants";
 
 // Auth pages
@@ -15,6 +15,7 @@ import Approvals from "@/pages/Approvals";
 import RolesPermissions from "@/pages/RolesPermissions";
 import Complaints from "@/pages/Complaints";
 import Statistics from "@/pages/Statistics";
+import Profile from "@/pages/Profile";
 
 // Public pages
 import StaffProfile from "@/pages/StaffProfile";
@@ -45,6 +46,7 @@ export const routes = [
   {
     element: <ProtectedRoute />,
     children: [
+      // Routes accessible to all authenticated users
       {
         path: ROUTES.DASHBOARD,
         element: <Dashboard />,
@@ -60,30 +62,34 @@ export const routes = [
         element: <Complaints />,
       },
       {
-        path: ROUTES.STAFF_DIRECTORY,
-        element: <StaffDirectory />,
+        path: ROUTES.PROFILE,
+        element: <Profile />,
       },
+      // Admin-only routes - staff users will be redirected to dashboard
       {
-        path: ROUTES.ADMIN_USERS_DIRECTORY,
-        element: <AdminUsers />,
-      },
-      {
-        path: ROUTES.APPROVALS,
-        element: <Approvals />,
-      },
-      {
-        path: ROUTES.STATISTICS,
-        element: <Statistics />,
-      },
-      {
-        path: ROUTES.ROLES_PERMISSIONS,
-        element: <RolesPermissions />,
-      },
-      {
-        path: ROUTES.SETTINGS,
-        element: (
-          <div className="text-slate-600">Settings page coming soon...</div>
-        ),
+        element: <AdminOnlyRoute />,
+        children: [
+          {
+            path: ROUTES.STAFF_DIRECTORY,
+            element: <StaffDirectory />,
+          },
+          {
+            path: ROUTES.ADMIN_USERS_DIRECTORY,
+            element: <AdminUsers />,
+          },
+          {
+            path: ROUTES.APPROVALS,
+            element: <Approvals />,
+          },
+          {
+            path: ROUTES.STATISTICS,
+            element: <Statistics />,
+          },
+          {
+            path: ROUTES.ROLES_PERMISSIONS,
+            element: <RolesPermissions />,
+          },
+        ],
       },
     ],
   },

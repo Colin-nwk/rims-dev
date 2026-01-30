@@ -34,9 +34,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiError>) => {
     // Handle 401 - clear tokens and redirect to login
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem("auth_token");
-      window.location.href = "/login";
+      window.location.href = "/staff-login";
     }
 
     // Format error for consistent handling

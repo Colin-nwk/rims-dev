@@ -1,14 +1,14 @@
 import { NavItem } from "@/types";
 import {
-  LayoutDashboard,
+  ChartArea,
+  CheckSquare,
   FolderOpen,
   HelpCircle,
-  Users,
-  CheckSquare,
+  LayoutDashboard,
   Shield,
-  Settings as SettingsIcon,
-  ChartArea,
+  User,
   UserCog,
+  Users,
 } from "lucide-react";
 import { ROUTES } from "./constants";
 
@@ -32,21 +32,25 @@ export const mainNavItems: NavItem[] = [
     name: "Staff Directory",
     icon: <Users className="w-5 h-5" />,
     path: ROUTES.STAFF_DIRECTORY,
+    adminOnly: true,
   },
   {
     name: "Admin Users Directory",
     icon: <UserCog className="w-5 h-5" />,
     path: ROUTES.ADMIN_USERS_DIRECTORY,
+    adminOnly: true,
   },
   {
     name: "Approvals",
     icon: <CheckSquare className="w-5 h-5" />,
     path: ROUTES.APPROVALS,
+    adminOnly: true,
   },
   {
     name: "Statistics",
     icon: <ChartArea className="w-5 h-5" />,
     path: ROUTES.STATISTICS,
+    adminOnly: true,
   },
 ];
 
@@ -55,10 +59,11 @@ export const othersNavItems: NavItem[] = [
     name: "Roles & Permissions",
     icon: <Shield className="w-5 h-5" />,
     path: ROUTES.ROLES_PERMISSIONS,
+    adminOnly: true,
   },
   {
-    name: "Settings",
-    icon: <SettingsIcon className="w-5 h-5" />,
-    path: ROUTES.SETTINGS,
+    name: "Profile",
+    icon: <User className="w-5 h-5" />,
+    path: ROUTES.PROFILE,
   },
 ];

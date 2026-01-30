@@ -83,7 +83,7 @@ export const staffUserSchema = baseUserSchema.extend({
 // Admin user schema
 export const adminUserSchema = baseUserSchema.extend({
   name: z.string(),
-  email_verified_at: z.string(),
+  email_verified_at: z.string().nullable(),
 });
 
 // Union schema for user

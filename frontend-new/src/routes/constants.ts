@@ -16,7 +16,7 @@ export const ROUTES = {
 
   // Protected - System
   ROLES_PERMISSIONS: "/admin/roles",
-  SETTINGS: "/settings",
+  PROFILE: "/profile",
 
   // Public
   STAFF_PROFILE: "/staff/:serviceNo",

@@ -2,6 +2,9 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuthContext";
 import MainLayout from "@/layouts/MainLayout";
 import { mainNavItems, othersNavItems } from "./navigation";
+import { isStaffUser } from "@/lib/api/auth/types";
+import { NavItem } from "@/types";
+import { ROUTES } from "./constants";
 
 /**
  * Loading spinner component for auth state transitions
@@ -94,6 +97,7 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const location = useLocation();
   const {
+    user,
     isAuthenticated,
     isLoading,
     hasAnyRole,
@@ -129,9 +133,23 @@ export function ProtectedRoute({
     }
   }
 
+  // Filter navigation items based on user type
+  const filterNavItems = (items: NavItem[]): NavItem[] => {
+    if (!user) return items;
+    if (isStaffUser(user)) {
+      // Staff users only see non-admin items
+      return items.filter((item) => !item.adminOnly);
+    }
+    // Admin users see all items
+    return items;
+  };
+
+  const filteredMainNav = filterNavItems(mainNavItems);
+  const filteredOthersNav = filterNavItems(othersNavItems);
+
   // Render children or Outlet wrapped with MainLayout
   return (
-    <MainLayout navItems={mainNavItems} othersItems={othersNavItems}>
+    <MainLayout navItems={filteredMainNav} othersItems={filteredOthersNav}>
       {children ? children : <Outlet />}
     </MainLayout>
   );
@@ -168,5 +186,36 @@ export function GuestRoute({
   }
 
   // Render children or Outlet for nested routes
+  return children ? <>{children}</> : <Outlet />;
+}
+
+interface AdminOnlyRouteProps {
+  /** Path to redirect staff users to */
+  redirectTo?: string;
+  /** Custom children instead of Outlet */
+  children?: React.ReactNode;
+}
+
+/**
+ * Admin Only Route Guard
+ * Redirects staff users to dashboard - admin pages only
+ */
+export function AdminOnlyRoute({
+  redirectTo = ROUTES.DASHBOARD,
+  children,
+}: AdminOnlyRouteProps) {
+  const { user, isLoading } = useAuth();
+
+  // Show loading spinner while checking auth state
+  if (isLoading) {
+    return <AuthLoadingSpinner />;
+  }
+
+  // If user is staff, redirect to dashboard
+  if (user && isStaffUser(user)) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  // Render children or Outlet for admin users
   return children ? <>{children}</> : <Outlet />;
 }
