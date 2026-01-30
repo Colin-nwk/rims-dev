@@ -190,7 +190,7 @@ class RimsMigrationService
         $qualifications = DB::connection($this->oldConnection)
             ->table('qualifications')
             ->whereIn('service_no', $serviceNos)
-            ->where('status', '!=', '0')
+            // ->where('status', '!=', '0')
             ->get();
             
         if ($qualifications->isEmpty()) {
@@ -227,7 +227,7 @@ class RimsMigrationService
         $qualifications = DB::connection($this->oldConnection)
             ->table('qualifications')
             ->where('service_no', $serviceNo)
-            ->where('status', '!=', '0')
+            // ->where('status', '!=', '0')
             ->get();
 
         if ($qualifications->isEmpty()) {
