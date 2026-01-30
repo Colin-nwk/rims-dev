@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import {
     LayoutDashboard,
     Users,
@@ -27,17 +27,17 @@ import {
 } from 'lucide-react';
 import { User } from '../types';
 // import { cn } from './ui/Components';
-import { useNotifications, useTheme } from '../App';
+// import { useNotifications, useTheme } from '../App';
 import { cn } from '@/components/ui/Components';
 import { useProductionAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/hooks/useAuth';
 
-interface LayoutProps {
-    children: React.ReactNode;
-    // user: User;
-    // onLogout: () => void;
-    // pendingApprovals?: number;
-}
+// interface LayoutProps {
+//     children: React.ReactNode;
+//     // user: User;
+//     // onLogout: () => void;
+//     // pendingApprovals?: number;
+// }
 
 const NavigationItem = ({
     to,
@@ -88,7 +88,7 @@ const NavigationItem = ({
     </NavLink>
 );
 
-export const MainLayout: React.FC<LayoutProps> = ({ children }) => {
+export const MainLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -101,8 +101,8 @@ export const MainLayout: React.FC<LayoutProps> = ({ children }) => {
     const { user, roles, isAdmin, isStaff } = useProductionAuth();
     const { displayName } = useUserProfile();
 
-    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-    const { theme, toggleTheme } = useTheme();
+    // const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+    // const { theme, toggleTheme } = useTheme();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -482,7 +482,8 @@ export const MainLayout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Page Content */}
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     <div className="max-w-7xl mx-auto w-full animate-in fade-in duration-500">
-                        {children}
+                        {/* {children} */}
+                        <Outlet />
                     </div>
                 </main>
             </div>
