@@ -4,27 +4,33 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   type ColumnDef,
   type SortingState,
   type Table,
   flexRender,
 } from "@tanstack/react-table";
-import { Staff } from "@/lib/api/staff";
-import { getFileUrl } from "@/lib/api";
+import {
+  type ChangeRequest,
+  getModelName,
+  getStatusColor,
+  getTypeColor,
+} from "@/lib/api/change-requests";
 import {
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
   Eye,
-  Edit,
-  Trash2,
-  IdCard,
-  UserCog,
+  CheckCircle,
+  XCircle,
+  Clock,
+  User,
+  FileText,
 } from "lucide-react";
 
 // Separate component for the select all checkbox to properly use hooks
-const SelectAllCheckbox: React.FC<{ table: Table<Staff> }> = ({ table }) => {
+const SelectAllCheckbox: React.FC<{ table: Table<ChangeRequest> }> = ({
+  table,
+}) => {
   const checkboxRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -45,35 +51,67 @@ const SelectAllCheckbox: React.FC<{ table: Table<Staff> }> = ({ table }) => {
   );
 };
 
-interface StaffTableProps {
-  data: Staff[];
+interface ApprovalsTableProps {
+  data: ChangeRequest[];
   isLoading?: boolean;
-  onView?: (staff: Staff) => void;
-  onEdit?: (staff: Staff) => void;
-  onDelete?: (staff: Staff) => void;
-  onViewIDCard?: (staff: Staff) => void;
-  onManageRoles?: (staff: Staff) => void;
-  selectedRows?: string[];
-  onSelectRows?: (serviceNos: string[]) => void;
+  onView?: (request: ChangeRequest) => void;
+  onApprove?: (request: ChangeRequest) => void;
+  onReject?: (request: ChangeRequest) => void;
+  selectedRows?: number[];
+  onSelectRows?: (ids: number[]) => void;
+  showActions?: boolean;
 }
 
-export const StaffTable: React.FC<StaffTableProps> = ({
+export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
   data,
   isLoading = false,
   onView,
-  onEdit,
-  onDelete,
-  onViewIDCard,
-  onManageRoles,
-  // selectedRows = [],
+  onApprove,
+  onReject,
   onSelectRows,
+  showActions = true,
 }) => {
-  "use no memo"; // Disable React Compiler memoization - useReactTable returns unstable functions
+  "use no memo";
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const columns: ColumnDef<Staff>[] = [
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-NG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Get requester name
+  const getRequesterName = (request: ChangeRequest): string => {
+    if (request.requested_by) {
+      const requester = request.requested_by;
+      if (requester.name) return requester.name;
+      if (requester.surname && requester.first_name) {
+        return `${requester.first_name} ${requester.surname}`;
+      }
+      if (requester.email) return requester.email;
+    }
+    return "Unknown";
+  };
+
+  // Preview data summary
+  const getDataPreview = (data: Record<string, unknown>): string => {
+    const keys = Object.keys(data).slice(0, 3);
+    if (keys.length === 0) return "No data";
+    const preview = keys
+      .map((key) => `${key}: ${String(data[key]).substring(0, 20)}`)
+      .join(", ");
+    return preview.length > 60 ? preview.substring(0, 60) + "..." : preview;
+  };
+
+  const columns: ColumnDef<ChangeRequest>[] = [
     // Selection column
     {
       id: "select",
@@ -89,139 +127,123 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       enableSorting: false,
     },
     {
-      accessorKey: "service_no",
-      header: "Service No",
+      accessorKey: "type",
+      header: "Type",
       cell: ({ row }) => (
-        <span className="font-mono font-medium text-slate-900">
-          {row.original.service_no}
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(row.original.type)}`}
+        >
+          {row.original.type}
         </span>
       ),
     },
     {
-      id: "full_name",
-      header: "Full Name",
-      accessorFn: (row) =>
-        `${row.surname} ${row.first_name} ${row.other_names || ""}`,
+      id: "model",
+      header: "Model",
+      accessorFn: (row) => getModelName(row.model_type),
       cell: ({ row }) => (
-        <div className="flex items-center gap-3">
-          {row.original.photo ? (
-            <img
-              src={getFileUrl(row.original.photo)}
-              alt={`${row.original.first_name} ${row.original.surname}`}
-              className="object-cover w-10 h-10 border-2 rounded-full border-slate-200"
-            />
-          ) : (
-            <div className="flex items-center justify-center w-10 h-10 text-sm font-semibold text-white rounded-full bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
-              {row.original.first_name?.[0]}
-              {row.original.surname?.[0]}
-            </div>
-          )}
-          <div>
-            <div className="font-medium text-slate-900">
-              {row.original.surname} {row.original.first_name}
-            </div>
-            {row.original.other_names && (
-              <div className="text-xs text-slate-500">
-                {row.original.other_names}
-              </div>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-slate-100">
+            {getModelName(row.original.model_type) === "Staff" ? (
+              <User className="w-4 h-4 text-slate-600" />
+            ) : (
+              <FileText className="w-4 h-4 text-slate-600" />
             )}
           </div>
+          <span className="text-sm font-medium text-slate-700">
+            {getModelName(row.original.model_type)}
+          </span>
         </div>
       ),
     },
     {
-      accessorKey: "present_rank",
-      header: "Rank",
+      accessorKey: "service_no",
+      header: "Service No",
       cell: ({ row }) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          {row.original.present_rank || "N/A"}
+        <span className="font-mono text-sm text-slate-900">
+          {row.original.service_no || "-"}
         </span>
       ),
     },
     {
-      accessorKey: "department",
-      header: "Department",
+      id: "requester",
+      header: "Requested By",
+      accessorFn: (row) => getRequesterName(row),
       cell: ({ row }) => (
         <span className="text-sm text-slate-600">
-          {row.original.department || "N/A"}
+          {getRequesterName(row.original)}
         </span>
       ),
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      id: "preview",
+      header: "Changes Preview",
       cell: ({ row }) => (
-        <span className="text-sm text-slate-600">
-          {row.original.email || "N/A"}
+        <span
+          className="text-sm text-slate-500 truncate block max-w-xs"
+          title={JSON.stringify(row.original.data, null, 2)}
+        >
+          {getDataPreview(row.original.data)}
         </span>
       ),
-    },
-    {
-      accessorKey: "phone_number",
-      header: "Phone",
-      cell: ({ row }) => (
-        <span className="text-sm text-slate-600">
-          {row.original.phone_number || "N/A"}
-        </span>
-      ),
+      enableSorting: false,
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.original.status === 1
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(row.original.status)}`}
         >
-          {row.original.status === 1 ? "Active" : "Inactive"}
+          {row.original.status}
         </span>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: "Submitted",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+          <Clock className="w-3.5 h-3.5" />
+          {formatDate(row.original.created_at)}
+        </div>
       ),
     },
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onViewIDCard?.(row.original)}
-            className="p-1.5 rounded-lg hover:bg-indigo-50 text-indigo-600 transition-colors"
-            title="View ID Card"
-          >
-            <IdCard className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onView?.(row.original)}
-            className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-            title="View Details"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onEdit?.(row.original)}
-            className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors"
-            title="Edit"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onManageRoles?.(row.original)}
-            className="p-1.5 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors"
-            title="Manage Roles"
-          >
-            <UserCog className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onDelete?.(row.original)}
-            className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-            title="Delete"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const isPending = row.original.status === "PENDING";
+        return (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onView?.(row.original)}
+              className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+              title="View Details"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+            {showActions && isPending && (
+              <>
+                <button
+                  onClick={() => onApprove?.(row.original)}
+                  className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 transition-colors"
+                  title="Approve"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onReject?.(row.original)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                  title="Reject"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+        );
+      },
       enableSorting: false,
     },
   ];
@@ -233,21 +255,20 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       sorting,
       rowSelection,
     },
-    enableRowSelection: true,
+    enableRowSelection: (row) => row.original.status === "PENDING",
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getRowId: (row) => row.service_no,
+    getRowId: (row) => String(row.id),
   });
 
   // Sync selection with parent
   React.useEffect(() => {
     const selected = table
       .getSelectedRowModel()
-      .rows.map((row) => row.original.service_no);
+      .rows.map((row) => row.original.id);
     onSelectRows?.(selected);
   }, [table, rowSelection, onSelectRows]);
 
@@ -263,86 +284,72 @@ export const StaffTable: React.FC<StaffTableProps> = ({
                   <div className="w-4 h-4 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <div className="w-20 h-3 rounded bg-slate-300 animate-pulse" />
+                  <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
+                </th>
+                <th className="px-4 py-3 text-left">
+                  <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
                   <div className="w-20 h-3 rounded bg-slate-300 animate-pulse" />
-                </th>
-                <th className="px-4 py-3 text-left">
-                  <div className="h-3 rounded w-14 bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
                   <div className="w-24 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
+                  <div className="w-32 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
                   <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <div className="h-3 rounded w-14 bg-slate-300 animate-pulse" />
+                  <div className="w-24 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
+                  <div className="w-20 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
               </tr>
             </thead>
             {/* Body skeleton */}
             <tbody className="divide-y divide-slate-100">
-              {[...Array(8)].map((_, rowIndex) => (
+              {[...Array(6)].map((_, rowIndex) => (
                 <tr
                   key={rowIndex}
                   className="animate-pulse"
                   style={{ animationDelay: `${rowIndex * 75}ms` }}
                 >
-                  {/* Checkbox */}
                   <td className="px-4 py-4">
                     <div className="w-4 h-4 rounded bg-slate-200" />
                   </td>
-                  {/* Service No */}
-                  <td className="px-4 py-4">
-                    <div className="w-24 h-4 rounded bg-slate-200" />
-                  </td>
-                  {/* Full Name with Avatar */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-slate-200 to-slate-300 shrink-0" />
-                      <div className="space-y-2">
-                        <div className="w-32 h-4 rounded bg-slate-200" />
-                        <div className="w-20 h-3 rounded bg-slate-100" />
-                      </div>
-                    </div>
-                  </td>
-                  {/* Rank badge */}
                   <td className="px-4 py-4">
                     <div className="w-16 h-6 rounded-full bg-blue-100/70" />
                   </td>
-                  {/* Department */}
                   <td className="px-4 py-4">
-                    <div className="h-4 rounded w-28 bg-slate-200" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-slate-200" />
+                      <div className="w-12 h-4 rounded bg-slate-200" />
+                    </div>
                   </td>
-                  {/* Email */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 rounded w-36 bg-slate-200" />
-                  </td>
-                  {/* Phone */}
                   <td className="px-4 py-4">
                     <div className="w-24 h-4 rounded bg-slate-200" />
                   </td>
-                  {/* Status badge */}
+                  <td className="px-4 py-4">
+                    <div className="w-28 h-4 rounded bg-slate-200" />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="w-40 h-4 rounded bg-slate-200" />
+                  </td>
                   <td className="px-4 py-4">
                     <div
-                      className={`h-6 rounded-full w-16 ${rowIndex % 3 === 0 ? "bg-red-100/70" : "bg-green-100/70"}`}
+                      className={`h-6 rounded-full w-16 ${rowIndex % 3 === 0 ? "bg-amber-100/70" : rowIndex % 3 === 1 ? "bg-emerald-100/70" : "bg-red-100/70"}`}
                     />
                   </td>
-                  {/* Actions */}
+                  <td className="px-4 py-4">
+                    <div className="w-32 h-4 rounded bg-slate-200" />
+                  </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-1.5">
-                      <div className="rounded-lg w-7 h-7 bg-indigo-50" />
                       <div className="rounded-lg w-7 h-7 bg-blue-50" />
-                      <div className="rounded-lg w-7 h-7 bg-amber-50" />
-                      <div className="rounded-lg w-7 h-7 bg-purple-50" />
+                      <div className="rounded-lg w-7 h-7 bg-emerald-50" />
                       <div className="rounded-lg w-7 h-7 bg-red-50" />
                     </div>
                   </td>
@@ -357,17 +364,17 @@ export const StaffTable: React.FC<StaffTableProps> = ({
 
   if (data.length === 0) {
     return (
-      <div className="p-12 text-center border rounded-lg border-slate-200">
+      <div className="p-12 text-center border rounded-lg border-slate-200 bg-white">
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100">
-            <UserCog className="w-8 h-8 text-slate-400" />
+            <FileText className="w-8 h-8 text-slate-400" />
           </div>
           <div>
             <h3 className="mb-1 text-lg font-medium text-slate-900">
-              No staff found
+              No requests found
             </h3>
             <p className="text-sm text-slate-500">
-              Try adjusting your filters or search criteria
+              There are no change requests matching your criteria
             </p>
           </div>
         </div>
@@ -420,7 +427,10 @@ export const StaffTable: React.FC<StaffTableProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="transition-colors hover:bg-slate-50">
+              <tr
+                key={row.id}
+                className={`transition-colors ${row.getIsSelected() ? "bg-ncos-green-50" : "hover:bg-slate-50"}`}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

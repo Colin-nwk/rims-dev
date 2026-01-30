@@ -1,8 +1,8 @@
 // API Layer exports
-export { apiClient } from './apiClient';
-export { queryClient } from './queryClient';
-export { createService, type ServiceType } from './createService';
-export { createQueryHooks } from './createQueryHooks';
+export { apiClient, getFileUrl } from "./apiClient";
+export { queryClient } from "./queryClient";
+export { createService, type ServiceType } from "./createService";
+export { createQueryHooks } from "./createQueryHooks";
 export type {
   ApiResponse,
   PaginatedResponse,
@@ -11,4 +11,5 @@ export type {
   FilterConfig,
   UploadOptions,
   UploadProgressCallback,
-} from './types';
+} from "./types";
+export * from "./change-requests";

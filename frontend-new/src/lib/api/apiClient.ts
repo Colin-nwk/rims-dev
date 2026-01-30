@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 import type { ApiError } from "./types";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -50,5 +50,21 @@ apiClient.interceptors.response.use(
     return Promise.reject(apiError);
   },
 );
+
+// Helper to get full URL for uploaded files
+export const getFileUrl = (path: string | null | undefined): string => {
+  if (!path) return "";
+
+  // If already a full URL, return as is
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  // Get base URL without /api/v1
+  const baseUrl = BASE_URL.replace("/api/v1", "");
+
+  // Prepend storage path
+  return `${baseUrl}/storage/${path}`;
+};
 
 export { apiClient };
