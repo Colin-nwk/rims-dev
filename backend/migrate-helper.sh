@@ -117,7 +117,7 @@ full_migration() {
     print_warning "This will migrate ALL pending records from old RIMS database"
     echo ""
     # php artisan rims:migrate --stats
-      php artisanapp:migrate-rims-data-command --stats
+      php artisan app:migrate-rims-data-command --stats
     echo ""
     read -p "Do you want to proceed? (yes/no): " confirm
     
@@ -130,7 +130,7 @@ full_migration() {
         if [ "$use_screen" == "y" ]; then
             print_info "Starting migration in screen session 'rims-migration'"
             print_info "Use 'screen -r rims-migration' to reattach"
-            screen -dmS rims-migration bash -c "php artisan rims:migrate --batch-size=250 --no-interaction; echo 'Migration completed. Press Enter to exit.'; read"
+            screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 --no-interaction; echo 'Migration completed. Press Enter to exit.'; read"
             print_success "Migration started in background screen session"
             print_info "To monitor: screen -r rims-migration"
         else

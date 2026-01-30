@@ -133,6 +133,10 @@ class RimsMigrationService
                 'next_of_kin_phone' => null, // Not in old schema
                 'next_of_kin_relationship' => $oldStaffRecord->next_of_kin1_relationship,
                 'next_of_kin_address' => $oldStaffRecord->next_of_kin1_address,
+                'next_of_kin2_name' => $oldStaffRecord->next_of_kin2,
+                'next_of_kin2_phone' => null, // Not in old schema
+                'next_of_kin2_relationship' => $oldStaffRecord->next_of_kin2_relationship,
+                'next_of_kin2_address' => $oldStaffRecord->next_of_kin2_address,
                 'marital_status' => $oldStaffRecord->marital_status,
                 'spouse_name' => null, // Not in old schema
                 'spouse_phone' => null, // Not in old schema
