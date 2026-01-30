@@ -133,7 +133,7 @@ full_migration() {
             if [ "$use_screen" == "y" ]; then
                 print_info "Starting migration in screen session 'rims-migration'"
                 print_info "Use 'screen -r rims-migration' to reattach"
-                screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 --no-interaction; echo 'Migration completed. Press Enter to exit.'; read"
+                screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 ; echo 'Migration completed. Press Enter to exit.'; read"
                 print_success "Migration started in background screen session"
                 print_info "To monitor: screen -r rims-migration"
                 echo ""

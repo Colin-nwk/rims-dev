@@ -189,7 +189,7 @@ class RimsMigrationService
     protected function migrateEducationBatch($serviceNos) {
         $qualifications = DB::connection($this->oldConnection)
             ->table('qualifications')
-            ->whereIn('service_no', $serviceNos)
+            ->whereIn('serviceNo', $serviceNos)
             // ->where('status', '!=', '0')
             ->get();
             
@@ -356,7 +356,7 @@ class RimsMigrationService
             'pending_migration' => DB::connection($this->oldConnection)
                 ->table('staff')
                 ->where('deleted', 0)
-                ->whereNotIn('service_no', Staff::pluck('service_no'))
+                ->whereNotIn('serviceNo', Staff::pluck('service_no'))
                 ->count(),
         ];
     }
