@@ -44,3 +44,16 @@ export type {
   UpdateStatusFormData,
   AddMessageFormData,
 } from "./schemas";
+
+// Public complaint exports
+export {
+  RELATED_TO_OPTIONS,
+  publicComplaintSchema,
+  useSubmitPublicComplaint,
+} from "./publicComplaintService";
+
+export type {
+  RelatedToOption,
+  PublicComplaintFormData,
+  PublicComplaintFormSchema,
+} from "./publicComplaintService";

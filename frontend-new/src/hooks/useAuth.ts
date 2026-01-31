@@ -5,8 +5,8 @@ import type {
   StaffLoginRequest,
   LoginResponse,
   User,
-  RegisterRequest,
-  RegisterResponse,
+  ConfirmServiceNumberRequest,
+  ConfirmServiceNumberResponse,
   SetPasswordRequest,
 } from "@/lib/api/auth/types";
 import { getDisplayName, getUserInitials } from "@/lib/api/auth/types";
@@ -74,12 +74,12 @@ export function useLogout() {
 }
 
 /**
- * Hook for staff registration mutation (Step 1)
- * Confirms service number, file number, and IPPIS
+ * Hook for confirming service number (Step 1)
+ * Verifies service number, file number, and IPPIS exist in database
  */
-export function useRegister() {
-  return useMutation<ApiResponse<RegisterResponse>, ApiError, RegisterRequest>({
-    mutationFn: (data) => authService.register(data),
+export function useConfirmServiceNumber() {
+  return useMutation<ApiResponse<ConfirmServiceNumberResponse>, ApiError, ConfirmServiceNumberRequest>({
+    mutationFn: (data) => authService.confirmServiceNumber(data),
   });
 }
 

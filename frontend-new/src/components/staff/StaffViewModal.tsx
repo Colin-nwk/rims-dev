@@ -146,6 +146,11 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
               value={staff.file_no}
               icon={FileText}
             />
+            <InfoItem
+              label="IPPIS Number"
+              value={staff.ippis}
+              icon={FileText}
+            />
             <InfoItem label="Present Rank" value={staff.present_rank} />
             <InfoItem label="Initial Rank" value={staff.initial_rank} />
             <InfoItem

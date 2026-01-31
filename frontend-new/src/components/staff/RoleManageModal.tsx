@@ -161,6 +161,7 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
             </h3>
             <p className="text-sm text-slate-500 truncate">
               Service No: {staff.service_no}
+              {staff.ippis && ` • IPPIS: ${staff.ippis}`}
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 rounded-full">

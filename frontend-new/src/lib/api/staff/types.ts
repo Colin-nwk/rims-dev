@@ -84,6 +84,7 @@ export interface Staff {
 
   // Administrative
   file_no?: string;
+  ippis?: string;
   description?: string;
   status: number; // 1 = active, 0 = inactive
   is_verified?: boolean;
@@ -139,6 +140,7 @@ export interface CreateStaffDTO {
 
   // Administrative
   file_no?: string;
+  ippis?: string;
   description?: string;
   is_verified?: boolean;
 
@@ -181,6 +183,7 @@ export interface UpdateStaffDTO {
   present_command?: string;
 
   file_no?: string;
+  ippis?: string;
   description?: string;
   is_verified?: boolean;
 
@@ -193,6 +196,7 @@ export interface UpdateStaffDTO {
 // ID Card Data
 export interface StaffIDCardData {
   service_no: string;
+  ippis?: string;
   surname: string;
   first_name: string;
   other_names?: string;

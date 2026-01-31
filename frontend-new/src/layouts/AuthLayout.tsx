@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 const navItems: { label: string; path: string; external?: boolean }[] = [
   { label: "Login", path: "/staff-login" },
-  { label: "Confirm Service Number/IPPIS", path: "/register" },
+  { label: "Confirm Service Number/IPPIS", path: "/confirm-service-number" },
   { label: "Make a Request", path: "/complaint" },
   // {
   //   label: "Telegram Help",
@@ -48,16 +48,16 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <nav className="relative z-20 px-4 py-4 sm:px-6 border-b border-white/20">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/staff-login" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <img
               src="/logo.png"
-              alt="Nigerian Correctional Service"
+              alt="Nigerian Correctional Service Logo"
               className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
             />
             <span className="text-white font-bold text-lg sm:text-xl tracking-wide">
               NCoS RIMS
             </span>
-          </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <ul className="hidden sm:flex flex-wrap items-center gap-4 sm:gap-8 text-sm">
@@ -111,7 +111,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               {navItems.map((item, index) => (
                 <li
                   key={item.label}
-                  className={index !== navItems.length - 1 ? "border-b border-white/10" : ""}
+                  className={
+                    index !== navItems.length - 1
+                      ? "border-b border-white/10"
+                      : ""
+                  }
                 >
                   {item?.external ? (
                     <a

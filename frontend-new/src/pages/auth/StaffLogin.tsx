@@ -68,7 +68,7 @@ export default function StaffLogin() {
             <span className="font-semibold">NOTE:</span> If you are logging in
             for the first time, please click{" "}
             <Link
-              to="/register"
+              to="/confirm-service-number"
               className="font-bold underline transition-colors text-blue-600 hover:text-blue-800"
             >
               Confirm Service Number

@@ -192,6 +192,7 @@ class StaffController extends Controller
 
         return $this->successResponse([
             'service_no' => $staff->service_no,
+            'ippis' => $staff->ippis,
             'surname' => $staff->surname,
             'first_name' => $staff->first_name,
             'other_names' => $staff->other_names,

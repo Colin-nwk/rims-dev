@@ -1,10 +1,10 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuthContext";
 import MainLayout from "@/layouts/MainLayout";
-import { mainNavItems, othersNavItems } from "./navigation";
-import { isStaffUser } from "@/lib/api/auth/types";
+import { isAdminUser, isStaffUser } from "@/lib/api/auth/types";
 import { NavItem } from "@/types";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { ROUTES } from "./constants";
+import { mainNavItems, othersNavItems } from "./navigation";
 
 /**
  * Loading spinner component for auth state transitions
@@ -217,5 +217,36 @@ export function AdminOnlyRoute({
   }
 
   // Render children or Outlet for admin users
+  return children ? <>{children}</> : <Outlet />;
+}
+
+interface StaffOnlyRouteProps {
+  /** Path to redirect admin users to */
+  redirectTo?: string;
+  /** Custom children instead of Outlet */
+  children?: React.ReactNode;
+}
+
+/**
+ * Staff Only Route Guard
+ * Redirects admin users to admin dashboard - staff pages only
+ */
+export function StaffOnlyRoute({
+  redirectTo = ROUTES.DASHBOARD,
+  children,
+}: StaffOnlyRouteProps) {
+  const { user, isLoading } = useAuth();
+
+  // Show loading spinner while checking auth state
+  if (isLoading) {
+    return <AuthLoadingSpinner />;
+  }
+
+  // If user is admin, redirect to admin dashboard
+  if (user && isAdminUser(user)) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  // Render children or Outlet for staff users
   return children ? <>{children}</> : <Outlet />;
 }

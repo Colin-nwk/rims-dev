@@ -1,7 +1,16 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { Loader2, User, Mail, Lock, Eye, EyeOff, Info } from "lucide-react";
+import {
+  Loader2,
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Info,
+  KeyRound,
+} from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +39,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
 }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [showPasswordSection, setShowPasswordSection] = React.useState(false);
 
   const isEditing = !!user;
   const title = isEditing ? "Edit User" : "Create New User";
@@ -42,6 +52,8 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         name: user.name,
         email: user.email,
         status: user.status,
+        password: "",
+        password_confirmation: "",
       }
     : {
         name: "",
@@ -55,8 +67,27 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     : toFormikValidationSchema(createUserSchema);
 
   const handleSubmit = (values: CreateUserFormData | UpdateUserFormData) => {
-    onSubmit(values);
+    // Remove empty password fields when editing
+    if (isEditing) {
+      const data = { ...values } as UpdateUserFormData;
+      if (!data.password || data.password.length === 0) {
+        delete data.password;
+        delete data.password_confirmation;
+      }
+      onSubmit(data);
+    } else {
+      onSubmit(values);
+    }
   };
+
+  // Reset password section when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setShowPasswordSection(false);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+    }
+  }, [isOpen]);
 
   return (
     <Modal
@@ -72,7 +103,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ errors, touched }) => (
+        {({ errors, touched, setFieldValue }) => (
           <Form className="space-y-5">
             {/* Name field */}
             <div className="space-y-1.5">
@@ -128,100 +159,6 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
               />
             </div>
 
-            {/* Password fields - only for creation */}
-            {!isEditing && (
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Lock className="w-4 h-4 text-slate-400" />
-                    </div>
-                    <Field
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
-                        (errors as CreateUserFormData).password &&
-                        (touched as Record<string, boolean>).password
-                          ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                          : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  <ErrorMessage
-                    name="password"
-                    component="p"
-                    className="text-xs text-red-500 mt-1"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700">
-                    Confirm <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Lock className="w-4 h-4 text-slate-400" />
-                    </div>
-                    <Field
-                      name="password_confirmation"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
-                        (errors as CreateUserFormData).password_confirmation &&
-                        (touched as Record<string, boolean>)
-                          .password_confirmation
-                          ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                          : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  <ErrorMessage
-                    name="password_confirmation"
-                    component="p"
-                    className="text-xs text-red-500 mt-1"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Password requirements hint */}
-            {!isEditing && (
-              <p className="text-xs text-slate-500 flex items-start gap-1.5">
-                <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span>
-                  Min 8 characters with uppercase, lowercase, and number
-                </span>
-              </p>
-            )}
-
             {/* Status field - only for editing */}
             {isEditing && (
               <div className="space-y-1.5">
@@ -239,6 +176,134 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                     </option>
                   ))}
                 </Field>
+              </div>
+            )}
+
+            {/* Password section toggle for editing */}
+            {isEditing && !showPasswordSection && (
+              <button
+                type="button"
+                onClick={() => setShowPasswordSection(true)}
+                className="flex items-center gap-2 text-sm font-medium text-ncos-green-700 hover:text-ncos-green-800 transition-colors"
+              >
+                <KeyRound className="w-4 h-4" />
+                Change Password
+              </button>
+            )}
+
+            {/* Password fields - always show for creation, toggle for editing */}
+            {(!isEditing || showPasswordSection) && (
+              <div className="space-y-4">
+                {isEditing && (
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <KeyRound className="w-4 h-4 text-slate-500" />
+                      Change Password
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPasswordSection(false);
+                        setFieldValue("password", "");
+                        setFieldValue("password_confirmation", "");
+                      }}
+                      className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-slate-700">
+                      {isEditing ? "New Password" : "Password"}{" "}
+                      {!isEditing && <span className="text-red-500">*</span>}
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <Lock className="w-4 h-4 text-slate-400" />
+                      </div>
+                      <Field
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
+                          (errors as Record<string, string>).password &&
+                          (touched as Record<string, boolean>).password
+                            ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    <ErrorMessage
+                      name="password"
+                      component="p"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-slate-700">
+                      Confirm {!isEditing && <span className="text-red-500">*</span>}
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <Lock className="w-4 h-4 text-slate-400" />
+                      </div>
+                      <Field
+                        name="password_confirmation"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
+                          (errors as Record<string, string>)
+                            .password_confirmation &&
+                          (touched as Record<string, boolean>)
+                            .password_confirmation
+                            ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    <ErrorMessage
+                      name="password_confirmation"
+                      component="p"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Password requirements hint */}
+                <p className="text-xs text-slate-500 flex items-start gap-1.5">
+                  <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span>
+                    Min 8 characters with uppercase, lowercase, and number
+                  </span>
+                </p>
               </div>
             )}
 

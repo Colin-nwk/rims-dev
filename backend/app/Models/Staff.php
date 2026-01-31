@@ -37,6 +37,7 @@ class Staff extends Authenticatable
         'lga',
         'department',
         'file_no',
+        'ippis',
         'duty',
         'description',
         'photo',
@@ -52,6 +53,7 @@ class Staff extends Authenticatable
         'first_name',
         'email',
         'file_no',
+        'ippis',
     ];
 
 

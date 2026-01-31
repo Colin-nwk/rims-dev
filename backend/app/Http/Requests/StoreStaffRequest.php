@@ -44,6 +44,7 @@ class StoreStaffRequest extends FormRequest
             'lga' => 'nullable|string',
             'department' => 'nullable|string',
             'file_no' => 'nullable|string',
+            'ippis' => 'nullable|string|unique:staff,ippis',
             'duty' => 'nullable|string',
             'description' => 'nullable|string',
             'is_verified' => 'boolean',

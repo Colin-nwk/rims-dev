@@ -437,6 +437,30 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                       margin: 0,
                     }}
                   >
+                    IPPIS No
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      color: COLORS.white,
+                      fontFamily: "monospace",
+                      margin: 0,
+                    }}
+                  >
+                    {staffData.ippis || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    style={{
+                      fontSize: "7px",
+                      color: COLORS.slate300,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      margin: 0,
+                    }}
+                  >
                     Date of Birth
                   </p>
                   <p
@@ -457,7 +481,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   </p>
                 </div>
                 {staffData.assigned_state_name && (
-                  <div style={{ gridColumn: "1 / -1" }}>
+                  <div>
                     <p
                       style={{
                         fontSize: "7px",

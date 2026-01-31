@@ -2,10 +2,12 @@ export const ROUTES = {
   // Auth
   STAFF_LOGIN: "/staff-login",
   ADMIN_LOGIN: "/admin-login",
-  REGISTER: "/register",
+  CONFIRM_SERVICE_NUMBER: "/confirm-service-number",
+  PUBLIC_COMPLAINT: "/complaint",
 
   // Protected - Staff Module
   DASHBOARD: "/dashboard",
+  DASHBOARD_STAFF: "/dashboard",
   DOCUMENTS: "/documents",
   HELP_DESK: "/help-desk",
 

@@ -327,9 +327,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
         </div>
 
         {/* Message Content */}
-        <p className="text-sm whitespace-pre-wrap leading-relaxed">
-          {message.content}
-        </p>
+        <div
+          className="text-sm leading-relaxed prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-1 [&_strong]:font-semibold"
+          dangerouslySetInnerHTML={{ __html: message.content }}
+        />
       </div>
     </div>
   );

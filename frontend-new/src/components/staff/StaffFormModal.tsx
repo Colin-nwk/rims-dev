@@ -59,6 +59,7 @@ const steps: StepConfig[] = [
     icon: Briefcase,
     fields: [
       "service_no",
+      "ippis",
       "file_no",
       "department",
       "duty",
@@ -356,7 +357,7 @@ const OfficialInfoStep: React.FC<{
 
   return (
     <div className="space-y-4 duration-300 animate-in fade-in slide-in-from-right-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Input
           label="Service Number"
           name="service_no"
@@ -366,6 +367,15 @@ const OfficialInfoStep: React.FC<{
           error={touched.service_no ? errors.service_no : undefined}
           placeholder="e.g., 00001"
           disabled={isEdit}
+        />
+        <Input
+          label="IPPIS Number"
+          name="ippis"
+          value={values.ippis || ""}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.ippis ? errors.ippis : undefined}
+          placeholder="e.g., 123456789"
         />
         <Input
           label="File Number"
@@ -752,6 +762,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         initial_command: staff.initial_command || "",
         present_command: staff.present_command || "",
         file_no: staff.file_no || "",
+        ippis: staff.ippis || "",
         description: staff.description || "",
         is_verified: staff.is_verified || false,
         photo: staff.photo || undefined,
@@ -782,6 +793,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         initial_command: "",
         present_command: "",
         file_no: "",
+        ippis: "",
         description: "",
         is_verified: false,
         photo: undefined,

@@ -26,7 +26,9 @@ import {
 } from "@/lib/api/users";
 
 // Separate component for the select all checkbox
-const SelectAllCheckbox: React.FC<{ table: Table<AdminUser> }> = ({ table }) => {
+const SelectAllCheckbox: React.FC<{ table: Table<AdminUser> }> = ({
+  table,
+}) => {
   const checkboxRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -130,7 +132,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         cell: ({ row }) => (
           <span
             className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${getUserStatusColor(
-              row.original.status
+              row.original.status,
             )}`}
           >
             {row.original.status}
@@ -222,7 +224,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         enableSorting: false,
       },
     ],
-    [currentUserId, onView, onEdit, onDelete, onManageRoles]
+    [currentUserId, onView, onEdit, onDelete, onManageRoles],
   );
 
   const table = useReactTable({
@@ -265,7 +267,9 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         <div className="flex flex-col items-center justify-center text-slate-400">
           <UserCog className="w-12 h-12 mb-3 opacity-50" />
           <p className="font-medium">No users found</p>
-          <p className="text-sm mt-1">Try adjusting your filters or create a new user</p>
+          <p className="text-sm mt-1">
+            Try adjusting your filters or create a new user
+          </p>
         </div>
       </div>
     );
@@ -295,7 +299,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                         {header.column.getCanSort() && (
                           <span className="text-slate-400">

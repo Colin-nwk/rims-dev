@@ -462,7 +462,7 @@ const Profile = () => {
   }
 
   if (!user) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
         <div className="text-center">
           <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />

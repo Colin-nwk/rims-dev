@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('staff')->group(function () {
     Route::post('login', [StaffAuthController::class, 'login'])->middleware('throttle:auth');
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
-    Route::post('register', [StaffAuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('confirm', [StaffAuthController::class, 'confirmServiceNumber'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
 });
 
@@ -44,6 +44,9 @@ Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', '
 
 // Staff ID Card - Public access (for QR code scanning)
 Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
+
+// Public Complaint Submission (validates staff via service_no + ippis)
+Route::post('complaints/public', [ComplaintController::class, 'storePublic'])->middleware('throttle:auth');
 
 // ==============================================================================
 // PROTECTED ROUTES (Sanctum Auth)

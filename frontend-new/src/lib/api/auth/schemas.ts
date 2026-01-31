@@ -98,8 +98,8 @@ export const loginResponseSchema = z.object({
   permissions: z.array(z.string()),
 });
 
-// Staff registration schema (Step 1: Confirm service number)
-export const registerSchema = z.object({
+// Confirm service number schema (Step 1: Verify service number, file number, IPPIS)
+export const confirmServiceNumberSchema = z.object({
   service_no: z
     .string({ error: "Service number is required" })
     .min(1, "Service number is required"),
@@ -111,7 +111,7 @@ export const registerSchema = z.object({
     .min(1, "IPPIS number is required"),
 });
 
-export type RegisterFormData = z.infer<typeof registerSchema>;
+export type ConfirmServiceNumberFormData = z.infer<typeof confirmServiceNumberSchema>;
 
 // Set password schema (Step 2: Set password after registration)
 export const setPasswordSchema = z

@@ -1,58 +1,72 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Formik, Form, type FormikHelpers } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useRegister, useSetPassword } from "@/hooks/useAuth";
+import { Input } from "@/components/ui/input";
+import { useConfirmServiceNumber, useSetPassword } from "@/hooks/useAuth";
+import AuthLayout from "@/layouts/AuthLayout";
 import {
-  registerSchema,
+  confirmServiceNumberSchema,
   setPasswordSchema,
-  type RegisterFormData,
+  type ConfirmServiceNumberFormData,
   type SetPasswordFormData,
 } from "@/lib/api/auth/schemas";
-import { CheckCircle, ArrowLeft } from "lucide-react";
-import AuthLayout from "@/layouts/AuthLayout";
+import { Form, Formik, type FormikHelpers } from "formik";
+import { AlertCircle, ArrowLeft, CheckCircle, User } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 type Step = "confirm" | "password";
+
+interface ConfirmedStaff {
+  service_no: string;
+  first_name: string;
+  surname: string;
+}
 
 export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("confirm");
-  const [serviceNo, setServiceNo] = useState("");
+  const [confirmedStaff, setConfirmedStaff] = useState<ConfirmedStaff | null>(
+    null,
+  );
+  const [showConfirmError, setShowConfirmError] = useState(false);
 
-  const { mutate: register, isPending: isRegistering } = useRegister();
+  const { mutate: confirmServiceNumber, isPending: isConfirming } =
+    useConfirmServiceNumber();
   const { mutate: setPassword, isPending: isSettingPassword } =
     useSetPassword();
 
-  const registerInitialValues: RegisterFormData = {
+  const confirmInitialValues: ConfirmServiceNumberFormData = {
     service_no: "",
     file_no: "",
     ippis: "",
   };
 
   const passwordInitialValues: SetPasswordFormData = {
-    service_no: serviceNo,
+    service_no: confirmedStaff?.service_no || "",
     password: "",
     password_confirmation: "",
   };
 
-  const handleRegister = (
-    values: RegisterFormData,
-    { setSubmitting }: FormikHelpers<RegisterFormData>,
+  const handleConfirm = (
+    values: ConfirmServiceNumberFormData,
+    { setSubmitting }: FormikHelpers<ConfirmServiceNumberFormData>,
   ) => {
-    register(values, {
+    setShowConfirmError(false); // Clear previous error
+    confirmServiceNumber(values, {
       onSuccess: (response) => {
         toast.success("Service number confirmed! Please set your password.");
-        setServiceNo(response.data?.service_no || values.service_no);
+        setConfirmedStaff({
+          service_no: response.data?.service_no || values.service_no,
+          first_name: response.data?.first_name || "",
+          surname: response.data?.surname || "",
+        });
+        setShowConfirmError(false);
         setStep("password");
       },
-      onError: (error) => {
-        toast.error(
-          error.message || "Registration failed. Please check your details.",
-        );
+      onError: () => {
+        setShowConfirmError(true);
         setSubmitting(false);
       },
       onSettled: () => {
@@ -65,8 +79,10 @@ export default function Register() {
     values: SetPasswordFormData,
     { setSubmitting }: FormikHelpers<SetPasswordFormData>,
   ) => {
+    if (!confirmedStaff) return;
+
     setPassword(
-      { ...values, service_no: serviceNo },
+      { ...values, service_no: confirmedStaff.service_no },
       {
         onSuccess: () => {
           toast.success(
@@ -141,20 +157,42 @@ export default function Register() {
         {/* Step 1: Confirm Service Number */}
         {step === "confirm" && (
           <Formik
-            initialValues={registerInitialValues}
-            validationSchema={toFormikValidationSchema(registerSchema)}
-            onSubmit={handleRegister}
+            initialValues={confirmInitialValues}
+            validationSchema={toFormikValidationSchema(
+              confirmServiceNumberSchema,
+            )}
+            onSubmit={handleConfirm}
             validateOnBlur={true}
             validateOnChange={false}
           >
             {({ errors, touched, isSubmitting, getFieldProps }) => (
               <Form className="space-y-4 sm:space-y-5">
+                {/* Error Alert */}
+                {showConfirmError && (
+                  <div className="p-3 sm:p-4 rounded-lg bg-red-50 border border-red-200">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                      <p className="text-xs sm:text-sm text-red-700 leading-relaxed">
+                        Service number, IPPIS and file number do not match. You
+                        can use the{" "}
+                        <Link
+                          to="/complaint"
+                          className="font-bold underline transition-colors text-red-600 hover:text-red-800"
+                        >
+                          Make a Request
+                        </Link>{" "}
+                        link to talk to an admin for help.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <Input
                   label="Service Number"
                   type="text"
                   placeholder="Enter your service number"
                   error={touched.service_no ? errors.service_no : undefined}
-                  disabled={isRegistering || isSubmitting}
+                  disabled={isConfirming || isSubmitting}
                   autoFocus
                   {...getFieldProps("service_no")}
                 />
@@ -164,7 +202,7 @@ export default function Register() {
                   type="text"
                   placeholder="Enter your file number"
                   error={touched.file_no ? errors.file_no : undefined}
-                  disabled={isRegistering || isSubmitting}
+                  disabled={isConfirming || isSubmitting}
                   {...getFieldProps("file_no")}
                 />
 
@@ -173,17 +211,17 @@ export default function Register() {
                   type="text"
                   placeholder="Enter your IPPIS number"
                   error={touched.ippis ? errors.ippis : undefined}
-                  disabled={isRegistering || isSubmitting}
+                  disabled={isConfirming || isSubmitting}
                   {...getFieldProps("ippis")}
                 />
 
                 <Button
                   type="submit"
                   className="w-full text-sm text-white shadow-lg sm:text-base shadow-ncos-green-900/20 bg-ncos-green-900 hover:bg-ncos-green-800"
-                  isLoading={isRegistering || isSubmitting}
-                  disabled={isRegistering || isSubmitting}
+                  isLoading={isConfirming || isSubmitting}
+                  disabled={isConfirming || isSubmitting}
                 >
-                  {isRegistering || isSubmitting
+                  {isConfirming || isSubmitting
                     ? "Verifying..."
                     : "Confirm Details"}
                 </Button>
@@ -193,7 +231,7 @@ export default function Register() {
         )}
 
         {/* Step 2: Set Password */}
-        {step === "password" && (
+        {step === "password" && confirmedStaff && (
           <Formik
             initialValues={passwordInitialValues}
             validationSchema={toFormikValidationSchema(setPasswordSchema)}
@@ -204,10 +242,21 @@ export default function Register() {
           >
             {({ errors, touched, isSubmitting, getFieldProps }) => (
               <Form className="space-y-4 sm:space-y-5">
-                {/* Service Number Display */}
-                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                  <p className="text-xs text-slate-500 mb-1">Service Number</p>
-                  <p className="font-semibold text-slate-900">{serviceNo}</p>
+                {/* Confirmed Staff Display */}
+                <div className="p-4 rounded-lg bg-ncos-green-50 border border-ncos-green-200">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-ncos-green-100">
+                      <User className="w-5 h-5 text-ncos-green-700" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">
+                        {confirmedStaff.first_name} {confirmedStaff.surname}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Service No: {confirmedStaff.service_no}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <Input
@@ -253,7 +302,10 @@ export default function Register() {
 
                 <button
                   type="button"
-                  onClick={() => setStep("confirm")}
+                  onClick={() => {
+                    setStep("confirm");
+                    setShowConfirmError(false);
+                  }}
                   className="flex items-center justify-center w-full gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   disabled={isSettingPassword || isSubmitting}
                 >
@@ -268,7 +320,7 @@ export default function Register() {
         {/* Login Link */}
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-600">
-            Already have an account?{" "}
+            Already have a valid account?{" "}
             <Link
               to="/staff-login"
               className="font-semibold text-ncos-green-900 hover:text-ncos-green-700 transition-colors"

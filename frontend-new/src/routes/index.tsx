@@ -6,9 +6,10 @@ import { ROUTES } from "./constants";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import StaffLogin from "@/pages/auth/StaffLogin";
 import Register from "@/pages/auth/Register";
+import PublicComplaint from "@/pages/auth/Complaint";
 
 // Protected pages
-import Dashboard from "@/pages/Dashboard";
+import DashboardRouter from "@/pages/DashboardRouter";
 import NotFound from "@/pages/NotFound";
 import StaffDirectory from "@/pages/StaffDirectory";
 import AdminUsers from "@/pages/AdminUsers";
@@ -22,10 +23,14 @@ import Profile from "@/pages/Profile";
 import StaffProfile from "@/pages/StaffProfile";
 
 export const routes = [
-  // Public route - (no auth or redirection required)
+  // Public routes - (no auth or redirection required)
   {
     path: ROUTES.STAFF_PROFILE,
     element: <StaffProfile />,
+  },
+  {
+    path: ROUTES.PUBLIC_COMPLAINT,
+    element: <PublicComplaint />,
   },
 
   // Guest routes - redirect to dashboard if already authenticated
@@ -41,7 +46,7 @@ export const routes = [
         element: <StaffLogin />,
       },
       {
-        path: ROUTES.REGISTER,
+        path: ROUTES.CONFIRM_SERVICE_NUMBER,
         element: <Register />,
       },
     ],
@@ -51,11 +56,12 @@ export const routes = [
   {
     element: <ProtectedRoute />,
     children: [
-      // Routes accessible to all authenticated users
+      // Dashboard - renders appropriate dashboard based on user type
       {
         path: ROUTES.DASHBOARD,
-        element: <Dashboard />,
+        element: <DashboardRouter />,
       },
+      // Routes accessible to all authenticated users
       {
         path: ROUTES.DOCUMENTS,
         element: (

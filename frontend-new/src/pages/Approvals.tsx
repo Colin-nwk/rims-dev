@@ -7,6 +7,7 @@ import {
   ApprovalsFilters,
   RequestDetailModal,
   RejectModal,
+  ApproveModal,
 } from "@/components/approvals";
 import {
   type ChangeRequest,
@@ -39,6 +40,7 @@ const Approvals = () => {
 
   // Modal states
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(
     null,
@@ -120,11 +122,21 @@ const Approvals = () => {
     setIsDetailModalOpen(true);
   };
 
-  // Approve single request
+  // Open approve modal
   const handleApprove = (request: ChangeRequest) => {
-    approveRequest.mutate(request.id, {
+    setSelectedRequest(request);
+    setIsApproveModalOpen(true);
+  };
+
+  // Confirm approval
+  const handleConfirmApprove = () => {
+    if (!selectedRequest) return;
+
+    approveRequest.mutate(selectedRequest.id, {
       onSuccess: () => {
         toast.success("Request approved successfully");
+        setIsApproveModalOpen(false);
+        setSelectedRequest(null);
         refetch();
       },
       onError: (error) => {
@@ -415,6 +427,18 @@ const Approvals = () => {
           request={selectedRequest}
           onApprove={handleApprove}
           onReject={handleReject}
+        />
+
+        {/* Approve Modal */}
+        <ApproveModal
+          isOpen={isApproveModalOpen}
+          onClose={() => {
+            setIsApproveModalOpen(false);
+            setSelectedRequest(null);
+          }}
+          request={selectedRequest}
+          onConfirm={handleConfirmApprove}
+          isLoading={approveRequest.isPending}
         />
 
         {/* Reject Modal */}

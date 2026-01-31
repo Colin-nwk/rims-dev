@@ -148,6 +148,7 @@ const baseStaffSchema = z.object({
 
   // Administrative
   file_no: z.string().optional(),
+  ippis: z.string().optional(),
   description: z.string().optional(),
   is_verified: z.boolean().optional(),
 });
@@ -169,6 +170,7 @@ export const updateStaffSchema = baseStaffSchema.partial().extend({
 // Step 1: Official Info
 export const officialInfoSchema = z.object({
   service_no: z.string().min(1, "Service number is required"),
+  ippis: z.string().optional(),
   file_no: z.string().optional(),
   department: z.string().min(1, "Department is required"),
   duty: z.string().optional(),

@@ -30,6 +30,8 @@ export interface UpdateUserDTO {
   name?: string;
   email?: string;
   status?: "active" | "inactive" | "suspended";
+  password?: string;
+  password_confirmation?: string;
 }
 
 // DTO for assigning a role

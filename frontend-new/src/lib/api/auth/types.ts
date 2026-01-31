@@ -83,16 +83,17 @@ export interface LoginResponse {
   permissions: string[];
 }
 
-// Registration request payload (Step 1)
-export interface RegisterRequest {
+// Confirm service number request payload (Step 1)
+export interface ConfirmServiceNumberRequest {
   service_no: string;
   file_no: string;
   ippis: string;
 }
 
-// Registration response from API
-export interface RegisterResponse {
-  message: string;
+// Confirm service number response from API
+export interface ConfirmServiceNumberResponse {
+  first_name: string;
+  surname: string;
   service_no: string;
 }
 

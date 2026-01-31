@@ -70,6 +70,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
               <p className="text-sm font-medium text-slate-900">{fullName}</p>
               <p className="text-xs text-slate-500">
                 Service No: {staff.service_no}
+                {staff.ippis && ` • IPPIS: ${staff.ippis}`}
               </p>
               <p className="text-xs text-slate-500">
                 {staff.present_rank || "No Rank"} •{" "}

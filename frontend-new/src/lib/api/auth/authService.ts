@@ -5,8 +5,8 @@ import type {
   StaffLoginRequest,
   LoginResponse,
   User,
-  RegisterRequest,
-  RegisterResponse,
+  ConfirmServiceNumberRequest,
+  ConfirmServiceNumberResponse,
   SetPasswordRequest,
 } from "./types";
 
@@ -73,13 +73,13 @@ class AuthService {
   }
 
   /**
-   * Register staff - Step 1: Confirm service number, file number, and IPPIS
+   * Confirm service number - Step 1: Verify service number, file number, and IPPIS exist
    */
-  async register(
-    data: RegisterRequest,
-  ): Promise<ApiResponse<RegisterResponse>> {
-    const response = await apiClient.post<ApiResponse<RegisterResponse>>(
-      "/staff/register",
+  async confirmServiceNumber(
+    data: ConfirmServiceNumberRequest,
+  ): Promise<ApiResponse<ConfirmServiceNumberResponse>> {
+    const response = await apiClient.post<ApiResponse<ConfirmServiceNumberResponse>>(
+      "/staff/confirm",
       data,
     );
     return response.data;
