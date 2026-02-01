@@ -80,6 +80,7 @@ export interface Zone {
 export interface State {
   id: number;
   state: string;
+  zone_id: number;
   status: boolean;
 }
 
@@ -102,14 +103,30 @@ export interface MaritalStatus {
   status: boolean;
 }
 
+export interface Prison {
+  id: number;
+  prison_name: string;
+  state_id: number;
+  status: boolean;
+}
+
+export interface LGA {
+  id: number;
+  lga: string;
+  state_id: number;
+  status: number;
+}
+
 export interface GenericData {
   zones: Zone[];
   states: State[];
+  prisons: Prison[];
+  lgas: LGA[];
   rankings: Ranking[];
   levels: Level[];
   marital_statuses: MaritalStatus[];
-  departments: string[];
-  statuses: string[];
+  departments?: string[];
+  statuses?: string[];
 }
 
 // Chart color schemes

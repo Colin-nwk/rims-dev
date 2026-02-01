@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Zone;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ZoneSeeder extends Seeder
@@ -13,7 +12,7 @@ class ZoneSeeder extends Seeder
      */
     public function run(): void
     {
-        $zones = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'];
+        $zones = ['A','B','C','D','E','F','G','H'];
 
         foreach ($zones as $zone) {
             Zone::firstOrCreate(

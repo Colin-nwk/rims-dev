@@ -45,8 +45,11 @@ const StaffDirectory = () => {
       sex: filters.sex,
       department: filters.department,
       present_rank: filters.present_rank,
+      initial_rank: filters.initial_rank,
       level: filters.level,
       assigned_state: filters.assigned_state,
+      prison: filters.prison,
+      zone_id: filters.zone_id,
     },
   );
 

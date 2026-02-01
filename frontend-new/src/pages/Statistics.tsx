@@ -58,9 +58,44 @@ const Statistics: React.FC = () => {
     }));
   };
 
+  // Cascading filter handlers
+  const handleZoneChange = (value: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev, zone_id: value || undefined };
+      // Reset state_of_origin and assigned_state if zone changes
+      if (prev.zone_id !== value) {
+        newFilters.state_of_origin = undefined;
+        newFilters.assigned_state = undefined;
+      }
+      return newFilters;
+    });
+  };
+
+  const handleStateOfOriginChange = (value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      state_of_origin: value || undefined,
+    }));
+  };
+
+  const handleAssignedStateChange = (value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      assigned_state: value || undefined,
+    }));
+  };
+
   const clearFilters = () => {
     setFilters({});
   };
+
+  // Filter states based on selected zone
+  const filteredStates = useMemo(() => {
+    const states = genericData?.states;
+    if (!states) return [];
+    if (!filters.zone_id) return states;
+    return states.filter((state) => state.zone_id === Number(filters.zone_id));
+  }, [genericData, filters.zone_id]);
 
   const activeFilterCount = useMemo(() => {
     return Object.values(filters).filter((v) => v !== undefined && v !== "")
@@ -171,9 +206,7 @@ const Statistics: React.FC = () => {
                   <div className="relative">
                     <select
                       value={filters.zone_id || ""}
-                      onChange={(e) =>
-                        handleFilterChange("zone_id", e.target.value)
-                      }
+                      onChange={(e) => handleZoneChange(e.target.value)}
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
                       <option value="">All Zones</option>
@@ -191,17 +224,26 @@ const Statistics: React.FC = () => {
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
                     State of Origin
+                    {filters.zone_id && (
+                      <span className="ml-1 text-xs text-slate-500">
+                        (filtered by zone)
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <select
                       value={filters.state_of_origin || ""}
                       onChange={(e) =>
-                        handleFilterChange("state_of_origin", e.target.value)
+                        handleStateOfOriginChange(e.target.value)
                       }
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
-                      <option value="">All States</option>
-                      {genericData?.states.map((state) => (
+                      <option value="">
+                        {filters.zone_id
+                          ? "All States in Selected Zone"
+                          : "All States"}
+                      </option>
+                      {filteredStates.map((state) => (
                         <option key={state.id} value={state.state}>
                           {state.state}
                         </option>
@@ -215,17 +257,26 @@ const Statistics: React.FC = () => {
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
                     Assigned State
+                    {filters.zone_id && (
+                      <span className="ml-1 text-xs text-slate-500">
+                        (filtered by zone)
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <select
                       value={filters.assigned_state || ""}
                       onChange={(e) =>
-                        handleFilterChange("assigned_state", e.target.value)
+                        handleAssignedStateChange(e.target.value)
                       }
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
-                      <option value="">All States</option>
-                      {genericData?.states.map((state) => (
+                      <option value="">
+                        {filters.zone_id
+                          ? "All States in Selected Zone"
+                          : "All States"}
+                      </option>
+                      {filteredStates.map((state) => (
                         <option key={state.id} value={state.state}>
                           {state.state}
                         </option>

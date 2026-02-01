@@ -118,7 +118,7 @@ export function getScopeDescription(role: Role): string {
   const scopes: string[] = [];
   if (role.zone) scopes.push(`Zone: ${role.zone.name}`);
   if (role.state) scopes.push(`State: ${role.state.name}`);
-  if (role.prison) scopes.push(`Prison: ${role.prison.name}`);
+  if (role.prison) scopes.push(`Custodial Center: ${role.prison.name}`);
   return scopes.length > 0 ? scopes.join(" • ") : "No scope defined";
 }
 

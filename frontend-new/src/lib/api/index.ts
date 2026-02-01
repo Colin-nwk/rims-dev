@@ -46,4 +46,5 @@ export type {
   Ranking,
   Level,
   MaritalStatus,
+  LGA,
 } from "./statistics";

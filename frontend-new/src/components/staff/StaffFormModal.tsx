@@ -31,7 +31,7 @@ import {
   createStaffSchema,
   sexOptions,
 } from "@/lib/api/staff";
-import { getFileUrl } from "@/lib/api";
+import { getFileUrl, useGenericData } from "@/lib/api";
 
 // Form values type that allows photo to be File or string (for edit mode)
 type StaffFormValues = Omit<CreateStaffFormData, "photo"> & {
@@ -351,7 +351,9 @@ const PhotoUpload: React.FC<{
 const OfficialInfoStep: React.FC<{
   formik: FormikProps<StaffFormValues>;
   isEdit: boolean;
-}> = ({ formik, isEdit }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+  isLoadingGeneric: boolean;
+}> = ({ formik, isEdit, genericData, isLoadingGeneric }) => {
   const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
     formik;
 
@@ -408,24 +410,38 @@ const OfficialInfoStep: React.FC<{
         />
       </div>
       <div className="grid grid-cols-3 gap-4">
-        <Input
+        <Select
           label="Present Rank"
           name="present_rank"
           value={values.present_rank || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.present_rank ? errors.present_rank : undefined}
-          placeholder="e.g., ASC II"
-        />
-        <Input
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select Present Rank</option>
+          {genericData?.rankings?.map((rank) => (
+            <option key={rank.id} value={rank.title}>
+              {rank.title}
+            </option>
+          ))}
+        </Select>
+        <Select
           label="Initial Rank"
           name="initial_rank"
           value={values.initial_rank || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.initial_rank ? errors.initial_rank : undefined}
-          placeholder="e.g., ASC I"
-        />
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select Initial Rank</option>
+          {genericData?.rankings?.map((rank) => (
+            <option key={rank.id} value={rank.title}>
+              {rank.title}
+            </option>
+          ))}
+        </Select>
         <Select
           label="Grade Level"
           name="level"
@@ -436,11 +452,12 @@ const OfficialInfoStep: React.FC<{
           }}
           onBlur={handleBlur}
           error={touched.level ? (errors.level as string) : undefined}
+          disabled={isLoadingGeneric}
         >
           <option value="">Select Level</option>
-          {[...Array(17)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              Level {String(i + 1).padStart(2, "0")}
+          {genericData?.levels?.map((level) => (
+            <option key={level.id} value={level.level_number}>
+              {level.level}
             </option>
           ))}
         </Select>
@@ -549,8 +566,42 @@ const PersonalDetailsStep: React.FC<{
 // Step 3: Posting & Origin
 const PostingOriginStep: React.FC<{
   formik: FormikProps<StaffFormValues>;
-}> = ({ formik }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+  isLoadingGeneric: boolean;
+}> = ({ formik, genericData, isLoadingGeneric }) => {
   const { values, errors, touched, handleChange, handleBlur } = formik;
+
+  // Filter LGAs based on selected state_of_origin
+  const filteredLGAs = React.useMemo(() => {
+    const lgas = genericData?.lgas;
+    const states = genericData?.states;
+
+    if (!lgas || !states) return [];
+    if (!values.state_of_origin) return lgas;
+
+    const selectedState = states.find(
+      (state) => state.state === values.state_of_origin,
+    );
+    if (!selectedState) return lgas;
+
+    return lgas.filter((lga) => lga.state_id === selectedState.id);
+  }, [genericData, values.state_of_origin]);
+
+  // Filter prisons based on selected assigned_state
+  const filteredPrisons = React.useMemo(() => {
+    const prisons = genericData?.prisons;
+    const states = genericData?.states;
+
+    if (!prisons || !states) return [];
+    if (!values.assigned_state) return prisons;
+
+    const selectedState = states.find(
+      (state) => state.state === values.assigned_state,
+    );
+    if (!selectedState) return prisons;
+
+    return prisons.filter((prison) => prison.state_id === selectedState.id);
+  }, [genericData, values.assigned_state]);
 
   return (
     <div className="space-y-4 duration-300 animate-in fade-in slide-in-from-right-4">
@@ -558,68 +609,116 @@ const PostingOriginStep: React.FC<{
         Origin
       </h4>
       <div className="grid grid-cols-2 gap-4">
-        <Input
+        <Select
           label="State of Origin"
           name="state_of_origin"
           value={values.state_of_origin || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.state_of_origin ? errors.state_of_origin : undefined}
-          placeholder="e.g., Lagos"
-        />
-        <Input
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select State of Origin</option>
+          {genericData?.states?.map((state) => (
+            <option key={state.id} value={state.state}>
+              {state.state}
+            </option>
+          ))}
+        </Select>
+        <Select
           label="LGA"
           name="lga"
           value={values.lga || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.lga ? errors.lga : undefined}
-          placeholder="e.g., Ikeja"
-        />
+          disabled={isLoadingGeneric || !values.state_of_origin}
+        >
+          <option value="">
+            {values.state_of_origin ? "Select LGA" : "Select State First"}
+          </option>
+          {filteredLGAs.map((lga) => (
+            <option key={lga.id} value={lga.lga}>
+              {lga.lga}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <h4 className="pt-2 pb-2 font-medium border-b text-slate-900 border-slate-100">
         Current Posting
       </h4>
       <div className="grid grid-cols-2 gap-4">
-        <Input
+        <Select
           label="Assigned State"
           name="assigned_state"
           value={values.assigned_state || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.assigned_state ? errors.assigned_state : undefined}
-          placeholder="e.g., Abuja"
-        />
-        <Input
-          label="Prison / Facility"
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select Assigned State</option>
+          {genericData?.states?.map((state) => (
+            <option key={state.id} value={state.state}>
+              {state.state}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label="Custodial Center"
           name="prison"
           value={values.prison || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.prison ? errors.prison : undefined}
-          placeholder="e.g., Kuje Medium Security"
-        />
+          disabled={isLoadingGeneric || !values.assigned_state}
+        >
+          <option value="">
+            {values.assigned_state
+              ? "Select Custodial Center"
+              : "Select State First"}
+          </option>
+          {filteredPrisons.map((prison) => (
+            <option key={prison.id} value={prison.prison_name}>
+              {prison.prison_name}
+            </option>
+          ))}
+        </Select>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <Input
+        <Select
           label="Initial Command"
           name="initial_command"
           value={values.initial_command || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.initial_command ? errors.initial_command : undefined}
-          placeholder="Initial Command"
-        />
-        <Input
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select Initial Command</option>
+          {genericData?.states?.map((state) => (
+            <option key={state.id} value={state.state}>
+              {state.state}
+            </option>
+          ))}
+        </Select>
+        <Select
           label="Present Command"
           name="present_command"
           value={values.present_command || ""}
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.present_command ? errors.present_command : undefined}
-          placeholder="Present Command"
-        />
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Select Present Command</option>
+          {genericData?.states?.map((state) => (
+            <option key={state.id} value={state.state}>
+              {state.state}
+            </option>
+          ))}
+        </Select>
       </div>
       <Input
         label="Command Post Date"
@@ -734,6 +833,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
 
   const createStaff = useCreateStaff();
   const updateStaff = useUpdateStaff();
+  const { data: genericData, isLoading: isLoadingGeneric } = useGenericData();
 
   const initialValues: StaffFormValues = staff
     ? {
@@ -952,10 +1052,21 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
 
             <div className="min-h-75">
               {currentStep === 0 && (
-                <OfficialInfoStep formik={formik} isEdit={isEdit} />
+                <OfficialInfoStep
+                  formik={formik}
+                  isEdit={isEdit}
+                  genericData={genericData}
+                  isLoadingGeneric={isLoadingGeneric}
+                />
               )}
               {currentStep === 1 && <PersonalDetailsStep formik={formik} />}
-              {currentStep === 2 && <PostingOriginStep formik={formik} />}
+              {currentStep === 2 && (
+                <PostingOriginStep
+                  formik={formik}
+                  genericData={genericData}
+                  isLoadingGeneric={isLoadingGeneric}
+                />
+              )}
               {currentStep === 3 && <DocumentsStep formik={formik} />}
             </div>
 

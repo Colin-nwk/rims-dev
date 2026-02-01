@@ -2,6 +2,7 @@ import React from "react";
 import { Search, Filter, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StaffFilters as IStaffFilters } from "@/lib/api/staff";
+import { useGenericData } from "@/lib/api/statistics";
 
 interface StaffFiltersProps {
   filters: IStaffFilters & { search?: string };
@@ -14,6 +15,8 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
   onFiltersChange,
   onClear,
 }) => {
+  const { data: genericData, isLoading: isLoadingGeneric } = useGenericData();
+
   const handleSearchChange = (value: string) => {
     onFiltersChange({ ...filters, search: value });
   };
@@ -24,6 +27,70 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
   ) => {
     onFiltersChange({ ...filters, [key]: value || undefined });
   };
+
+  // Cascading filter handlers
+  const handleZoneChange = (value: string | number) => {
+    const zoneId = value ? Number(value) : undefined;
+    const newFilters = { ...filters, zone_id: zoneId };
+    // Reset state and prison if zone changes
+    if (filters.zone_id !== zoneId) {
+      newFilters.assigned_state = undefined;
+      newFilters.prison = undefined;
+    }
+    onFiltersChange(newFilters);
+  };
+
+  const handleStateChange = (value: string) => {
+    const newFilters = { ...filters, assigned_state: value || undefined };
+    // Reset prison if state changes
+    if (filters.assigned_state !== value) {
+      newFilters.prison = undefined;
+    }
+    onFiltersChange(newFilters);
+  };
+
+  // Filter states based on selected zone
+  const filteredStates = React.useMemo(() => {
+    const states = genericData?.states;
+    if (!states) return [];
+    if (!filters.zone_id) return states;
+    return states.filter((state) => state.zone_id === Number(filters.zone_id));
+  }, [genericData, filters.zone_id]);
+
+  // Filter prisons based on selected zone and state
+  const filteredPrisons = React.useMemo(() => {
+    const prisons = genericData?.prisons;
+    const states = genericData?.states;
+
+    if (!prisons) return [];
+
+    let filtered = prisons;
+
+    // If zone is selected, filter by states in that zone
+    if (filters.zone_id && states) {
+      const statesInZone = states.filter(
+        (state) => state.zone_id === Number(filters.zone_id),
+      );
+      const stateIdsInZone = statesInZone.map((s) => s.id);
+      filtered = filtered.filter((prison) =>
+        stateIdsInZone.includes(prison.state_id),
+      );
+    }
+
+    // If state is selected, further filter by that state
+    if (filters.assigned_state && states) {
+      const selectedState = states.find(
+        (state) => state.state === filters.assigned_state,
+      );
+      if (selectedState) {
+        filtered = filtered.filter(
+          (prison) => prison.state_id === selectedState.id,
+        );
+      }
+    }
+
+    return filtered;
+  }, [genericData, filters.zone_id, filters.assigned_state]);
 
   const hasActiveFilters = Object.values(filters).some(
     (val) => val !== undefined && val !== "",
@@ -69,7 +136,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             <Search className="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name, service no, email..."
+              placeholder="Search by name, service no, email, file no, ippis..."
               value={filters.search || ""}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full py-2 pl-10 pr-4 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
@@ -114,6 +181,82 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
           </select>
         </div>
 
+        {/* Zone */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Zone
+          </label>
+          <select
+            value={filters.zone_id || ""}
+            onChange={(e) =>
+              handleZoneChange(e.target.value ? Number(e.target.value) : "")
+            }
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Zones</option>
+            {genericData?.zones?.map((zone) => (
+              <option key={zone.id} value={zone.id}>
+                {zone.zone}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Assigned State */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Assigned State
+            {filters.zone_id && (
+              <span className="ml-1 text-xs text-slate-500">
+                (filtered by zone)
+              </span>
+            )}
+          </label>
+          <select
+            value={filters.assigned_state || ""}
+            onChange={(e) => handleStateChange(e.target.value)}
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">
+              {filters.zone_id ? `All States in Selected Zone` : "All States"}
+            </option>
+            {filteredStates.map((state) => (
+              <option key={state.id} value={state.state}>
+                {state.state}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Prison */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Custodial Center
+            {(filters.zone_id || filters.assigned_state) && (
+              <span className="ml-1 text-xs text-slate-500">(filtered)</span>
+            )}
+          </label>
+          <select
+            value={filters.prison || ""}
+            onChange={(e) => handleFilterChange("prison", e.target.value)}
+            disabled={isLoadingGeneric || !filters.assigned_state}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">
+              {filters.assigned_state
+                ? `All Centers in State`
+                : "Select State First"}
+            </option>
+            {filteredPrisons.map((prison) => (
+              <option key={prison.id} value={prison.prison_name}>
+                {prison.prison_name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Department */}
         <div>
           <label className="block mb-1 text-sm font-medium text-slate-700">
@@ -133,13 +276,39 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
           <label className="block mb-1 text-sm font-medium text-slate-700">
             Present Rank
           </label>
-          <input
-            type="text"
-            placeholder="e.g., Assistant Superintendent"
+          <select
             value={filters.present_rank || ""}
             onChange={(e) => handleFilterChange("present_rank", e.target.value)}
-            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
-          />
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Ranks</option>
+            {genericData?.rankings?.map((rank) => (
+              <option key={rank.id} value={rank.title}>
+                {rank.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Initial Rank */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Initial Rank
+          </label>
+          <select
+            value={filters.initial_rank || ""}
+            onChange={(e) => handleFilterChange("initial_rank", e.target.value)}
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Ranks</option>
+            {genericData?.rankings?.map((rank) => (
+              <option key={rank.id} value={rank.title}>
+                {rank.title}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Level */}
@@ -147,11 +316,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
           <label className="block mb-1 text-sm font-medium text-slate-700">
             Level
           </label>
-          <input
-            type="number"
-            min="1"
-            max="17"
-            placeholder="1-17"
+          <select
             value={filters.level || ""}
             onChange={(e) =>
               handleFilterChange(
@@ -159,24 +324,16 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
                 e.target.value ? Number(e.target.value) : "",
               )
             }
-            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
-          />
-        </div>
-
-        {/* Assigned State */}
-        <div>
-          <label className="block mb-1 text-sm font-medium text-slate-700">
-            Assigned State
-          </label>
-          <input
-            type="text"
-            placeholder="e.g., Lagos"
-            value={filters.assigned_state || ""}
-            onChange={(e) =>
-              handleFilterChange("assigned_state", e.target.value)
-            }
-            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
-          />
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Levels</option>
+            {genericData?.levels?.map((level) => (
+              <option key={level.id} value={level.level_number}>
+                {level.level}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

@@ -24,6 +24,7 @@ class GenericController extends Controller
             'zones' => \App\Models\Zone::class,
             'states' => \App\Models\State::class,
             'prisons' => \App\Models\Prison::class,
+            'lga' => \App\Models\LGA::class,
             'degree_types' => \App\Models\DegreeType::class,
             'rankings' => \App\Models\Ranking::class,
             'levels' => \App\Models\Level::class,
@@ -94,9 +95,17 @@ class GenericController extends Controller
                 ->where('status', true)
                 ->orderBy('zone')
                 ->get(),
-            'states' => \App\Models\State::select('id', 'state', 'status')
+            'states' => \App\Models\State::select('id', 'state', 'zone_id', 'status')
                 ->where('status', true)
                 ->orderBy('state')
+                ->get(),
+            'prisons' => \App\Models\Prison::select('id', 'prison_name', 'state_id', 'status')
+                ->where('status', true)
+                ->orderBy('prison_name')
+                ->get(),
+            'lgas' => \App\Models\LGA::select('id', 'lga', 'state_id', 'status')
+                ->where('status', 1)
+                ->orderBy('lga')
                 ->get(),
             'rankings' => \App\Models\Ranking::select('id', 'title', 'status')
                 ->where('status', true)
