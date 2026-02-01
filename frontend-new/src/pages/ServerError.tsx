@@ -1,9 +1,14 @@
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ArrowLeft } from "lucide-react";
+import { Home, RefreshCcw } from "lucide-react";
 
-export default function NotFound() {
-  const navigate = useNavigate();
+export default function ServerError() {
+  const handleTryAgain = () => {
+    window.location.reload();
+  };
+
+  const handleGoHome = () => {
+    window.location.href = "/dashboard";
+  };
 
   return (
     <div className="relative flex flex-col min-h-screen overflow-hidden bg-ncos-green-950">
@@ -32,10 +37,10 @@ export default function NotFound() {
               />
             </div>
 
-            {/* 404 Number */}
+            {/* 500 Number */}
             <div className="mb-6 sm:mb-8">
               <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] font-bold text-transparent bg-clip-text bg-linear-to-r from-white via-gold-400 to-white mb-3 sm:mb-4 drop-shadow-2xl">
-                404
+                500
               </h1>
               <div className="h-1 sm:h-1.5 w-24 sm:w-32 mx-auto bg-linear-to-r from-transparent via-gold-400 to-transparent rounded-full shadow-lg shadow-gold-500/50"></div>
             </div>
@@ -43,27 +48,27 @@ export default function NotFound() {
             {/* Error Message */}
             <div className="mb-8 space-y-3 sm:mb-10 sm:space-y-4">
               <h2 className="px-4 text-xl font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl drop-shadow-lg">
-                Page Not Found
+                Server Error
               </h2>
               <p className="max-w-lg px-4 mx-auto text-sm leading-relaxed sm:text-base lg:text-lg text-slate-200 drop-shadow-md">
-                Oops! The page you're looking for doesn't exist. It might have
-                been moved or deleted.
+                Oops! Something went wrong on our end. Please try again later or
+                contact support if the problem persists.
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col items-center justify-center gap-3 mb-6 sm:flex-row sm:gap-4 sm:mb-8">
               <Button
-                onClick={() => navigate(-1)}
+                onClick={handleTryAgain}
                 variant="outline"
                 className="w-full gap-2 text-sm text-white transition-all shadow-lg sm:w-auto border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm hover:shadow-xl sm:text-base"
                 size="lg"
               >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                Go Back
+                <RefreshCcw className="w-4 h-4 sm:w-5 sm:h-5" />
+                Try Again
               </Button>
               <Button
-                onClick={() => navigate("/dashboard")}
+                onClick={handleGoHome}
                 className="w-full gap-2 text-sm font-semibold transition-all shadow-lg sm:w-auto bg-white hover:bg-white/90 text-ncos-green-950 hover:text-ncos-green-900 shadow-white/20 hover:shadow-white/30 sm:text-base"
                 size="lg"
               >

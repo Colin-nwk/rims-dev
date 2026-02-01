@@ -1,13 +1,12 @@
 import React from "react";
 import { Formik, Form, Field, type FormikHelpers } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { Loader2, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Modal, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   COMPLAINT_CATEGORIES,
-  COMPLAINT_PRIORITIES,
   createComplaintSchema,
   type CreateComplaintFormData,
 } from "@/lib/api/complaints";
@@ -79,7 +78,7 @@ export const NewComplaintModal: React.FC<NewComplaintModalProps> = ({
         validationSchema={toFormikValidationSchema(createComplaintSchema)}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, isSubmitting, values, setFieldValue }) => (
+        {({ errors, touched, isSubmitting, values }) => (
           <Form className="space-y-5">
             {/* Subject */}
             <div>
