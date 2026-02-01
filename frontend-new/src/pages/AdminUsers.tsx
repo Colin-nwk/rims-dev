@@ -266,7 +266,7 @@ const AdminUsers = () => {
   const inactiveCount = usersData.filter((u) => u.status === "inactive").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div>
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">

@@ -272,7 +272,7 @@ const Complaints: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="h-[calc(100vh-8rem)] flex gap-0 relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
+      className="h-[calc(100vh-8.5rem)] flex gap-0 relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
     >
       {/* Left Panel - Complaints List */}
       <div

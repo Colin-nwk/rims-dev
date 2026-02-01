@@ -207,7 +207,7 @@ const StaffDirectory = () => {
   const total = data?.total || 0;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div>
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">

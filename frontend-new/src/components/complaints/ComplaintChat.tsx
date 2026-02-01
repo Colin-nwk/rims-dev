@@ -80,10 +80,16 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
         <h3 className="text-lg font-medium text-slate-700 mb-2">
           Select a Ticket
         </h3>
-        <p className="max-w-xs text-center text-sm">
+        <p className="max-w-xs text-center text-sm mb-2">
           Choose a ticket from the list to view the conversation or send a
           reply.
         </p>
+        {/* Show List Button - visible when list is collapsed */}
+        {isListCollapsed && onToggleList && (
+          <Button variant="primary" size="sm" onClick={onToggleList}>
+            <span className="text-xs font-medium">Show List</span>
+          </Button>
+        )}
       </div>
     );
   }
@@ -220,8 +226,8 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
 
       {/* Input Area */}
       <div className="p-4 bg-white border-t border-slate-200">
-        <form onSubmit={handleSubmit} className="flex gap-3 items-end">
-          <div className="flex-1">
+        <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+          <div className="flex flex-1 items-end">
             <textarea
               placeholder="Type your message..."
               className="w-full min-h-15 max-h-30 resize-y rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ncos-green-500 focus:border-transparent transition-all"

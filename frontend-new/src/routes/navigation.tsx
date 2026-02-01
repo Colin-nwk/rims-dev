@@ -19,9 +19,9 @@ export const mainNavItems: NavItem[] = [
     path: ROUTES.DASHBOARD,
   },
   {
-    name: "Documents",
+    name: "Qualifications",
     icon: <FolderOpen className="w-5 h-5" />,
-    path: ROUTES.DOCUMENTS,
+    path: ROUTES.QUALIFICATIONS,
   },
   {
     name: "Help Desk",

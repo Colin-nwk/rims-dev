@@ -1,26 +1,33 @@
-import { useDashboardStats } from "../lib/api/dashboard";
+import { useAuth } from "@/hooks/useAuthContext";
+import { getDisplayName } from "@/lib/api/auth";
+import {
+  Building2,
+  CheckCircle,
+  Clock,
+  Eye,
+  FileText,
+  Map,
+  MapPin,
+  TrendingUp,
+  UserCheck,
+  Users,
+  XCircle,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import {
-  Users,
-  UserCheck,
-  Building2,
-  MapPin,
-  Map,
-  FileText,
-  Clock,
-  CheckCircle,
-  XCircle,
-  TrendingUp,
-} from "lucide-react";
+} from "../../components/ui/card";
+import { useDashboardStats } from "../../lib/api/dashboard";
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const { data, isLoading, error } = useDashboardStats();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -84,9 +91,9 @@ const Dashboard = () => {
       textColor: "text-green-600",
     },
     {
-      title: "Users",
+      title: "Admin Users",
       value: stats?.users.total || 0,
-      subtitle: "Registered users",
+      subtitle: "Total Admin users",
       icon: Users,
       gradient: "from-purple-500 to-purple-600",
       bgGradient: "from-purple-50 to-purple-100",
@@ -122,7 +129,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div>
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -130,7 +137,8 @@ const Dashboard = () => {
             Dashboard Overview
           </h1>
           <p className="text-slate-600">
-            Welcome back! Here's what's happening with your system today.
+            Welcome back {getDisplayName(user)}! Here's what's happening with
+            your system today.
           </p>
         </div>
 
@@ -138,6 +146,9 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
+            const showButton =
+              stat.title === "Total Staff" || stat.title === "Admin Users";
+
             return (
               <Card
                 key={index}
@@ -164,10 +175,28 @@ const Dashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="relative pt-0">
-                  <div className={`flex items-center gap-1 ${stat.textColor}`}>
+                  <div
+                    className={`flex items-center gap-1 mb-3 ${stat.textColor}`}
+                  >
                     <TrendingUp className="w-4 h-4" />
                     <p className="text-sm font-medium">{stat.subtitle}</p>
                   </div>
+                  {showButton && (
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          stat.title === "Total Staff"
+                            ? "/staff"
+                            : "/admin-users",
+                        )
+                      }
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Eye className="w-3 h-3 mr-2" />
+                      View {stat.title === "Total Staff" ? "Staff" : "Users"}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -194,9 +223,16 @@ const Dashboard = () => {
               <div className="mb-2 text-5xl font-bold text-indigo-600">
                 {(stats?.change_requests.total || 0).toLocaleString()}
               </div>
-              <p className="text-sm text-slate-600">
+              <p className="mb-4 text-sm text-slate-600">
                 Requests tracked in the system
               </p>
+              <Button
+                onClick={() => navigate("/approvals")}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                View All Approvals
+              </Button>
             </CardContent>
           </Card>
 
@@ -207,76 +243,109 @@ const Dashboard = () => {
               <CardDescription>Current status distribution</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-amber-50 border-amber-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-amber-500">
-                    <Clock className="w-5 h-5 text-white" />
+              <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-amber-500">
+                      <Clock className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Pending
+                      </p>
+                      <p className="text-2xl font-bold text-amber-600">
+                        {stats?.change_requests.pending || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-600">
-                      Pending
-                    </p>
-                    <p className="text-2xl font-bold text-amber-600">
-                      {stats?.change_requests.pending || 0}
-                    </p>
+                  <div className="text-xs text-right text-slate-500">
+                    {(
+                      ((stats?.change_requests.pending || 0) /
+                        (stats?.change_requests.total || 1)) *
+                      100
+                    ).toFixed(0)}
+                    %
                   </div>
                 </div>
-                <div className="text-xs text-right text-slate-500">
-                  {(
-                    ((stats?.change_requests.pending || 0) /
-                      (stats?.change_requests.total || 1)) *
-                    100
-                  ).toFixed(0)}
-                  %
-                </div>
+                <Button
+                  onClick={() => navigate("/approvals?status=pending")}
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                >
+                  <Eye className="w-3 h-3 mr-2" />
+                  View Pending
+                </Button>
               </div>
 
-              <div className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-white" />
+              <div className="p-4 border border-green-200 rounded-lg bg-green-50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Approved
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {stats?.change_requests.approved || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-600">
-                      Approved
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {stats?.change_requests.approved || 0}
-                    </p>
+                  <div className="text-xs text-right text-slate-500">
+                    {(
+                      ((stats?.change_requests.approved || 0) /
+                        (stats?.change_requests.total || 1)) *
+                      100
+                    ).toFixed(0)}
+                    %
                   </div>
                 </div>
-                <div className="text-xs text-right text-slate-500">
-                  {(
-                    ((stats?.change_requests.approved || 0) /
-                      (stats?.change_requests.total || 1)) *
-                    100
-                  ).toFixed(0)}
-                  %
-                </div>
+                <Button
+                  onClick={() => navigate("/approvals?status=approved")}
+                  variant="outline"
+                  size="sm"
+                  className="border-green-300 text-green-700 hover:bg-green-100"
+                >
+                  <Eye className="w-3 h-3 mr-2" />
+                  View Approved
+                </Button>
               </div>
 
-              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-500 rounded-lg">
-                    <XCircle className="w-5 h-5 text-white" />
+              <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-500 rounded-lg">
+                      <XCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Rejected
+                      </p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {stats?.change_requests.rejected || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-600">
-                      Rejected
-                    </p>
-                    <p className="text-2xl font-bold text-red-600">
-                      {stats?.change_requests.rejected || 0}
-                    </p>
+                  <div className="text-xs text-right text-slate-500">
+                    {(
+                      ((stats?.change_requests.rejected || 0) /
+                        (stats?.change_requests.total || 1)) *
+                      100
+                    ).toFixed(0)}
+                    %
                   </div>
                 </div>
-                <div className="text-xs text-right text-slate-500">
-                  {(
-                    ((stats?.change_requests.rejected || 0) /
-                      (stats?.change_requests.total || 1)) *
-                    100
-                  ).toFixed(0)}
-                  %
-                </div>
+                <Button
+                  onClick={() => navigate("/approvals?status=rejected")}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  <Eye className="w-3 h-3 mr-2" />
+                  View Rejected
+                </Button>
               </div>
             </CardContent>
           </Card>

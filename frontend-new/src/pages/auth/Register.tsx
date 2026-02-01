@@ -286,6 +286,9 @@ export default function Register() {
                   <p>Password requirements:</p>
                   <ul className="list-disc list-inside pl-2 space-y-0.5">
                     <li>At least 8 characters long</li>
+                    <li>At least one uppercase letter</li>
+                    <li>At least one lowercase letter</li>
+                    <li>At least one number</li>
                   </ul>
                 </div>
 

@@ -18,18 +18,23 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
+            'name' => 'John Doe',
             'email' => 'test@example.com',
         ]);
 
         $this->call([
             // Reference data seeders (run first)
+            ZoneSeeder::class,
+            StateSeeder::class,
+            PrisonSeeder::class,
             BloodGroupSeeder::class,
             BloodGenotypeSeeder::class,
             ComplexionSeeder::class,
             HairColourSeeder::class,
             DegreeTypeSeeder::class,
             RankingSeeder::class,
+            LevelSeeder::class,
+            MaritalStatusSeeder::class,
 
             // Main data seeders
             StaffSeeder::class,

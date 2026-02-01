@@ -132,7 +132,7 @@ export const PermissionsModal: React.FC<PermissionsModalProps> = ({
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
                       <Shield className="w-3.5 h-3.5 text-ncos-green-500" />
-                      {group}
+                      {group.replace("_", " ")}
                     </h4>
                     <button
                       type="button"

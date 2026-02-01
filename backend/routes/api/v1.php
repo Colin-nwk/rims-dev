@@ -38,9 +38,11 @@ Route::prefix('user')->group(function () {
     Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
 });
 
-// Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings)
-Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings');
-Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings');
+// Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings, Levels, Marital Statuses)
+Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+
+Route::get('generic-data', [GenericController::class, 'getGenericData']);
 
 // Staff ID Card - Public access (for QR code scanning)
 Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
@@ -118,8 +120,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('complaints/{complaint}/messages', [ComplaintController::class, 'addMessage']);
 
     // --- Generic Resources (Write) ---
-    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings');
-    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings');
-    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings');
+    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
 
 });

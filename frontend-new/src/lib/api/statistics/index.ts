@@ -7,6 +7,12 @@ export type {
   StateYearTrend,
   AllStatistics,
   StatisticsFilters,
+  GenericData,
+  Zone,
+  State,
+  Ranking,
+  Level,
+  MaritalStatus,
 } from "./types";
 
 export { CHART_COLORS, getChartColor, formatNumber } from "./types";
@@ -23,4 +29,5 @@ export {
   useRankStats,
   useEducationTypeStats,
   useAppointmentTrends,
+  useGenericData,
 } from "./statisticsService";

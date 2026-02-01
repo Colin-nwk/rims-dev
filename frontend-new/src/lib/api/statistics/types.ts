@@ -70,6 +70,48 @@ export interface StatisticsFilters {
   marital_status?: string;
 }
 
+// Generic filter options data
+export interface Zone {
+  id: number;
+  zone: string;
+  status: boolean;
+}
+
+export interface State {
+  id: number;
+  state: string;
+  status: boolean;
+}
+
+export interface Ranking {
+  id: number;
+  title: string;
+  status: boolean;
+}
+
+export interface Level {
+  id: number;
+  level: string;
+  level_number: number;
+  status: boolean;
+}
+
+export interface MaritalStatus {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
+export interface GenericData {
+  zones: Zone[];
+  states: State[];
+  rankings: Ranking[];
+  levels: Level[];
+  marital_statuses: MaritalStatus[];
+  departments: string[];
+  statuses: string[];
+}
+
 // Chart color schemes
 export const CHART_COLORS = {
   primary: ["#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"],

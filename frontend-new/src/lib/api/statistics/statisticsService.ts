@@ -6,6 +6,7 @@ import type {
   StatItem,
   AppointmentTrends,
   StatisticsFilters,
+  GenericData,
 } from "./types";
 
 /**
@@ -110,6 +111,16 @@ class StatisticsService {
     );
     return response.data.data;
   }
+
+  /**
+   * Get generic filter options data
+   */
+  async getGenericData(): Promise<GenericData> {
+    const response = await apiClient.get<ApiResponse<GenericData>>(
+      "/generic-data",
+    );
+    return response.data.data;
+  }
 }
 
 // Export singleton instance
@@ -136,6 +147,7 @@ export const statisticsQueryKeys = {
     [...statisticsQueryKeys.all, "education-type", filters] as const,
   appointmentTrends: (filters: StatisticsFilters) =>
     [...statisticsQueryKeys.all, "appointment-trends", filters] as const,
+  genericData: () => [...statisticsQueryKeys.all, "generic-data"] as const,
 };
 
 /**
@@ -242,6 +254,16 @@ export const useAppointmentTrends = (
     queryKey: statisticsQueryKeys.appointmentTrends(filters),
     queryFn: () => statisticsService.getAppointmentTrends(filters),
     staleTime: 1000 * 60 * 5,
+    enabled,
+  });
+};
+
+// Hook to fetch generic filter options data
+export const useGenericData = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: statisticsQueryKeys.genericData(),
+    queryFn: () => statisticsService.getGenericData(),
+    staleTime: 1000 * 60 * 10, // 10 minutes - this data changes infrequently
     enabled,
   });
 };

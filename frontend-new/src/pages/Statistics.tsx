@@ -20,54 +20,13 @@ import {
 import {
   useAllStatistics,
   useAppointmentTrends,
+  useGenericData,
   CHART_COLORS,
   type StatisticsFilters,
 } from "@/lib/api/statistics";
 
-// Nigerian states for filter dropdown
-const NIGERIAN_STATES = [
-  "Abia",
-  "Adamawa",
-  "Akwa Ibom",
-  "Anambra",
-  "Bauchi",
-  "Bayelsa",
-  "Benue",
-  "Borno",
-  "Cross River",
-  "Delta",
-  "Ebonyi",
-  "Edo",
-  "Ekiti",
-  "Enugu",
-  "FCT",
-  "Gombe",
-  "Imo",
-  "Jigawa",
-  "Kaduna",
-  "Kano",
-  "Katsina",
-  "Kebbi",
-  "Kogi",
-  "Kwara",
-  "Lagos",
-  "Nasarawa",
-  "Niger",
-  "Ogun",
-  "Ondo",
-  "Osun",
-  "Oyo",
-  "Plateau",
-  "Rivers",
-  "Sokoto",
-  "Taraba",
-  "Yobe",
-  "Zamfara",
-];
-
 // Year range for filters
 const currentYear = new Date().getFullYear();
-
 const YEARS = Array.from(
   { length: currentYear - 1960 + 1 },
   (_, i) => 1960 + i,
@@ -88,6 +47,9 @@ const Statistics: React.FC = () => {
   const { data: appointmentTrends, isLoading: isLoadingTrends } =
     useAppointmentTrends(filters);
 
+  const { data: genericData, isLoading: isLoadingGenericData } =
+    useGenericData();
+
   // Handle filter changes
   const handleFilterChange = (key: keyof StatisticsFilters, value: string) => {
     setFilters((prev) => ({
@@ -105,13 +67,13 @@ const Statistics: React.FC = () => {
       .length;
   }, [filters]);
 
-  const isLoading = isLoadingStats || isLoadingTrends;
+  const isLoading = isLoadingStats || isLoadingTrends || isLoadingGenericData;
 
   // Overview stats
   const overview = allStats?.overview;
 
-  if (isLoading && !allStats) {
-  return (
+  if ((isLoading && !allStats) || !genericData) {
+    return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8">
@@ -127,7 +89,7 @@ const Statistics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+    <div>
       {/* Header */}
       <div className="border border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10 rounded-2xl">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -200,7 +162,31 @@ const Statistics: React.FC = () => {
                 )}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {/* Zone */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Zone
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.zone_id || ""}
+                      onChange={(e) =>
+                        handleFilterChange("zone_id", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Zones</option>
+                      {genericData?.zones.map((zone) => (
+                        <option key={zone.id} value={zone.id}>
+                          {zone.zone}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
                 {/* State of Origin */}
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
@@ -215,9 +201,33 @@ const Statistics: React.FC = () => {
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
                       <option value="">All States</option>
-                      {NIGERIAN_STATES.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
+                      {genericData?.states.map((state) => (
+                        <option key={state.id} value={state.state}>
+                          {state.state}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Assigned State */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Assigned State
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.assigned_state || ""}
+                      onChange={(e) =>
+                        handleFilterChange("assigned_state", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All States</option>
+                      {genericData?.states.map((state) => (
+                        <option key={state.id} value={state.state}>
+                          {state.state}
                         </option>
                       ))}
                     </select>
@@ -241,6 +251,121 @@ const Statistics: React.FC = () => {
                       <option value="">All Genders</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Marital Status */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Marital Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.marital_status || ""}
+                      onChange={(e) =>
+                        handleFilterChange("marital_status", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Statuses</option>
+                      {genericData?.marital_statuses.map((status) => (
+                        <option key={status.id} value={status.name}>
+                          {status.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Present Rank */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Present Rank
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.present_rank || ""}
+                      onChange={(e) =>
+                        handleFilterChange("present_rank", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Ranks</option>
+                      {genericData?.rankings.map((rank) => (
+                        <option key={rank.id} value={rank.title}>
+                          {rank.title}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Level */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Level
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.level || ""}
+                      onChange={(e) =>
+                        handleFilterChange("level", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Levels</option>
+                      {genericData?.levels.map((level) => (
+                        <option key={level.id} value={level.level_number}>
+                          {level.level}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Department */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    value={filters.department || ""}
+                    onChange={(e) =>
+                      handleFilterChange("department", e.target.value)
+                    }
+                    placeholder="Enter department..."
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Account Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.status || ""}
+                      onChange={(e) =>
+                        handleFilterChange("status", e.target.value)
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Statuses</option>
+                      {[
+                        { name: "Active", value: 1 },
+                        { name: "Inactive", value: 0 },
+                      ].map((status) => (
+                        <option key={status.name} value={status.value}>
+                          {status.name}
+                        </option>
+                      ))}
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   </div>
@@ -456,24 +581,24 @@ const Statistics: React.FC = () => {
 
         {/* Appointment Trends Summary */}
         {appointmentTrends?.summary && (
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-linear-to-br from-slate-50 to-white p-6">
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
             <h3 className="mb-4 text-lg font-semibold text-slate-900">
               Appointment Summary
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
                 <p className="text-sm text-slate-500">With Appointment Date</p>
                 <p className="mt-1 text-2xl font-bold text-emerald-600">
                   {appointmentTrends.summary.with_date.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
                 <p className="text-sm text-slate-500">Without Date</p>
                 <p className="mt-1 text-2xl font-bold text-amber-600">
                   {appointmentTrends.summary.without_date.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
                 <p className="text-sm text-slate-500">Earliest Appointment</p>
                 <p className="mt-1 text-lg font-bold text-slate-900">
                   {appointmentTrends.summary.earliest
@@ -483,7 +608,7 @@ const Statistics: React.FC = () => {
                     : "N/A"}
                 </p>
               </div>
-              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+              <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
                 <p className="text-sm text-slate-500">Latest Appointment</p>
                 <p className="mt-1 text-lg font-bold text-slate-900">
                   {appointmentTrends.summary.latest

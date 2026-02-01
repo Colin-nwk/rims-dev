@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GenericController extends Controller
@@ -25,6 +26,8 @@ class GenericController extends Controller
             'prisons' => \App\Models\Prison::class,
             'degree_types' => \App\Models\DegreeType::class,
             'rankings' => \App\Models\Ranking::class,
+            'levels' => \App\Models\Level::class,
+            'marital_statuses' => \App\Models\MaritalStatus::class,
             'blood_groups' => \App\Models\BloodGroup::class,
             'blood_genotypes' => \App\Models\BloodGenotype::class,
             'complexions' => \App\Models\Complexion::class,
@@ -78,5 +81,35 @@ class GenericController extends Controller
         $item->delete();
 
         return response()->noContent();
+    }
+
+    
+    /**
+     * Get all filter options data in one call.
+     */
+    public function getGenericData(): JsonResponse
+    {
+        return $this->successResponse([
+            'zones' => \App\Models\Zone::select('id', 'zone', 'status')
+                ->where('status', true)
+                ->orderBy('zone')
+                ->get(),
+            'states' => \App\Models\State::select('id', 'state', 'status')
+                ->where('status', true)
+                ->orderBy('state')
+                ->get(),
+            'rankings' => \App\Models\Ranking::select('id', 'title', 'status')
+                ->where('status', true)
+                ->orderBy('title')
+                ->get(),
+            'levels' => \App\Models\Level::select('id', 'level', 'level_number', 'status')
+                ->where('status', true)
+                ->orderBy('level_number')
+                ->get(),
+            'marital_statuses' => \App\Models\MaritalStatus::select('id', 'name', 'status')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get(),
+        ]);
     }
 }

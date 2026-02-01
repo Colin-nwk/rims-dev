@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import {
@@ -23,8 +24,33 @@ import { RefreshCw, CheckCircle, ClipboardList, Trash2 } from "lucide-react";
 type TabType = "pending" | "history";
 
 const Approvals = () => {
+  const [searchParams] = useSearchParams();
+
+  // Initialize state from URL search params
+  const getInitialTab = (): TabType => {
+    const statusParam = searchParams.get("status");
+    if (statusParam) {
+      const normalizedStatus = statusParam.toUpperCase();
+      if (normalizedStatus === "APPROVED" || normalizedStatus === "REJECTED") {
+        return "history";
+      }
+    }
+    return "pending";
+  };
+
+  const getInitialFilters = (): ChangeRequestFilters & { search?: string } => {
+    const statusParam = searchParams.get("status");
+    if (statusParam) {
+      const normalizedStatus = statusParam.toUpperCase();
+      if (normalizedStatus === "APPROVED" || normalizedStatus === "REJECTED") {
+        return { status: normalizedStatus as "APPROVED" | "REJECTED" };
+      }
+    }
+    return {};
+  };
+
   // Tab state
-  const [activeTab, setActiveTab] = useState<TabType>("pending");
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -33,7 +59,7 @@ const Approvals = () => {
   // Filter state
   const [filters, setFilters] = useState<
     ChangeRequestFilters & { search?: string }
-  >({});
+  >(getInitialFilters);
 
   // Selection state
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -240,7 +266,7 @@ const Approvals = () => {
   const total = data?.total || 0;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div>
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">

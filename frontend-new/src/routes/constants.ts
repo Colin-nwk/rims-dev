@@ -5,19 +5,14 @@ export const ROUTES = {
   CONFIRM_SERVICE_NUMBER: "/confirm-service-number",
   PUBLIC_COMPLAINT: "/complaint",
 
-  // Protected - Staff Module
+  // Protected
   DASHBOARD: "/dashboard",
-  DASHBOARD_STAFF: "/dashboard",
-  DOCUMENTS: "/documents",
+  QUALIFICATIONS: "/qualifications",
   HELP_DESK: "/help-desk",
-
-  // Protected - Management
   STAFF_DIRECTORY: "/staff",
   ADMIN_USERS_DIRECTORY: "/admin-users",
   APPROVALS: "/approvals",
   STATISTICS: "/statistics",
-
-  // Protected - System
   ROLES_PERMISSIONS: "/admin/roles",
   PROFILE: "/profile",
 
