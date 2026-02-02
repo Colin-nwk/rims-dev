@@ -38,6 +38,11 @@ class RoleSeeder extends Seeder
             'complaint.create',
             'complaint.view',
             'staff.view',
+            // Staff education self-service permissions
+            'staff-education.view',
+            'staff-education.create',
+            'staff-education.edit',
+            'staff-education.delete',
         ])->get();
 
         $staffRole->permissions()->sync($staffPermissions);

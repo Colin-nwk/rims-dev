@@ -10,7 +10,7 @@ import PublicComplaint from "@/pages/auth/Complaint";
 
 // Protected pages
 import DashboardRouter from "@/pages/Dashboard/DashboardRouter";
-import Qualifications from "@/pages/Qualifications/Qualifications";
+import QualificationsRouter from "@/pages/Qualifications/QualificationsRouter";
 import Complaints from "@/pages/Complaints";
 import StaffDirectory from "@/pages/StaffDirectory";
 import AdminUsers from "@/pages/AdminUsers";
@@ -65,7 +65,7 @@ export const routes = [
       // Routes accessible to all authenticated users
       {
         path: ROUTES.QUALIFICATIONS,
-        element: <Qualifications />,
+        element: <QualificationsRouter />,
       },
       {
         path: ROUTES.HELP_DESK,

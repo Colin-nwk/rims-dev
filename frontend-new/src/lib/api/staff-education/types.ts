@@ -70,11 +70,17 @@ export interface UpdateStaffEducationDTO {
 }
 
 // Form data types
-export type CreateStaffEducationFormData = Omit<CreateStaffEducationDTO, "url"> & {
+export type CreateStaffEducationFormData = Omit<
+  CreateStaffEducationDTO,
+  "url"
+> & {
   url?: File;
 };
 
-export type UpdateStaffEducationFormData = Omit<UpdateStaffEducationDTO, "url"> & {
+export type UpdateStaffEducationFormData = Omit<
+  UpdateStaffEducationDTO,
+  "url"
+> & {
   url?: File;
 };
 
@@ -82,8 +88,7 @@ export type UpdateStaffEducationFormData = Omit<UpdateStaffEducationDTO, "url"> 
 const requiredString = (fieldName: string) =>
   z
     .string({
-      required_error: `${fieldName} is required`,
-      invalid_type_error: `${fieldName} must be text`,
+      message: `${fieldName} must be text`,
     })
     .min(1, `${fieldName} is required`);
 

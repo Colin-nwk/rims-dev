@@ -16,11 +16,37 @@ class StaffEducationController extends Controller
 {
     use ApiResponseTrait, FileUploadTrait;
 
+    /**
+     * Check if the current user is a staff member (not admin)
+     */
+    private function isStaffUser(): bool
+    {
+        $user = request()->user();
+        return $user instanceof \App\Models\Staff;
+    }
+
+    /**
+     * Get the current staff user's service number
+     */
+    private function getStaffServiceNo(): ?string
+    {
+        $user = request()->user();
+        if ($user instanceof \App\Models\Staff) {
+            return $user->service_no;
+        }
+        return null;
+    }
+
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('staff.view');
+        $this->authorize('staff-education.view');
 
         $query = StaffEducation::with('staff');
+
+        // Staff users can only view their own records
+        if ($this->isStaffUser()) {
+            $query->where('service_no', $this->getStaffServiceNo());
+        }
 
         // Filter by service number
         if ($request->has('service_no')) {
@@ -95,10 +121,15 @@ class StaffEducationController extends Controller
 
     public function store(StoreStaffEducationRequest $request): JsonResponse
     {
-        $this->authorize('staff.create');
+        $this->authorize('staff-education.create');
 
         try {
             $data = $request->validated();
+
+            // Staff users can only create records for themselves
+            if ($this->isStaffUser()) {
+                $data['service_no'] = $this->getStaffServiceNo();
+            }
 
             // Handle file upload for certificate/document
             if ($request->hasFile('url')) {
@@ -121,17 +152,32 @@ class StaffEducationController extends Controller
 
     public function show(StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff.view');
+        $this->authorize('staff-education.view');
+
+        // Staff users can only view their own records
+        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
+            return $this->errorResponse('Unauthorized to view this record', 403);
+        }
 
         return $this->successResponse($staffEducation->load('staff'));
     }
 
     public function update(UpdateStaffEducationRequest $request, StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff.edit');
+        $this->authorize('staff-education.edit');
+
+        // Staff users can only edit their own records
+        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
+            return $this->errorResponse('Unauthorized to edit this record', 403);
+        }
 
         try {
             $data = $request->validated();
+
+            // Staff users cannot change the service_no
+            if ($this->isStaffUser()) {
+                unset($data['service_no']);
+            }
 
             // Handle file upload for certificate/document
             if ($request->hasFile('url')) {
@@ -159,7 +205,12 @@ class StaffEducationController extends Controller
 
     public function destroy(StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff.delete');
+        $this->authorize('staff-education.delete');
+
+        // Staff users can only delete their own records
+        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
+            return $this->errorResponse('Unauthorized to delete this record', 403);
+        }
 
         try {
             // Delete associated file if it exists
