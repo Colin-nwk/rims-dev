@@ -1,14 +1,15 @@
+import { getFileUrl } from "@/lib/api";
 import { useStaffIDCard } from "@/lib/api/staff/staffService";
 import {
-    Briefcase,
-    Calendar,
-    CheckCircle,
-    Hash,
-    MapPin,
-    User,
-    UserCircle,
-    Users,
-    XCircle,
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Hash,
+  MapPin,
+  User,
+  UserCircle,
+  Users,
+  XCircle,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 
@@ -139,9 +140,7 @@ export default function StaffProfile() {
   }
 
   const staff = data.data;
-  const photoUrl = staff.photo
-    ? `${import.meta.env.VITE_API_BASE_URL?.replace("/api/v1", "")}/storage/${staff.photo}`
-    : null;
+  const photoUrl = staff.photo ? getFileUrl(staff.photo) : "";
 
   const fullName = [staff.first_name, staff.other_names, staff.surname]
     .filter(Boolean)

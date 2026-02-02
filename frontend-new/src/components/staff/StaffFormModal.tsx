@@ -99,7 +99,7 @@ const steps: StepConfig[] = [
   },
   {
     id: 4,
-    title: "Documents",
+    title: "Photos & Status",
     icon: FileText,
     fields: [
       "photo",
@@ -275,10 +275,10 @@ const PhotoUpload: React.FC<{
   React.useEffect(() => {
     if (value instanceof File) {
       const url = URL.createObjectURL(value);
-      setPreview(getFileUrl(url));
+      setPreview(url);
       return () => URL.revokeObjectURL(url);
     } else if (typeof value === "string" && value) {
-      setPreview(value);
+      setPreview(getFileUrl(value));
     } else {
       setPreview(null);
     }
@@ -293,6 +293,7 @@ const PhotoUpload: React.FC<{
 
   const handleRemove = () => {
     onChange(null);
+    setPreview(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -951,6 +952,13 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
     onClose();
   };
 
+  // Reset form when modal closes or on successful submission
+  React.useEffect(() => {
+    if (!isOpen) {
+      setCurrentStep(0);
+    }
+  }, [isOpen]);
+
   const nextStep = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
@@ -1023,6 +1031,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         validateOnBlur={true}
         validateOnChange={false}
         enableReinitialize
+        key={isOpen ? "open" : "closed"}
       >
         {(formik) => (
           <Form>

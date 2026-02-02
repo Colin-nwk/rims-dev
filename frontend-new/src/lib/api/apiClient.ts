@@ -67,34 +67,4 @@ export const getFileUrl = (path: string | null | undefined): string => {
   return `${baseUrl}/storage/${path}`;
 };
 
-// Helper to convert image URL to base64
-export const imageUrlToBase64 = async (
-  url: string | null | undefined,
-): Promise<string> => {
-  if (!url) return "";
-
-  try {
-    const fullUrl = getFileUrl(url);
-    const response = await fetch(fullUrl, {
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      console.error("Failed to fetch image:", response.statusText);
-      return "";
-    }
-
-    const blob = await response.blob();
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch (error) {
-    console.error("Error converting image to base64:", error);
-    return "";
-  }
-};
-
 export { apiClient };

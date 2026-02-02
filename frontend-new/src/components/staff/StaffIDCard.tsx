@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import QRCode from "qrcode";
 import html2canvas from "html2canvas";
-import { Download, Printer, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { imageUrlToBase64 } from "@/lib/api/apiClient";
+import { getFileUrl } from "@/lib/api/apiClient";
 import { StaffIDCardData } from "@/lib/api/staff";
 
 interface StaffIDCardProps {
@@ -35,34 +35,33 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [photoBase64, setPhotoBase64] = useState<string>("");
 
+  // Generate QR code when modal opens
   useEffect(() => {
-    if (staffData && isOpen) {
-      const verificationUrl = `${window.location.origin}/staff/${staffData.service_no}`;
+    if (!isOpen || !staffData) return;
 
-      // Generate QR code
-      QRCode.toDataURL(verificationUrl, {
-        width: 200,
-        margin: 1,
-        color: { dark: COLORS.ncosGreen900, light: COLORS.white },
-        errorCorrectionLevel: "M",
-      })
-        .then((url: string) => {
+    let isMounted = true;
+    const verificationUrl = `${window.location.origin}/staff/${staffData.service_no}`;
+
+    QRCode.toDataURL(verificationUrl, {
+      width: 400,
+      margin: 2,
+      color: { dark: "#064e3b", light: "#ffffff" },
+      errorCorrectionLevel: "H",
+    })
+      .then((url: string) => {
+        if (isMounted) {
           setQrCodeUrl(url);
-        })
-        .catch((err: unknown) => {
-          console.error("Error generating QR code", err);
-        });
+        }
+      })
+      .catch((err: unknown) => {
+        console.error("Error generating QR code", err);
+      });
 
-      imageUrlToBase64(staffData.photo)
-        .then((base64) => {
-          setPhotoBase64(base64);
-        })
-        .catch((err: unknown) => {
-          console.error("Error converting photo to base64", err);
-        });
-    }
+    return () => {
+      isMounted = false;
+      setQrCodeUrl("");
+    };
   }, [staffData, isOpen]);
 
   if (!isOpen || !staffData) return null;
@@ -87,54 +86,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
     setIsDownloading(false);
   };
 
-  const handlePrint = () => {
-    if (!cardRef.current) return;
-
-    const printWindow = window.open("", "_blank", "width=400,height=600");
-    if (!printWindow) {
-      alert("Please allow popups to print the ID card");
-      return;
-    }
-
-    const cardContent = cardRef.current.outerHTML;
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>NCoS ID Card - ${staffData.first_name} ${staffData.surname}</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-              font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
-              background: #f1f5f9;
-              padding: 20px;
-            }
-            @media print {
-              body { background: white; padding: 0; }
-              @page { size: 85.6mm 54mm; margin: 0; }
-            }
-          </style>
-        </head>
-        <body>${cardContent}</body>
-      </html>
-    `);
-    printWindow.document.close();
-
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-      }, 300);
-    };
-  };
-
-  const fullName =
-    `${staffData.surname} ${staffData.first_name} ${staffData.other_names || ""}`.trim();
+  const fullName = `${staffData.surname} ${staffData.first_name}`.trim();
 
   return (
     <div
@@ -265,7 +217,6 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   objectFit: "contain",
                   borderRadius: "4px",
                 }}
-                crossOrigin="anonymous"
               />
 
               {/* Photo */}
@@ -281,14 +232,18 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
-                {photoBase64 ? (
+                {staffData.photo ? (
                   <img
-                    src={photoBase64}
+                    src={getFileUrl(staffData.photo)}
                     alt={fullName}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
+                    }}
+                    onError={(e) => {
+                      // Hide img on error, will show initials fallback
+                      (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
                 ) : (
@@ -317,15 +272,15 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                 position: "absolute",
                 left: "160px",
                 right: "16px",
-                top: "20px",
-                bottom: "16px",
+                top: "16px",
+                bottom: "12px",
                 display: "flex",
                 flexDirection: "column",
                 zIndex: 10,
               }}
             >
               {/* Header text */}
-              <div style={{ textAlign: "center", marginBottom: "8px" }}>
+              <div style={{ textAlign: "center", marginBottom: "6px" }}>
                 <p
                   style={{
                     fontSize: "8px",
@@ -345,7 +300,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
                     color: COLORS.white,
-                    margin: "2px 0",
+                    margin: "1px 0",
                   }}
                 >
                   Nigerian Correctional Service
@@ -366,9 +321,9 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
               <div
                 style={{
                   backgroundColor: "rgba(255,255,255,0.1)",
-                  padding: "6px 10px",
+                  padding: "5px 8px",
                   borderRadius: "6px",
-                  marginBottom: "6px",
+                  marginBottom: "5px",
                 }}
               >
                 <p
@@ -399,8 +354,8 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
-                  gap: "4px",
-                  flex: 1,
+                  gap: "3px",
+                  marginBottom: "4px",
                 }}
               >
                 <div>
@@ -511,9 +466,9 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
               <div
                 style={{
                   display: "flex",
-                  alignItems: "flex-end",
+                  alignItems: "center",
                   justifyContent: "space-between",
-                  marginTop: "auto",
+                  marginTop: "-15px",
                 }}
               >
                 <p
@@ -532,9 +487,9 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                 {qrCodeUrl && (
                   <div
                     style={{
-                      padding: "4px",
+                      padding: "3px",
                       backgroundColor: COLORS.white,
-                      borderRadius: "6px",
+                      borderRadius: "4px",
                       boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
                     }}
                   >
@@ -542,9 +497,10 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                       src={qrCodeUrl}
                       alt="QR Code"
                       style={{
-                        width: "50px",
-                        height: "50px",
+                        width: "45px",
+                        height: "45px",
                         display: "block",
+                        imageRendering: "crisp-edges",
                       }}
                     />
                   </div>
@@ -567,22 +523,14 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <Button
-            variant="outline"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="flex-1"
+            className="bg-ncos-green-900 hover:bg-ncos-green-800 text-white px-6"
           >
             <Download className="w-4 h-4 mr-2" />
-            {isDownloading ? "Processing..." : "Download PNG"}
-          </Button>
-          <Button
-            onClick={handlePrint}
-            className="flex-1 bg-ncos-green-900 hover:bg-ncos-green-800"
-          >
-            <Printer className="w-4 h-4 mr-2" />
-            Print Card
+            {isDownloading ? "Processing..." : "Download ID Card"}
           </Button>
         </div>
       </div>
