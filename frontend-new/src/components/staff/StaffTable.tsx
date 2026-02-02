@@ -21,7 +21,9 @@ import {
   Trash2,
   IdCard,
   UserCog,
+  GraduationCap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Separate component for the select all checkbox to properly use hooks
 const SelectAllCheckbox: React.FC<{ table: Table<Staff> }> = ({ table }) => {
@@ -148,22 +150,38 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       ),
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "present_command",
+      header: "Present Command",
       cell: ({ row }) => (
         <span className="text-sm text-slate-600">
-          {row.original.email || "N/A"}
+          {row.original.present_command || "N/A"}
         </span>
       ),
     },
+
     {
-      accessorKey: "phone_number",
-      header: "Phone",
-      cell: ({ row }) => (
-        <span className="text-sm text-slate-600">
-          {row.original.phone_number || "N/A"}
-        </span>
-      ),
+      id: "qualifications",
+      header: "Qualifications",
+      cell: ({ row }) => {
+        const educationCount = row.original.education?.length || 0;
+        if (educationCount > 0) {
+          return (
+            <Link
+              to={`/qualifications?service_no=${row.original.service_no}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              View ({educationCount})
+            </Link>
+          );
+        }
+        return (
+          <span className="text-xs text-slate-400 italic">
+            No Qualifications
+          </span>
+        );
+      },
+      enableSorting: false,
     },
     {
       accessorKey: "status",

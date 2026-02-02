@@ -117,6 +117,12 @@ export interface LGA {
   status: number;
 }
 
+export interface DegreeType {
+  id: number;
+  title: string;
+  status: boolean | number;
+}
+
 export interface GenericData {
   zones: Zone[];
   states: State[];
@@ -125,6 +131,7 @@ export interface GenericData {
   rankings: Ranking[];
   levels: Level[];
   marital_statuses: MaritalStatus[];
+  degree_types?: DegreeType[];
   departments?: string[];
   statuses?: string[];
 }

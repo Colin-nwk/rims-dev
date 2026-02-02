@@ -119,6 +119,10 @@ class GenericController extends Controller
                 ->where('status', true)
                 ->orderBy('name')
                 ->get(),
+            'degree_types' => \App\Models\DegreeType::select('id', 'title', 'status')
+                ->where('status', 1)
+                ->orderBy('title')
+                ->get(),
         ]);
     }
 }

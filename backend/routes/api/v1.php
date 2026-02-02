@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use App\Http\Controllers\V1\StaffAuthController;
 use App\Http\Controllers\V1\StaffController;
+use App\Http\Controllers\V1\StaffEducationController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
@@ -46,6 +47,9 @@ Route::get('generic-data', [GenericController::class, 'getGenericData']);
 
 // Staff ID Card - Public access (for QR code scanning)
 Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
+
+// Staff Education Certificate Viewer - Public access (for viewing certificates)
+Route::get('staff-education/{staffEducation}/certificate', [\App\Http\Controllers\V1\StaffEducationController::class, 'viewCertificate']);
 
 // Public Complaint Submission (validates staff via service_no + ippis)
 Route::post('complaints/public', [ComplaintController::class, 'storePublic'])->middleware('throttle:auth');
@@ -94,6 +98,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
     Route::delete('staff/{staff}/roles/{role}', [StaffController::class, 'removeRole']);
+
+    // --- Staff Education Management ---
+    Route::apiResource('staff-education', StaffEducationController::class);
 
     // --- User Management ---
     Route::prefix('user')->group(function () {

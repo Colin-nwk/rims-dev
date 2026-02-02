@@ -10,7 +10,8 @@ import {
   createRoleSchema,
   generateSlug,
 } from "@/lib/api/roles";
-import { Info, Globe } from "lucide-react";
+import { useGenericData } from "@/lib/api/statistics";
+import { Info, Globe, Loader2 } from "lucide-react";
 
 interface RoleFormModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
   isLoading = false,
 }) => {
   const isEditMode = !!role;
+  const { data: genericData, isLoading: isLoadingGeneric } = useGenericData();
 
   const initialValues: CreateRoleFormData = {
     name: role?.name || "",
@@ -143,7 +145,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
                 </label>
                 <p className="mt-1 text-xs text-slate-500">
                   When enabled, this role has access to all data regardless of
-                  zone, state, or prison assignments
+                  zone, state, or custodial center assignments
                 </p>
               </div>
             </div>
@@ -155,85 +157,143 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
                   Scope Restrictions (Optional)
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Leave empty for unrestricted access within assigned permissions
+                  Leave empty for unrestricted access within assigned
+                  permissions
                 </p>
 
-                <div className="grid gap-4 sm:grid-cols-3">
-                  {/* Zone ID */}
-                  <div>
-                    <label
-                      htmlFor="zone_id"
-                      className="block mb-1.5 text-xs font-medium text-slate-600"
-                    >
-                      Zone ID
-                    </label>
-                    <Field
-                      as={Input}
-                      type="number"
-                      id="zone_id"
-                      name="zone_id"
-                      placeholder="Zone ID"
-                      disabled={isLoading}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "zone_id",
-                          val ? parseInt(val, 10) : null,
-                        );
-                      }}
-                    />
+                {isLoadingGeneric ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                    <span className="ml-2 text-sm text-slate-500">
+                      Loading options...
+                    </span>
                   </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {/* Zone */}
+                    <div>
+                      <label
+                        htmlFor="zone_id"
+                        className="block mb-1.5 text-xs font-medium text-slate-600"
+                      >
+                        Zone
+                      </label>
+                      <select
+                        id="zone_id"
+                        value={values.zone_id || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue(
+                            "zone_id",
+                            val ? parseInt(val, 10) : null,
+                          );
+                          // Clear state and prison when zone changes
+                          setFieldValue("state_id", null);
+                          setFieldValue("prison_id", null);
+                        }}
+                        disabled={isLoading}
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      >
+                        <option value="">Select Zone</option>
+                        {genericData?.zones
+                          ?.filter((z) => z.status)
+                          .map((zone) => (
+                            <option key={zone.id} value={zone.id}>
+                              {zone.zone}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
 
-                  {/* State ID */}
-                  <div>
-                    <label
-                      htmlFor="state_id"
-                      className="block mb-1.5 text-xs font-medium text-slate-600"
-                    >
-                      State ID
-                    </label>
-                    <Field
-                      as={Input}
-                      type="number"
-                      id="state_id"
-                      name="state_id"
-                      placeholder="State ID"
-                      disabled={isLoading}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "state_id",
-                          val ? parseInt(val, 10) : null,
-                        );
-                      }}
-                    />
-                  </div>
+                    {/* State */}
+                    <div>
+                      <label
+                        htmlFor="state_id"
+                        className="block mb-1.5 text-xs font-medium text-slate-600"
+                      >
+                        State
+                        {!values.zone_id && (
+                          <span className="ml-1 text-[10px] text-slate-400 font-normal">
+                            (select zone first)
+                          </span>
+                        )}
+                      </label>
+                      <select
+                        id="state_id"
+                        value={values.state_id || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue(
+                            "state_id",
+                            val ? parseInt(val, 10) : null,
+                          );
+                          // Clear prison when state changes
+                          setFieldValue("prison_id", null);
+                        }}
+                        disabled={isLoading || !values.zone_id}
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {values.zone_id
+                            ? "Select State"
+                            : "Select zone first"}
+                        </option>
+                        {genericData?.states
+                          ?.filter(
+                            (s) => s.status && s.zone_id === values.zone_id,
+                          )
+                          .map((state) => (
+                            <option key={state.id} value={state.id}>
+                              {state.state}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
 
-                  {/* Prison ID */}
-                  <div>
-                    <label
-                      htmlFor="prison_id"
-                      className="block mb-1.5 text-xs font-medium text-slate-600"
-                    >
-                      Prison ID
-                    </label>
-                    <Field
-                      as={Input}
-                      type="number"
-                      id="prison_id"
-                      name="prison_id"
-                      placeholder="Prison ID"
-                      disabled={isLoading}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "prison_id",
-                          val ? parseInt(val, 10) : null,
-                        );
-                      }}
-                    />
+                    {/* Custodial Center */}
+                    <div>
+                      <label
+                        htmlFor="prison_id"
+                        className="block mb-1.5 text-xs font-medium text-slate-600"
+                      >
+                        Custodial Center
+                        {!values.state_id && (
+                          <span className="ml-1 text-[10px] text-slate-400 font-normal">
+                            (select state first)
+                          </span>
+                        )}
+                      </label>
+                      <select
+                        id="prison_id"
+                        value={values.prison_id || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue(
+                            "prison_id",
+                            val ? parseInt(val, 10) : null,
+                          );
+                        }}
+                        disabled={isLoading || !values.state_id}
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {values.state_id
+                            ? "Select Center"
+                            : "Select state first"}
+                        </option>
+                        {genericData?.prisons
+                          ?.filter(
+                            (p) => p.status && p.state_id === values.state_id,
+                          )
+                          .map((prison) => (
+                            <option key={prison.id} value={prison.id}>
+                              {prison.prison_name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 

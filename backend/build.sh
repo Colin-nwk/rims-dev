@@ -2,8 +2,8 @@
 # Exit on error
 set -o errexit
 
-echo "Installing Composer dependencies..."
-composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# echo "Installing Composer dependencies..."
+# composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 echo "Clearing configuration cache..."
 php artisan config:clear
