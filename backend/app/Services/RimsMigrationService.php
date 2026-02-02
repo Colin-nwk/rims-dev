@@ -3,88 +3,95 @@
 namespace App\Services;
 
 use App\Models\Staff;
-use App\Models\StaffDetail;
-use App\Models\StaffEducation;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class RimsMigrationService
 {
     protected $oldConnection = 'rims_old';
+
     protected $newConnection = 'mysql';
-    
+
     protected $migratedCount = 0;
+
     protected $failedCount = 0;
+
     protected $skippedCount = 0;
+
     protected $errors = [];
+
+    // Optimized chunk size for 50K records
+    protected $chunkSize = 5000;
 
     public function migrateStaff($limit = null, $offset = 0)
     {
-        $query = DB::connection($this->oldConnection)
-            ->table('staff')
-            ->where('deleted', 0)
-            ->offset($offset);
-        
-        if ($limit) {
-            $query->limit($limit);
-        }
-        
-        // Chunk size for bulk inserts
-        $chunkSize = 1000;
-        $staffBatch = [];
-        $detailsBatch = [];
-        $serviceNos = [];
+        // Disable query logging to save memory
+        DB::connection($this->newConnection)->disableQueryLog();
+        DB::connection($this->oldConnection)->disableQueryLog();
 
-        // Use cursor for memory efficiency with large datasets
-        $cursor = $query->cursor();
-        
-        foreach ($cursor as $oldStaffRecord) {
-            try {
-                // Check if staff already exists (skippable if we trust our offset logic, but safer to check)
-                // To optimize, we could fetch existing service_nos in batch too, but for migration simple single check is slow.
-                // Better: optimize the "exists" check by caching or simple ignore on duplicate key error?
-                // Let's stick to simple "exists" check for now, or assume offset handles it.
-                // Assuming offset handles it for speed. Or we can check existence later.
-                // Actually, checking every record is N+1. 
-                // Let's assume user handled clearing or offset correctly.
-                
-                $mappedData = $this->mapStaffData($oldStaffRecord);
-                
-                // If mapping failed (e.g. skipped), continue?
-                // mapStaffData will return array with 'staff' and 'details' keys.
-                
-                $staffBatch[] = $mappedData['staff'];
-                $detailsBatch[] = $mappedData['details'];
-                $serviceNos[] = $oldStaffRecord->serviceNo;
-                
-                $this->migratedCount++;
+        // Disable FK checks for faster inserts
+        DB::connection($this->newConnection)->statement('SET FOREIGN_KEY_CHECKS=0');
 
-                if (count($staffBatch) >= $chunkSize) {
-                    $this->processBatch($staffBatch, $detailsBatch, $serviceNos);
-                    $staffBatch = [];
-                    $detailsBatch = [];
-                    $serviceNos = [];
-                    gc_collect_cycles();
-                }
+        try {
+            $query = DB::connection($this->oldConnection)
+                ->table('staff')
+                ->where('deleted', 0)
+                ->offset($offset);
 
-            } catch (\Exception $e) {
-                $this->failedCount++;
-                $this->errors[] = [
-                    'service_no' => $oldStaffRecord->serviceNo,
-                    'error' => $e->getMessage(),
-                ];
-                Log::error("Failed to migrate staff: {$oldStaffRecord->serviceNo}", [
-                    'error' => $e->getMessage(),
-                ]);
+            if ($limit) {
+                $query->limit($limit);
             }
+
+            $staffBatch = [];
+            $detailsBatch = [];
+            $serviceNos = [];
+
+            // Pre-calculate timestamp once per migration run
+            $batchTimestamp = now()->toDateTimeString();
+
+            $cursor = $query->cursor();
+
+            foreach ($cursor as $oldStaffRecord) {
+                try {
+                    $mappedData = $this->mapStaffData($oldStaffRecord, $batchTimestamp);
+
+                    $staffBatch[] = $mappedData['staff'];
+                    $detailsBatch[] = $mappedData['details'];
+                    $serviceNos[] = $oldStaffRecord->serviceNo;
+
+                    $this->migratedCount++;
+
+                    if (count($staffBatch) >= $this->chunkSize) {
+                        $this->processBatch($staffBatch, $detailsBatch, $serviceNos, $batchTimestamp);
+                        $staffBatch = [];
+                        $detailsBatch = [];
+                        $serviceNos = [];
+                        gc_collect_cycles();
+                    }
+
+                } catch (\Exception $e) {
+                    $this->failedCount++;
+                    $this->errors[] = [
+                        'service_no' => $oldStaffRecord->serviceNo,
+                        'error' => $e->getMessage(),
+                    ];
+                    Log::error("Failed to migrate staff: {$oldStaffRecord->serviceNo}", [
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Process remaining
+            if (! empty($staffBatch)) {
+                $this->processBatch($staffBatch, $detailsBatch, $serviceNos, $batchTimestamp);
+            }
+
+        } finally {
+            // Re-enable FK checks
+            DB::connection($this->newConnection)->statement('SET FOREIGN_KEY_CHECKS=1');
         }
-        
-        // Process remaining
-        if (!empty($staffBatch)) {
-            $this->processBatch($staffBatch, $detailsBatch, $serviceNos);
-        }
-        
+
         return [
             'migrated' => $this->migratedCount,
             'failed' => $this->failedCount,
@@ -93,10 +100,8 @@ class RimsMigrationService
         ];
     }
 
-    protected function mapStaffData($oldStaffRecord)
+    protected function mapStaffData($oldStaffRecord, string $timestamp)
     {
-        $now = now();
-        
         $staff = [
             'service_no' => $oldStaffRecord->serviceNo,
             'email' => $oldStaffRecord->email ?: '',
@@ -125,12 +130,12 @@ class RimsMigrationService
             'duty' => $oldStaffRecord->duty,
             'description' => $oldStaffRecord->description,
             'photo' => $oldStaffRecord->photo,
-            'last_login' => $this->parseDate($oldStaffRecord->last_login), // Ensure date format
-            'is_verified' => (bool)$oldStaffRecord->verified,
+            'last_login' => $this->parseDate($oldStaffRecord->last_login),
+            'is_verified' => (bool) $oldStaffRecord->verified,
             'status' => $this->parseInteger($oldStaffRecord->status),
             'zone_id' => $this->mapZone($oldStaffRecord->presentZone),
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
         ];
 
         $details = [
@@ -167,39 +172,60 @@ class RimsMigrationService
             'bank_name' => $oldStaffRecord->bank,
             'account_number' => $oldStaffRecord->account_no,
             'account_name' => null,
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
         ];
 
         return ['staff' => $staff, 'details' => $details];
     }
 
-    protected function processBatch($staffBatch, $detailsBatch, $serviceNos)
+    protected function processBatch($staffBatch, $detailsBatch, $serviceNos, string $timestamp)
     {
-        DB::connection($this->newConnection)->transaction(function () use ($staffBatch, $detailsBatch, $serviceNos) {
-            // Using insertOrIgnore to skip duplicates efficiently
-            Staff::insertOrIgnore($staffBatch);
-            StaffDetail::insertOrIgnore($detailsBatch);
-            
+        DB::connection($this->newConnection)->transaction(function () use ($staffBatch, $detailsBatch, $serviceNos, $timestamp) {
+            // Use raw insert for maximum speed
+            $this->bulkInsertIgnore('staff', $staffBatch);
+            $this->bulkInsertIgnore('staff_details', $detailsBatch);
+
             // Migrate education for the batch
-            $this->migrateEducationBatch($serviceNos);
+            $this->migrateEducationBatch($serviceNos, $timestamp);
         });
     }
 
-    protected function migrateEducationBatch($serviceNos) {
+    protected function bulkInsertIgnore(string $table, array $data)
+    {
+        if (empty($data)) {
+            return;
+        }
+
+        $columns = array_keys($data[0]);
+        $placeholders = '('.implode(',', array_fill(0, count($columns), '?')).')';
+        $allPlaceholders = implode(',', array_fill(0, count($data), $placeholders));
+
+        $values = [];
+        foreach ($data as $row) {
+            foreach ($columns as $col) {
+                $values[] = $row[$col];
+            }
+        }
+
+        $sql = "INSERT IGNORE INTO {$table} (".implode(',', $columns).") VALUES {$allPlaceholders}";
+
+        DB::connection($this->newConnection)->insert($sql, $values);
+    }
+
+    protected function migrateEducationBatch($serviceNos, string $timestamp)
+    {
         $qualifications = DB::connection($this->oldConnection)
             ->table('qualifications')
             ->whereIn('serviceNo', $serviceNos)
-            // ->where('status', '!=', '0')
             ->get();
-            
+
         if ($qualifications->isEmpty()) {
             return;
         }
 
         $educationData = [];
-        $now = now();
-        
+
         foreach ($qualifications as $qualification) {
             $educationData[] = [
                 'service_no' => $qualification->serviceNo,
@@ -209,50 +235,15 @@ class RimsMigrationService
                 'start_date' => $this->parseYear($qualification->start_year),
                 'end_date' => $this->parseYear($qualification->end_year),
                 'url' => $qualification->attachment,
-                'created_at' => $now,
-                'updated_at' => $now,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ];
         }
-        
-        if (!empty($educationData)) {
-            // Chunk education inserts too if they are huge
-            foreach (array_chunk($educationData, 1000) as $chunk) {
-                StaffEducation::insertOrIgnore($chunk);
+
+        if (! empty($educationData)) {
+            foreach (array_chunk($educationData, 5000) as $chunk) {
+                $this->bulkInsertIgnore('staff_education', $chunk);
             }
-        }
-    }
-
-    protected function migrateEducation($serviceNo)
-    {
-        $qualifications = DB::connection($this->oldConnection)
-            ->table('qualifications')
-            ->where('service_no', $serviceNo)
-            // ->where('status', '!=', '0')
-            ->get();
-
-        if ($qualifications->isEmpty()) {
-            return;
-        }
-
-        // Prepare bulk insert data for better performance
-        $educationData = [];
-        foreach ($qualifications as $qualification) {
-            $educationData[] = [
-                'service_no' => $serviceNo,
-                'institution' => $qualification->school,
-                'course' => $qualification->course,
-                'type' => $this->mapDegreeType($qualification->degree_type),
-                'start_date' => $this->parseYear($qualification->start_year),
-                'end_date' => $this->parseYear($qualification->end_year),
-                'url' => $qualification->attachment,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
-
-        // Bulk insert for better performance
-        if (!empty($educationData)) {
-            StaffEducation::insert($educationData);
         }
     }
 
@@ -261,9 +252,9 @@ class RimsMigrationService
         if (empty($date) || $date === '0000-00-00' || $date === '0000-00-00 00:00:00') {
             return null;
         }
-        
+
         try {
-            return \Carbon\Carbon::parse($date);
+            return \Carbon\Carbon::parse($date)->toDateTimeString();
         } catch (\Exception $e) {
             return null;
         }
@@ -271,12 +262,12 @@ class RimsMigrationService
 
     protected function parseYear($year)
     {
-        if (empty($year) || !is_numeric($year)) {
+        if (empty($year) || ! is_numeric($year)) {
             return null;
         }
-        
+
         try {
-            return \Carbon\Carbon::createFromFormat('Y', $year)->startOfYear();
+            return \Carbon\Carbon::createFromFormat('Y', $year)->startOfYear()->toDateTimeString();
         } catch (\Exception $e) {
             return null;
         }
@@ -287,8 +278,9 @@ class RimsMigrationService
         if (empty($value)) {
             return false;
         }
-        
+
         $value = strtolower(trim($value));
+
         return in_array($value, ['yes', '1', 'true', 'y']);
     }
 
@@ -297,7 +289,7 @@ class RimsMigrationService
         if ($value === '' || $value === null) {
             return null;
         }
-        
+
         return (int) $value;
     }
 
@@ -306,27 +298,19 @@ class RimsMigrationService
         if ($value === '' || $value === null) {
             return null;
         }
-        
+
         return (float) $value;
     }
 
     protected function mapZone($oldZone)
     {
-        // Map old zone values to new zone_id
-        // Adjust this mapping based on your zones table
-        $zoneMapping = [
-            // Add your zone mappings here
-            // 'A' => 1,
-            // 'B' => 2,
-            // etc.
-        ];
-        
+        $zoneMapping = [];
+
         return $zoneMapping[$oldZone] ?? null;
     }
 
     protected function mapDegreeType($degreeType)
     {
-        // Map old degree types to new types
         $typeMapping = [
             'bachelor' => 'Bachelor',
             'masters' => 'Masters',
@@ -339,25 +323,36 @@ class RimsMigrationService
             'ssce' => 'SSCE',
             'fslc' => 'FSLC',
         ];
-        
+
         $normalizedType = strtolower(trim($degreeType ?? ''));
-        
+
         return $typeMapping[$normalizedType] ?? $degreeType;
     }
 
     public function getStatistics()
     {
+        $oldTotal = DB::connection($this->oldConnection)
+            ->table('staff')
+            ->where('deleted', 0)
+            ->count();
+
+        $newTotal = Staff::count();
+
+        // Optimized: use NOT EXISTS instead of loading all IDs into memory
+        $pendingCount = DB::connection($this->oldConnection)
+            ->table('staff as old')
+            ->where('old.deleted', 0)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from(DB::connection($this->newConnection)->getDatabaseName().'.staff as new')
+                    ->whereColumn('new.service_no', 'old.serviceNo');
+            })
+            ->count();
+
         return [
-            'old_database_total' => DB::connection($this->oldConnection)
-                ->table('staff')
-                ->where('deleted', 0)
-                ->count(),
-            'new_database_total' => Staff::count(),
-            'pending_migration' => DB::connection($this->oldConnection)
-                ->table('staff')
-                ->where('deleted', 0)
-                ->whereNotIn('serviceNo', Staff::pluck('service_no'))
-                ->count(),
+            'old_database_total' => $oldTotal,
+            'new_database_total' => $newTotal,
+            'pending_migration' => $pendingCount,
         ];
     }
 

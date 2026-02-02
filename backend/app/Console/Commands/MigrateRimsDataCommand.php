@@ -15,7 +15,7 @@ class MigrateRimsDataCommand extends Command
     protected $signature = 'app:migrate-rims-data-command 
                             {--limit= : Number of records to migrate per batch}
                             {--offset=0 : Starting offset for migration}
-                            {--batch-size=250 : Number of records to process in each batch}
+                            {--batch-size=1000 : Number of records to process in each batch}
                             {--dry-run : Run without actually migrating data}
                             {--stats : Show migration statistics only}';
 
@@ -37,6 +37,7 @@ class MigrateRimsDataCommand extends Command
 
         if ($this->option('stats')) {
             $this->showStatistics();
+
             return self::SUCCESS;
         }
 
@@ -48,12 +49,13 @@ class MigrateRimsDataCommand extends Command
         $this->info('🚀 Starting RIMS Data Migration');
         $this->newLine();
 
-        if (!$this->option('stats')) {
+        if (! $this->option('stats')) {
             $this->showStatistics();
             $this->newLine();
 
-            if (!$this->option('no-interaction') && !$this->confirm('Do you want to proceed with the migration?', true)) {
+            if (! $this->option('no-interaction') && ! $this->confirm('Do you want to proceed with the migration?', true)) {
                 $this->warn('Migration cancelled.');
+
                 return self::SUCCESS;
             }
         } else {
@@ -78,11 +80,11 @@ class MigrateRimsDataCommand extends Command
     protected function processBatch($offset, $limit)
     {
         $this->info("Processing {$limit} records starting from offset {$offset}...");
-        
+
         $progressBar = $this->output->createProgressBar($limit);
         $progressBar->start();
 
-        if (!$this->option('dry-run')) {
+        if (! $this->option('dry-run')) {
             $result = $this->migrationService->migrateStaff($limit, $offset);
             $progressBar->advance($result['migrated'] + $result['failed'] + $result['skipped']);
         } else {
@@ -92,7 +94,7 @@ class MigrateRimsDataCommand extends Command
         $progressBar->finish();
         $this->newLine(2);
 
-        if (!$this->option('dry-run')) {
+        if (! $this->option('dry-run')) {
             $this->displayResults($result);
         }
     }
@@ -101,9 +103,10 @@ class MigrateRimsDataCommand extends Command
     {
         $stats = $this->migrationService->getStatistics();
         $totalRecords = $stats['pending_migration'];
-        
+
         if ($totalRecords === 0) {
             $this->info('✅ No records to migrate. All data is up to date!');
+
             return;
         }
 
@@ -120,30 +123,27 @@ class MigrateRimsDataCommand extends Command
         $allErrors = [];
 
         while ($offset < $totalRecords + $startOffset) {
-            if (!$this->option('dry-run')) {
+            if (! $this->option('dry-run')) {
                 $this->migrationService->resetCounters();
                 $result = $this->migrationService->migrateStaff($batchSize, $offset);
-                
+
                 $totalMigrated += $result['migrated'];
                 $totalFailed += $result['failed'];
                 $totalSkipped += $result['skipped'];
                 $allErrors = array_merge($allErrors, $result['errors']);
-                
+
                 $progressBar->advance($result['migrated'] + $result['failed'] + $result['skipped']);
             } else {
                 $progressBar->advance(min($batchSize, $totalRecords - $offset));
             }
 
             $offset += $batchSize;
-
-            // Small delay to prevent overwhelming the database (reduced for large migrations)
-            usleep(50000); // 0.05 seconds
         }
 
         $progressBar->finish();
         $this->newLine(2);
 
-        if (!$this->option('dry-run')) {
+        if (! $this->option('dry-run')) {
             $this->displayResults([
                 'migrated' => $totalMigrated,
                 'failed' => $totalFailed,
@@ -178,20 +178,20 @@ class MigrateRimsDataCommand extends Command
                 array_map(function ($error) {
                     return [
                         $error['service_no'],
-                        substr($error['error'], 0, 100) . (strlen($error['error']) > 100 ? '...' : ''),
+                        substr($error['error'], 0, 100).(strlen($error['error']) > 100 ? '...' : ''),
                     ];
                 }, $errorTable)
             );
 
             if (count($result['errors']) > 10) {
-                $this->warn('... and ' . (count($result['errors']) - 10) . ' more errors. Check the logs for details.');
+                $this->warn('... and '.(count($result['errors']) - 10).' more errors. Check the logs for details.');
             }
         }
 
         $this->newLine();
         $this->info('✅ Migration completed!');
         $this->newLine();
-        
+
         // Show updated statistics
         $this->showStatistics();
     }

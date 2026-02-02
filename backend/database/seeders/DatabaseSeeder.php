@@ -17,24 +17,28 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
 
         $this->call([
             // Reference data seeders (run first)
-            BloodGroupSeeder::class,
-            BloodGenotypeSeeder::class,
-            ComplexionSeeder::class,
-            HairColourSeeder::class,
-            DegreeTypeSeeder::class,
-            RankingSeeder::class,
+            // BloodGroupSeeder::class,
+            // BloodGenotypeSeeder::class,
+            // ComplexionSeeder::class,
+            // HairColourSeeder::class,
+            // DegreeTypeSeeder::class,
+            // RankingSeeder::class,
 
             // Main data seeders
-            StaffSeeder::class,
-            PermissionSeeder::class,
-            RoleSeeder::class,
+            // StaffSeeder::class,
+            // PermissionSeeder::class,
+            // RoleSeeder::class,
+
+            ZoneSeeder::class,
+            StateSeeder::class,
+            PrisonSeeder::class,
         ]);
     }
 }

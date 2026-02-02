@@ -133,7 +133,7 @@ full_migration() {
             if [ "$use_screen" == "y" ]; then
                 print_info "Starting migration in screen session 'rims-migration'"
                 print_info "Use 'screen -r rims-migration' to reattach"
-                screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=250 ; echo 'Migration completed. Press Enter to exit.'; read"
+                screen -dmS rims-migration bash -c "php artisan app:migrate-rims-data-command --batch-size=1000 ; echo 'Migration completed. Press Enter to exit.'; read"
                 print_success "Migration started in background screen session"
                 print_info "To monitor: screen -r rims-migration"
                 echo ""
@@ -146,7 +146,7 @@ full_migration() {
         fi
 
         # Run in foreground
-        php artisan app:migrate-rims-data-command --batch-size=250
+        php artisan app:migrate-rims-data-command --batch-size=1000
     fi
     echo ""
     read -p "Press Enter to continue..."
@@ -171,7 +171,7 @@ batch_migration() {
     for ((i=0; i<$num_batches; i++)); do
         offset=$((i * 5000))
         print_info "Processing batch $((i+1))/$num_batches (offset: $offset)"
-        php artisan app:migrate-rims-data-command --limit=5000 --offset=$offset --batch-size=250
+        php artisan app:migrate-rims-data-command --limit=5000 --offset=$offset --batch-size=1000
         print_success "Batch $((i+1)) completed"
         sleep 2
     done
@@ -202,7 +202,7 @@ resume_migration() {
     if [ "$confirm" == "y" ]; then
         print_info "Resuming migration from offset $offset..."
         # php artisan rims:migrate --offset=$offset --batch-size=250
-         php artisan app:migrate-rims-data-command --offset=$offset --batch-size=250
+         php artisan app:migrate-rims-data-command --offset=$offset --batch-size=1000
         print_success "Migration resumed and completed!"
     fi
     echo ""
