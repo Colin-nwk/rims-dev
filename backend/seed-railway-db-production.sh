@@ -33,7 +33,7 @@ echo "  Username: $DB_USERNAME"
 echo ""
 
 echo "Running seeders..."
-php artisan db:seed --force
+php artisan migrate:fresh db:seed --force
 
 if [ $? -eq 0 ]; then
     echo ""
