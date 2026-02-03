@@ -10,6 +10,7 @@ use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StaffController extends Controller
 {
@@ -150,29 +151,31 @@ class StaffController extends Controller
                 }
             }
 
-            $responses = [];
+            $responses = DB::transaction(function () use ($sensitivePayload, $standardPayload, $request, $staff) {
+                $res = [];
+                if (! empty($sensitivePayload)) {
+                    $res['sensitive'] = $this->changeRequestService->submit(
+                        'App\Models\Staff',
+                        'SENSITIVE',
+                        $sensitivePayload,
+                        $request->user(),
+                        $staff->service_no,
+                        $staff->id
+                    );
+                }
 
-            if (! empty($sensitivePayload)) {
-                $responses['sensitive'] = $this->changeRequestService->submit(
-                    'App\Models\Staff',
-                    'SENSITIVE',
-                    $sensitivePayload,
-                    $request->user(),
-                    $staff->service_no,
-                    $staff->id
-                );
-            }
-
-            if (! empty($standardPayload)) {
-                $responses['standard'] = $this->changeRequestService->submit(
-                    'App\Models\Staff',
-                    'UPDATE',
-                    $standardPayload,
-                    $request->user(),
-                    $staff->service_no,
-                    $staff->id
-                );
-            }
+                if (! empty($standardPayload)) {
+                    $res['standard'] = $this->changeRequestService->submit(
+                        'App\Models\Staff',
+                        'UPDATE',
+                        $standardPayload,
+                        $request->user(),
+                        $staff->service_no,
+                        $staff->id
+                    );
+                }
+                return $res;
+            });
 
             return $this->successResponse($responses, 'Staff update request(s) submitted for approval.');
         } catch (\Exception $e) {

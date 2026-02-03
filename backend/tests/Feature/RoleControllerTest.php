@@ -34,7 +34,7 @@ class RoleControllerTest extends TestCase
 
         // Setup an authenticated user (acting as admin)
         $this->admin = User::factory()->create();
-        $this->admin->roles()->attach($role); // Assign role to user
+        // $this->admin->roles()->attach($role); // Assign role to user (Handled by Factory)
 
         // Re-boot gates to pick up new permissions
         (new \App\Providers\AppServiceProvider($this->app))->boot();
@@ -42,7 +42,9 @@ class RoleControllerTest extends TestCase
 
     public function test_cannot_access_without_permission()
     {
-        $user = User::factory()->create(); // User without roles
+        $user = User::factory()->create(); // User created
+        $user->roles()->detach(); // Remove super-admin role assigned by factory callback
+
 
         $response = $this->actingAs($user)->getJson('/api/v1/roles');
         $response->assertStatus(403);

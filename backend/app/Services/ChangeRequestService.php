@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ChangeRequest;
 use Exception;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 
 class ChangeRequestService
 {
@@ -13,48 +14,49 @@ class ChangeRequestService
      */
     public function submit(string $modelType, string $type, array $data, $requestedBy, ?string $serviceNo = null, $modelId = null)
     {
-        // Simple duplicate check or validation logic could go here
+        return DB::transaction(function () use ($modelType, $type, $data, $requestedBy, $serviceNo, $modelId) {
+            // Simple duplicate check or validation logic could go here
 
-        $request = new ChangeRequest;
-        $request->model_type = $modelType;
-        $request->model_id = $modelId;
-        $request->service_no = $serviceNo;
-        $request->type = $type;
-        $request->data = $data;
-        $request->status = 'PENDING';
+            $request = new ChangeRequest;
+            $request->model_type = $modelType;
+            $request->model_id = $modelId;
+            $request->service_no = $serviceNo;
+            $request->type = $type;
+            $request->data = $data;
+            $request->status = 'PENDING';
 
-        $request->requestedBy()->associate($requestedBy);
-        $request->save();
+            $request->requestedBy()->associate($requestedBy);
+            $request->save();
 
-        return $request;
+            return $request;
+        });
     }
 
     /**
      * Approve a change request
      */
-    /**
-     * Approve a change request
-     */
     public function approve($requestId, $approverId)
     {
-        $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
+        return DB::transaction(function () use ($requestId, $approverId) {
+            $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
 
-        $request = ChangeRequest::findOrFail($requestId);
+            $request = ChangeRequest::findOrFail($requestId);
 
-        if ($request->status !== 'PENDING') {
-            throw new Exception('Request is not pending.');
-        }
+            if ($request->status !== 'PENDING') {
+                throw new Exception('Request is not pending.');
+            }
 
-        $service = $this->resolveService($request->model_type);
+            $service = $this->resolveService($request->model_type);
 
-        // Execute the service logic
-        $result = $service->executeRequest($request);
+            // Execute the service logic
+            $result = $service->executeRequest($request);
 
-        $request->status = 'APPROVED';
-        $request->approved_by = $approverId;
-        $request->save();
+            $request->status = 'APPROVED';
+            $request->approved_by = $approverId;
+            $request->save();
 
-        return $result;
+            return $result;
+        });
     }
 
     /**
@@ -62,20 +64,22 @@ class ChangeRequestService
      */
     public function reject($requestId, $approverId, $reason)
     {
-        $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
+        return DB::transaction(function () use ($requestId, $approverId, $reason) {
+            $approverId = $approverId instanceof \Illuminate\Database\Eloquent\Model ? $approverId->id : $approverId;
 
-        $request = ChangeRequest::findOrFail($requestId);
+            $request = ChangeRequest::findOrFail($requestId);
 
-        if ($request->status !== 'PENDING') {
-            throw new Exception('Request is not pending.');
-        }
+            if ($request->status !== 'PENDING') {
+                throw new Exception('Request is not pending.');
+            }
 
-        $request->status = 'REJECTED';
-        $request->approved_by = $approverId;
-        $request->rejection_reason = $reason;
-        $request->save();
+            $request->status = 'REJECTED';
+            $request->approved_by = $approverId;
+            $request->rejection_reason = $reason;
+            $request->save();
 
-        return $request;
+            return $request;
+        });
     }
 
     /**

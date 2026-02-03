@@ -46,7 +46,7 @@ class StaffAuthControllerTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401)
+        $response->assertStatus(422)
             ->assertJsonPath('status', 'Error');
     }
 

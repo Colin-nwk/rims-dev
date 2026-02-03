@@ -106,9 +106,11 @@ class StaffService extends BaseService
 
     public function delete($id)
     {
-        $staff = $this->find($id);
+        return DB::transaction(function () use ($id) {
+            $staff = $this->find($id);
 
-        return $staff->delete();
+            return $staff->delete();
+        });
     }
 
     public function find($id)
