@@ -58,7 +58,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             )}
           >
             {label}
-            {error && <span className="ml-1 text-red-500">*</span>}
+            {props.required && <span className="ml-1 text-red-500">*</span>}
           </label>
         )}
         <div className="relative">

@@ -12,7 +12,9 @@ import PublicComplaint from "@/pages/auth/Complaint";
 import DashboardRouter from "@/pages/Dashboard/DashboardRouter";
 import QualificationsRouter from "@/pages/Qualifications/QualificationsRouter";
 import Complaints from "@/pages/Complaints";
-import StaffDirectory from "@/pages/StaffDirectory";
+import StaffDirectory from "@/pages/staff/StaffDirectory";
+import CreateStaffFormPage from "@/pages/staff/CreateStaffFormPage";
+import EditStaffFormPage from "@/pages/staff/EditStaffFormPage";
 import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
 import Statistics from "@/pages/Statistics";
@@ -20,7 +22,7 @@ import RolesPermissions from "@/pages/RolesPermissions";
 import Profile from "@/pages/Profile";
 
 // Public pages
-import StaffProfile from "@/pages/StaffProfile";
+import StaffProfile from "@/pages/staff/StaffProfile";
 import NotFound from "@/pages/NotFound";
 
 export const routes = [
@@ -75,6 +77,10 @@ export const routes = [
         path: ROUTES.PROFILE,
         element: <Profile />,
       },
+      {
+        path: ROUTES.PROFILE_EDIT,
+        element: <EditStaffFormPage />,
+      },
       // Admin-only routes - staff users will be redirected to dashboard
       {
         element: <AdminOnlyRoute />,
@@ -82,6 +88,14 @@ export const routes = [
           {
             path: ROUTES.STAFF_DIRECTORY,
             element: <StaffDirectory />,
+          },
+          {
+            path: ROUTES.STAFF_ADD,
+            element: <CreateStaffFormPage />,
+          },
+          {
+            path: ROUTES.STAFF_EDIT,
+            element: <EditStaffFormPage />,
           },
           {
             path: ROUTES.ADMIN_USERS_DIRECTORY,

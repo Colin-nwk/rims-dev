@@ -42,6 +42,8 @@ class UpdateStaffRequest extends FormRequest
             'present_command' => 'nullable|string',
             'state_of_origin' => 'nullable|string',
             'lga' => 'nullable|string',
+            'assigned_state' => 'nullable|integer|exists:states,id',
+            'prison' => 'nullable|integer|exists:prisons,id',
             'department' => 'nullable|string',
             'file_no' => 'nullable|string',
             'ippis' => 'nullable|string|unique:staff,ippis,'.$this->staff->id,

@@ -123,6 +123,30 @@ export interface DegreeType {
   status: boolean | number;
 }
 
+export interface BloodGroup {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
+export interface BloodGenotype {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
+export interface Complexion {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
+export interface HairColour {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
 export interface GenericData {
   zones: Zone[];
   states: State[];
@@ -131,6 +155,10 @@ export interface GenericData {
   rankings: Ranking[];
   levels: Level[];
   marital_statuses: MaritalStatus[];
+  blood_groups: BloodGroup[];
+  blood_genotypes: BloodGenotype[];
+  complexions: Complexion[];
+  hair_colours: HairColour[];
   degree_types?: DegreeType[];
   departments?: string[];
   statuses?: string[];

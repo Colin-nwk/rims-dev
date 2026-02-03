@@ -118,9 +118,9 @@ const Dashboard = () => {
       textColor: "text-cyan-600",
     },
     {
-      title: "Prisons",
+      title: "Custodial Centers",
       value: stats?.prisons || 0,
-      subtitle: "Total facilities",
+      subtitle: "Total centers",
       icon: Building2,
       gradient: "from-slate-500 to-slate-600",
       bgGradient: "from-slate-50 to-slate-100",

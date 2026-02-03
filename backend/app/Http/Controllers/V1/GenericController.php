@@ -119,6 +119,22 @@ class GenericController extends Controller
                 ->where('status', true)
                 ->orderBy('name')
                 ->get(),
+            'blood_groups' => \App\Models\BloodGroup::select('id', 'title as name', 'status')
+                ->where('status', true)
+                ->orderBy('title')
+                ->get(),
+            'blood_genotypes' => \App\Models\BloodGenotype::select('id', 'title as name', 'status')
+                ->where('status', true)
+                ->orderBy('title')
+                ->get(),
+            'complexions' => \App\Models\Complexion::select('id', 'title as name', 'status')
+                ->where('status', true)
+                ->orderBy('title')
+                ->get(),
+            'hair_colours' => \App\Models\HairColour::select('id', 'title as name', 'status')
+                ->where('status', true)
+                ->orderBy('title')
+                ->get(),
             'degree_types' => \App\Models\DegreeType::select('id', 'title', 'status')
                 ->where('status', 1)
                 ->orderBy('title')

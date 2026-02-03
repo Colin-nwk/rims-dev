@@ -91,7 +91,7 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
                 className="object-cover w-24 h-24 border-4 border-white shadow-lg rounded-xl"
               />
             ) : (
-              <div className="flex items-center justify-center w-24 h-24 text-2xl font-bold text-white border-4 border-white shadow-lg rounded-xl bg-gradient-to-br from-ncos-green-500 to-ncos-green-700">
+              <div className="flex items-center justify-center w-24 h-24 text-2xl font-bold text-white border-4 border-white shadow-lg rounded-xl bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
                 {staff.first_name?.[0]}
                 {staff.surname?.[0]}
               </div>
@@ -187,7 +187,7 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
             />
             <InfoItem label="LGA" value={staff.lga} />
             <InfoItem label="Assigned State" value={staff.assigned_state} />
-            <InfoItem label="Prison / Facility" value={staff.prison} />
+            <InfoItem label="Custodial Center" value={staff.prison} />
             <InfoItem label="Initial Command" value={staff.initial_command} />
             <InfoItem label="Present Command" value={staff.present_command} />
             <InfoItem

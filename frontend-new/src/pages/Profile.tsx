@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuthContext";
 import { useUserProfile } from "@/hooks/useAuth";
 import {
@@ -7,6 +8,8 @@ import {
   type AdminUser,
 } from "@/lib/api/auth/types";
 import { getFileUrl } from "@/lib/api/apiClient";
+import { ROUTES } from "@/routes/constants";
+import { Button } from "@/components/ui/button";
 import {
   User,
   Mail,
@@ -24,6 +27,7 @@ import {
   Flag,
   Timer,
   Sparkles,
+  Edit,
 } from "lucide-react";
 
 // Info item component for consistent styling
@@ -493,9 +497,24 @@ const Profile = () => {
         </div>
 
         <div className="relative px-6 py-8 sm:px-8 sm:py-10">
+          {/* Edit Profile Button - Staff Only */}
+          {isStaff && (
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+              <Link to={ROUTES.PROFILE_EDIT}>
+                <Button
+                  variant="secondary"
+                  className="bg-white/90 hover:bg-white text-slate-800 shadow-lg"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </Link>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Avatar */}
-            <div className="relative">
+            <div className="relative bg-white rounded-2xl">
               {photoUrl ? (
                 <img
                   src={photoUrl}

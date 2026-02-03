@@ -1,7 +1,6 @@
 import { DeleteConfirmModal } from "@/components/staff/DeleteConfirmModal";
 import { RoleManageModal } from "@/components/staff/RoleManageModal";
 import { StaffFilters } from "@/components/staff/StaffFilters";
-import { StaffFormModal } from "@/components/staff/StaffFormModal";
 import { StaffIDCard } from "@/components/staff/StaffIDCard";
 import { StaffTable } from "@/components/staff/StaffTable";
 import { StaffViewModal } from "@/components/staff/StaffViewModal";
@@ -16,9 +15,13 @@ import {
 } from "@/lib/api/staff";
 import { Download, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { ROUTES } from "@/routes/constants";
 
 const StaffDirectory = () => {
+  const navigate = useNavigate();
+
   // State management
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -30,12 +33,10 @@ const StaffDirectory = () => {
   // Modal states
   const [showIDCard, setShowIDCard] = useState(false);
   const [idCardServiceNo, setIdCardServiceNo] = useState<string>("");
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
 
   // API hooks
   const { data, isLoading, isFetching, refetch } = useStaffList(
@@ -88,11 +89,9 @@ const StaffDirectory = () => {
     setIdCardServiceNo("");
   };
 
-  // Create handler
+  // Create handler - navigate to add page
   const handleCreate = () => {
-    setSelectedStaff(null);
-    setIsEditMode(false);
-    setIsFormModalOpen(true);
+    navigate(ROUTES.STAFF_ADD);
   };
 
   // View handler
@@ -101,11 +100,9 @@ const StaffDirectory = () => {
     setIsViewModalOpen(true);
   };
 
-  // Edit handler
+  // Edit handler - navigate to edit page
   const handleEdit = (staff: Staff) => {
-    setSelectedStaff(staff);
-    setIsEditMode(true);
-    setIsFormModalOpen(true);
+    navigate(ROUTES.STAFF_EDIT.replace(":serviceNo", staff.service_no));
   };
 
   // Delete handler - opens confirmation modal
@@ -154,30 +151,16 @@ const StaffDirectory = () => {
     toast.info("Export functionality coming soon");
   };
 
-  // Form modal close handler
-  const handleFormModalClose = () => {
-    setIsFormModalOpen(false);
-    setSelectedStaff(null);
-    setIsEditMode(false);
-  };
-
-  // Form success handler
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
   // View modal close handler
   const handleViewModalClose = () => {
     setIsViewModalOpen(false);
     setSelectedStaff(null);
   };
 
-  // Edit from view modal
+  // Edit from view modal - navigate to edit page
   const handleEditFromView = (staff: Staff) => {
     setIsViewModalOpen(false);
-    setSelectedStaff(staff);
-    setIsEditMode(true);
-    setIsFormModalOpen(true);
+    navigate(ROUTES.STAFF_EDIT.replace(":serviceNo", staff.service_no));
   };
 
   // View ID card from view modal
@@ -358,14 +341,6 @@ const StaffDirectory = () => {
             staffData={idCardData?.data || null}
           />
         )}
-
-        {/* Staff Form Modal (Create/Edit) */}
-        <StaffFormModal
-          isOpen={isFormModalOpen}
-          onClose={handleFormModalClose}
-          staff={isEditMode ? selectedStaff : null}
-          onSuccess={handleFormSuccess}
-        />
 
         {/* Staff View Modal */}
         <StaffViewModal

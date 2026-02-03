@@ -17,6 +17,7 @@ import {
   Shield,
   Timer,
   User,
+  UserPen,
   XCircle,
 } from "lucide-react";
 
@@ -293,17 +294,17 @@ const StaffDashboard = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {/* View Profile */}
               <button
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/profile/edit")}
                 className="group p-3 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 text-left"
               >
                 <div className="p-2 sm:p-3 rounded-xl bg-blue-100 text-blue-600 w-fit mb-2 sm:mb-3 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <UserPen className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <p className="text-xs sm:text-sm font-semibold text-slate-700">
-                  View Profile
+                  Edit Profile
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
-                  View your details
+                  Manage your information
                 </p>
               </button>
 
