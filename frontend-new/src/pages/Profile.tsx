@@ -514,12 +514,12 @@ const Profile = () => {
 
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Avatar */}
-            <div className="relative bg-white rounded-2xl">
+            <div className="relative">
               {photoUrl ? (
                 <img
                   src={photoUrl}
                   alt={displayName}
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
+                  className="bg-white w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
                 />
               ) : (
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 shadow-xl">

@@ -43,9 +43,9 @@ class StaffSeeder extends Seeder
             // 1. COMPLETE PROFILE - Senior Officer (Lagos Zone A)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2005/001234',
+                    'service_no' => 'NCS2005001234',
                     'email' => 'adebayo.ogunleye@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08012345678',
                     'assigned_state' => 24, // Lagos
                     'prison' => 53, // Ikoyi
@@ -67,17 +67,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Abeokuta South',
                     'department' => 'Operations',
                     'file_no' => 'NCS/LG/2005/1234',
-                    'ippis' => '1234567890',
+                    'ippis' => '1000000001',
                     'duty' => 'Custody and Control',
                     'description' => 'Experienced custody officer with 19 years service',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 1, // Zone A
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2005/001234',
+                    'service_no' => 'NCS2005001234',
                     'pfa_name' => 'Premium Pension Limited',
                     'pension_pin' => 'PEN1234567890',
-                    'ippis' => '1234567890',
+                    'ippis' => '1000000001',
                     'nin' => '12345678901',
                     'bvn' => '22123456789',
                     'place_of_birth' => 'Abeokuta, Ogun State',
@@ -106,7 +106,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2005/001234',
+                        'service_no' => 'NCS2005001234',
                         'institution' => 'Methodist Boys High School, Lagos',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -114,7 +114,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '1999-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2005/001234',
+                        'service_no' => 'NCS2005001234',
                         'institution' => 'University of Lagos',
                         'course' => 'Criminology and Security Studies',
                         'type' => 'Bachelor of Science BSc',
@@ -127,9 +127,9 @@ class StaffSeeder extends Seeder
             // 2. COMPLETE PROFILE - Female Officer (Kano Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2010/005678',
+                    'service_no' => 'NCS2010005678',
                     'email' => 'fatima.ibrahim@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08087654321',
                     'assigned_state' => 19, // Kano
                     'prison' => 110, // Kano Central
@@ -151,17 +151,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Kano Municipal',
                     'department' => 'Female Welfare',
                     'file_no' => 'NCS/KN/2010/5678',
-                    'ippis' => '2345678901',
+                    'ippis' => '1000000002',
                     'duty' => 'Female Inmates Management',
                     'description' => 'Dedicated female officer specializing in inmate welfare',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2010/005678',
+                    'service_no' => 'NCS2010005678',
                     'pfa_name' => 'ARM Pension Managers',
                     'pension_pin' => 'PEN2345678901',
-                    'ippis' => '2345678901',
+                    'ippis' => '1000000002',
                     'nin' => '23456789012',
                     'bvn' => '22234567890',
                     'place_of_birth' => 'Kano, Kano State',
@@ -190,7 +190,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2010/005678',
+                        'service_no' => 'NCS2010005678',
                         'institution' => 'Government Girls College Kano',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -198,7 +198,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2007-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2010/005678',
+                        'service_no' => 'NCS2010005678',
                         'institution' => 'Bayero University Kano',
                         'course' => 'Sociology',
                         'type' => 'Bachelor of Science BSc',
@@ -211,9 +211,9 @@ class StaffSeeder extends Seeder
             // 3. COMPLETE PROFILE - Mid-level Officer (Enugu Zone C)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2008/002345',
+                    'service_no' => 'NCS2008002345',
                     'email' => 'chukwuemeka.nwankwo@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08023456789',
                     'assigned_state' => 14, // Enugu
                     'prison' => 330, // Enugu
@@ -235,17 +235,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Onitsha North',
                     'department' => 'Intelligence',
                     'file_no' => 'NCS/EN/2008/2345',
-                    'ippis' => '3456789012',
+                    'ippis' => '1000000003',
                     'duty' => 'Intelligence Gathering',
                     'description' => 'Intelligence officer with specialization in security analysis',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 3, // Zone C
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2008/002345',
+                    'service_no' => 'NCS2008002345',
                     'pfa_name' => 'Stanbic IBTC Pension',
                     'pension_pin' => 'PEN3456789012',
-                    'ippis' => '3456789012',
+                    'ippis' => '1000000003',
                     'nin' => '34567890123',
                     'bvn' => '22345678901',
                     'place_of_birth' => 'Onitsha, Anambra State',
@@ -274,7 +274,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2008/002345',
+                        'service_no' => 'NCS2008002345',
                         'institution' => 'Christ the King College Onitsha',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -282,7 +282,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2002-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2008/002345',
+                        'service_no' => 'NCS2008002345',
                         'institution' => 'University of Nigeria Nsukka',
                         'course' => 'Political Science',
                         'type' => 'Bachelor of Science BSc',
@@ -290,7 +290,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2007-09-15',
                     ],
                     [
-                        'service_no' => 'NCS/2008/002345',
+                        'service_no' => 'NCS2008002345',
                         'institution' => 'University of Nigeria Nsukka',
                         'course' => 'Strategic Studies',
                         'type' => 'Master of Science MSc',
@@ -303,9 +303,9 @@ class StaffSeeder extends Seeder
             // 4. PARTIAL PROFILE - Junior Officer (Niger Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2015/008901',
+                    'service_no' => 'NCS2015008901',
                     'email' => 'abubakar.mohammed@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08034567890',
                     'assigned_state' => 26, // Niger
                     'prison' => 206, // MSP Minna
@@ -327,13 +327,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Bida',
                     'department' => 'Security',
                     'file_no' => 'NCS/NG/2015/8901',
-                    'ippis' => '4567890123',
+                    'ippis' => '1000000004',
                     'duty' => 'Perimeter Security',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2015/008901',
+                    'service_no' => 'NCS2015008901',
                     'nin' => '45678901234',
                     'place_of_birth' => 'Bida, Niger State',
                     'contact_address' => '34 Paiko Road, Minna, Niger State',
@@ -357,7 +357,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2015/008901',
+                        'service_no' => 'NCS2015008901',
                         'institution' => 'Government Secondary School Bida',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -365,7 +365,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2011-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2015/008901',
+                        'service_no' => 'NCS2015008901',
                         'institution' => 'Federal Polytechnic Bida',
                         'course' => 'Public Administration',
                         'type' => 'Higher National Diploma HND',
@@ -378,9 +378,9 @@ class StaffSeeder extends Seeder
             // 5. COMPLETE PROFILE - Rivers (Zone E)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2012/003456',
+                    'service_no' => 'NCS2012003456',
                     'email' => 'kingsley.eze@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08045678901',
                     'assigned_state' => 32, // Rivers
                     'prison' => 279, // Port-Harcourt
@@ -402,17 +402,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Aba North',
                     'department' => 'Rehabilitation',
                     'file_no' => 'NCS/RV/2012/3456',
-                    'ippis' => '5678901234',
+                    'ippis' => '1000000005',
                     'duty' => 'Inmate Rehabilitation Programs',
                     'description' => 'Rehabilitation officer focused on skills training',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 5, // Zone E
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2012/003456',
+                    'service_no' => 'NCS2012003456',
                     'pfa_name' => 'Leadway Pensure',
                     'pension_pin' => 'PEN5678901234',
-                    'ippis' => '5678901234',
+                    'ippis' => '1000000005',
                     'nin' => '56789012345',
                     'bvn' => '22456789012',
                     'place_of_birth' => 'Aba, Abia State',
@@ -439,7 +439,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2012/003456',
+                        'service_no' => 'NCS2012003456',
                         'institution' => 'National High School Aba',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -447,7 +447,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2004-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2012/003456',
+                        'service_no' => 'NCS2012003456',
                         'institution' => 'University of Port Harcourt',
                         'course' => 'Psychology',
                         'type' => 'Bachelor of Science BSc',
@@ -460,9 +460,9 @@ class StaffSeeder extends Seeder
             // 6. COMPLETE PROFILE - Senior (Oyo Zone F)
             [
                 'staff' => [
-                    'service_no' => 'NCS/1999/000567',
+                    'service_no' => 'NCS1999000567',
                     'email' => 'oluwole.badmus@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08056789012',
                     'assigned_state' => 30, // Oyo
                     'prison' => 285, // Agodi
@@ -484,17 +484,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Ibadan North',
                     'department' => 'Administration',
                     'file_no' => 'NCS/OY/1999/0567',
-                    'ippis' => '6789012345',
+                    'ippis' => '1000000006',
                     'duty' => 'Deputy Controller Operations',
                     'description' => 'Senior administrator with 25 years experience',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 6, // Zone F
                 ],
                 'details' => [
-                    'service_no' => 'NCS/1999/000567',
+                    'service_no' => 'NCS1999000567',
                     'pfa_name' => 'NLPC Pension Fund Administrators',
                     'pension_pin' => 'PEN6789012345',
-                    'ippis' => '6789012345',
+                    'ippis' => '1000000006',
                     'nin' => '67890123456',
                     'bvn' => '22567890123',
                     'place_of_birth' => 'Ibadan, Oyo State',
@@ -521,7 +521,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/1999/000567',
+                        'service_no' => 'NCS1999000567',
                         'institution' => 'Ibadan Grammar School',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -529,7 +529,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '1993-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/1999/000567',
+                        'service_no' => 'NCS1999000567',
                         'institution' => 'University of Ibadan',
                         'course' => 'Law',
                         'type' => 'Bachelor Degree',
@@ -542,9 +542,9 @@ class StaffSeeder extends Seeder
             // 7. PARTIAL PROFILE - Edo (Zone G)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2017/009012',
+                    'service_no' => 'NCS2017009012',
                     'email' => 'osazee.osayande@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08067890123',
                     'assigned_state' => 12, // Edo
                     'prison' => 312, // Benin(New)
@@ -566,13 +566,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Oredo',
                     'department' => 'Medical Services',
                     'file_no' => 'NCS/ED/2017/9012',
-                    'ippis' => '7890123456',
+                    'ippis' => '1000000007',
                     'duty' => 'Medical Assistant',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 7, // Zone G
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2017/009012',
+                    'service_no' => 'NCS2017009012',
                     'nin' => '78901234567',
                     'place_of_birth' => 'Benin City, Edo State',
                     'contact_address' => '67 Sakponba Road, Benin City, Edo State',
@@ -595,7 +595,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2017/009012',
+                        'service_no' => 'NCS2017009012',
                         'institution' => 'Edokpolor Grammar School Benin',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -608,9 +608,9 @@ class StaffSeeder extends Seeder
             // 8. COMPLETE PROFILE - Bauchi (Zone H)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2007/001678',
+                    'service_no' => 'NCS2007001678',
                     'email' => 'yusuf.bello@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08078901234',
                     'assigned_state' => 5, // Bauchi
                     'prison' => 121, // Bauchi
@@ -632,17 +632,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Bauchi',
                     'department' => 'Training',
                     'file_no' => 'NCS/BA/2007/1678',
-                    'ippis' => '8901234567',
+                    'ippis' => '1000000008',
                     'duty' => 'Training Coordinator',
                     'description' => 'Training officer with expertise in capacity building',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 8, // Zone H
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2007/001678',
+                    'service_no' => 'NCS2007001678',
                     'pfa_name' => 'IEI Anchor Pension',
                     'pension_pin' => 'PEN8901234567',
-                    'ippis' => '8901234567',
+                    'ippis' => '1000000008',
                     'nin' => '89012345678',
                     'bvn' => '22678901234',
                     'place_of_birth' => 'Bauchi, Bauchi State',
@@ -669,7 +669,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2007/001678',
+                        'service_no' => 'NCS2007001678',
                         'institution' => 'Government College Bauchi',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -677,7 +677,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2000-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2007/001678',
+                        'service_no' => 'NCS2007001678',
                         'institution' => 'Abubakar Tafawa Balewa University',
                         'course' => 'Adult Education',
                         'type' => 'Bachelor Degree',
@@ -690,9 +690,9 @@ class StaffSeeder extends Seeder
             // 9. PARTIAL PROFILE - Female (Plateau Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2013/004567',
+                    'service_no' => 'NCS2013004567',
                     'email' => 'mary.dalyop@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08089012345',
                     'assigned_state' => 31, // Plateau
                     'prison' => 348, // Jos
@@ -714,13 +714,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Jos North',
                     'department' => 'Welfare',
                     'file_no' => 'NCS/PL/2013/4567',
-                    'ippis' => '9012345678',
+                    'ippis' => '1000000009',
                     'duty' => 'Staff Welfare Officer',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2013/004567',
+                    'service_no' => 'NCS2013004567',
                     'nin' => '90123456789',
                     'place_of_birth' => 'Jos, Plateau State',
                     'contact_address' => '56 Rayfield, Jos, Plateau State',
@@ -746,7 +746,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2013/004567',
+                        'service_no' => 'NCS2013004567',
                         'institution' => 'Government Girls Secondary School Jos',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -754,7 +754,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2009-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2013/004567',
+                        'service_no' => 'NCS2013004567',
                         'institution' => 'University of Jos',
                         'course' => 'Mass Communication',
                         'type' => 'Bachelor of Arts BA',
@@ -767,9 +767,9 @@ class StaffSeeder extends Seeder
             // 10. MINIMAL PROFILE - Basic Entry (Kaduna Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2019/010123',
+                    'service_no' => 'NCS2019010123',
                     'email' => 'ibrahim.sani@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08090123456',
                     'assigned_state' => 18, // Kaduna
                     'prison' => 67, // Kaduna
@@ -791,12 +791,12 @@ class StaffSeeder extends Seeder
                     'lga' => 'Kaduna North',
                     'department' => 'Security',
                     'file_no' => 'NCS/KD/2019/10123',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2019/010123',
+                        'service_no' => 'NCS2019010123',
                         'institution' => 'Barewa College Zaria',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -809,9 +809,9 @@ class StaffSeeder extends Seeder
             // 11. COMPLETE PROFILE - Female (Cross River Zone E)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2011/002789',
+                    'service_no' => 'NCS2011002789',
                     'email' => 'blessing.bassey@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08101234567',
                     'assigned_state' => 9, // Cross River
                     'prison' => 269, // Calabar
@@ -833,17 +833,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Calabar Municipal',
                     'department' => 'Records',
                     'file_no' => 'NCS/CR/2011/2789',
-                    'ippis' => '0123456789',
+                    'ippis' => '1000000011',
                     'duty' => 'Records Management',
                     'description' => 'Records officer with strong documentation skills',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 5, // Zone E
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2011/002789',
+                    'service_no' => 'NCS2011002789',
                     'pfa_name' => 'Sigma Pensions',
                     'pension_pin' => 'PEN0123456789',
-                    'ippis' => '0123456789',
+                    'ippis' => '1000000011',
                     'nin' => '01234567890',
                     'bvn' => '22789012345',
                     'place_of_birth' => 'Calabar, Cross River State',
@@ -870,7 +870,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2011/002789',
+                        'service_no' => 'NCS2011002789',
                         'institution' => 'Holy Child College Calabar',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -878,7 +878,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2005-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2011/002789',
+                        'service_no' => 'NCS2011002789',
                         'institution' => 'University of Calabar',
                         'course' => 'Library and Information Science',
                         'type' => 'Bachelor Degree',
@@ -891,9 +891,9 @@ class StaffSeeder extends Seeder
             // 12. PARTIAL PROFILE - Delta (Zone G)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2016/007890',
+                    'service_no' => 'NCS2016007890',
                     'email' => 'efe.okoro@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08112345678',
                     'assigned_state' => 10, // Delta
                     'prison' => 319, // Warri
@@ -915,13 +915,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Warri South',
                     'department' => 'Finance',
                     'file_no' => 'NCS/DT/2016/7890',
-                    'ippis' => '1234567801',
+                    'ippis' => '1000000012',
                     'duty' => 'Accounts Assistant',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 7, // Zone G
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2016/007890',
+                    'service_no' => 'NCS2016007890',
                     'nin' => '12345678012',
                     'place_of_birth' => 'Warri, Delta State',
                     'contact_address' => '90 Effurun-Sapele Road, Warri',
@@ -944,7 +944,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2016/007890',
+                        'service_no' => 'NCS2016007890',
                         'institution' => 'Federal Government College Warri',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -952,7 +952,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2012-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2016/007890',
+                        'service_no' => 'NCS2016007890',
                         'institution' => 'Delta State Polytechnic Ozoro',
                         'course' => 'Accountancy',
                         'type' => 'National Diploma ND',
@@ -965,9 +965,9 @@ class StaffSeeder extends Seeder
             // 13. COMPLETE PROFILE - Taraba (Zone H)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2009/003890',
+                    'service_no' => 'NCS2009003890',
                     'email' => 'daniel.musa@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08123456789',
                     'assigned_state' => 34, // Taraba
                     'prison' => 179, // Jalingo
@@ -989,17 +989,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Jalingo',
                     'department' => 'Security',
                     'file_no' => 'NCS/TR/2009/3890',
-                    'ippis' => '2345678012',
+                    'ippis' => '1000000013',
                     'duty' => 'Security Operations',
                     'description' => 'Security officer with tactical training',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 8, // Zone H
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2009/003890',
+                    'service_no' => 'NCS2009003890',
                     'pfa_name' => 'Trustfund Pensions',
                     'pension_pin' => 'PEN2345678012',
-                    'ippis' => '2345678012',
+                    'ippis' => '1000000013',
                     'nin' => '23456780123',
                     'bvn' => '22890123456',
                     'place_of_birth' => 'Jalingo, Taraba State',
@@ -1026,7 +1026,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2009/003890',
+                        'service_no' => 'NCS2009003890',
                         'institution' => 'Government Secondary School Jalingo',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1034,7 +1034,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2001-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2009/003890',
+                        'service_no' => 'NCS2009003890',
                         'institution' => 'Nigerian Defence Academy Kaduna',
                         'course' => 'Military Science',
                         'type' => 'Bachelor Degree',
@@ -1047,9 +1047,9 @@ class StaffSeeder extends Seeder
             // 14. PARTIAL PROFILE - Kwara (Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2014/005890',
+                    'service_no' => 'NCS2014005890',
                     'email' => 'abdullahi.garba@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08134567890',
                     'assigned_state' => 23, // Kwara
                     'prison' => 213, // Ilorin
@@ -1071,13 +1071,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Ilorin West',
                     'department' => 'ICT',
                     'file_no' => 'NCS/KW/2014/5890',
-                    'ippis' => '3456780123',
+                    'ippis' => '1000000014',
                     'duty' => 'IT Support',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2014/005890',
+                    'service_no' => 'NCS2014005890',
                     'nin' => '34567801234',
                     'place_of_birth' => 'Ilorin, Kwara State',
                     'contact_address' => '123 Unity Road, Ilorin',
@@ -1100,7 +1100,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2014/005890',
+                        'service_no' => 'NCS2014005890',
                         'institution' => 'Government Secondary School Ilorin',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -1108,7 +1108,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2010-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2014/005890',
+                        'service_no' => 'NCS2014005890',
                         'institution' => 'Kwara State Polytechnic',
                         'course' => 'Computer Science',
                         'type' => 'Higher National Diploma HND',
@@ -1121,9 +1121,9 @@ class StaffSeeder extends Seeder
             // 15. MINIMAL PROFILE - Zamfara (Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2020/011234',
+                    'service_no' => 'NCS2020011234',
                     'email' => 'umar.aliyu@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08145678901',
                     'assigned_state' => 36, // Zamfara
                     'prison' => 232, // Gusau MSP
@@ -1145,12 +1145,12 @@ class StaffSeeder extends Seeder
                     'lga' => 'Gusau',
                     'department' => 'Operations',
                     'file_no' => 'NCS/ZM/2020/11234',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2020/011234',
+                        'service_no' => 'NCS2020011234',
                         'institution' => 'Government Science Secondary School Gusau',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1163,9 +1163,9 @@ class StaffSeeder extends Seeder
             // 16. COMPLETE PROFILE - Akwa Ibom (Zone E)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2006/001456',
+                    'service_no' => 'NCS2006001456',
                     'email' => 'etim.udoh@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08156789012',
                     'assigned_state' => 3, // Akwa Ibom
                     'prison' => 260, // Uyo
@@ -1187,17 +1187,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Uyo',
                     'department' => 'Administration',
                     'file_no' => 'NCS/AK/2006/1456',
-                    'ippis' => '4567801234',
+                    'ippis' => '1000000016',
                     'duty' => 'Deputy Controller Admin',
                     'description' => 'Senior administrator with 18 years service',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 5, // Zone E
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2006/001456',
+                    'service_no' => 'NCS2006001456',
                     'pfa_name' => 'Oak Pensions',
                     'pension_pin' => 'PEN4567801234',
-                    'ippis' => '4567801234',
+                    'ippis' => '1000000016',
                     'nin' => '45678012345',
                     'bvn' => '22901234567',
                     'place_of_birth' => 'Uyo, Akwa Ibom State',
@@ -1224,7 +1224,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2006/001456',
+                        'service_no' => 'NCS2006001456',
                         'institution' => 'Cornelius Connelly College Uyo',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1232,7 +1232,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '1998-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2006/001456',
+                        'service_no' => 'NCS2006001456',
                         'institution' => 'University of Uyo',
                         'course' => 'Public Administration',
                         'type' => 'Bachelor of Science BSc',
@@ -1240,7 +1240,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2003-09-15',
                     ],
                     [
-                        'service_no' => 'NCS/2006/001456',
+                        'service_no' => 'NCS2006001456',
                         'institution' => 'University of Uyo',
                         'course' => 'Public Administration',
                         'type' => 'Master of Science MSc',
@@ -1253,9 +1253,9 @@ class StaffSeeder extends Seeder
             // 17. PARTIAL PROFILE - Ondo (Zone F)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2018/009234',
+                    'service_no' => 'NCS2018009234',
                     'email' => 'taiwo.adekunle@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08167890123',
                     'assigned_state' => 28, // Ondo
                     'prison' => 297, // MSP Akure
@@ -1277,13 +1277,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Akure South',
                     'department' => 'Logistics',
                     'file_no' => 'NCS/ON/2018/9234',
-                    'ippis' => '5678012345',
+                    'ippis' => '1000000017',
                     'duty' => 'Store Officer',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 6, // Zone F
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2018/009234',
+                    'service_no' => 'NCS2018009234',
                     'nin' => '56780123456',
                     'place_of_birth' => 'Akure, Ondo State',
                     'contact_address' => '78 Oba Adesida Road, Akure',
@@ -1306,7 +1306,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2018/009234',
+                        'service_no' => 'NCS2018009234',
                         'institution' => 'Oyemekun Grammar School Akure',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1319,9 +1319,9 @@ class StaffSeeder extends Seeder
             // 18. COMPLETE PROFILE - Borno (Zone H)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2004/000789',
+                    'service_no' => 'NCS2004000789',
                     'email' => 'ali.kachalla@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08178901234',
                     'assigned_state' => 8, // Borno
                     'prison' => 167, // Maximum Security Maiduguri
@@ -1343,17 +1343,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Maiduguri',
                     'department' => 'Operations',
                     'file_no' => 'NCS/BO/2004/0789',
-                    'ippis' => '6780123456',
+                    'ippis' => '1000000018',
                     'duty' => 'Deputy Controller of Corrections',
                     'description' => 'Senior officer with 20 years experience',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 8, // Zone H
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2004/000789',
+                    'service_no' => 'NCS2004000789',
                     'pfa_name' => 'Pension Alliance Limited',
                     'pension_pin' => 'PEN6780123456',
-                    'ippis' => '6780123456',
+                    'ippis' => '1000000018',
                     'nin' => '67801234567',
                     'bvn' => '23012345678',
                     'place_of_birth' => 'Maiduguri, Borno State',
@@ -1380,7 +1380,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2004/000789',
+                        'service_no' => 'NCS2004000789',
                         'institution' => 'Government College Maiduguri',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1388,7 +1388,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '1994-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2004/000789',
+                        'service_no' => 'NCS2004000789',
                         'institution' => 'University of Maiduguri',
                         'course' => 'Law',
                         'type' => 'Bachelor Degree',
@@ -1401,9 +1401,9 @@ class StaffSeeder extends Seeder
             // 19. PARTIAL PROFILE - Female (Osun Zone F)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2015/006789',
+                    'service_no' => 'NCS2015006789',
                     'email' => 'comfort.adedayo@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08189012345',
                     'assigned_state' => 29, // Osun
                     'prison' => 291, // Ilesa
@@ -1425,13 +1425,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Ilesa West',
                     'department' => 'Welfare',
                     'file_no' => 'NCS/OS/2015/6789',
-                    'ippis' => '7801234567',
+                    'ippis' => '1000000019',
                     'duty' => 'Female Welfare Officer',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 6, // Zone F
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2015/006789',
+                    'service_no' => 'NCS2015006789',
                     'nin' => '78012345678',
                     'place_of_birth' => 'Ilesa, Osun State',
                     'contact_address' => '56 Oke-Omiru, Ilesa, Osun State',
@@ -1454,7 +1454,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2015/006789',
+                        'service_no' => 'NCS2015006789',
                         'institution' => 'Ilesa Grammar School',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -1462,7 +1462,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2011-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2015/006789',
+                        'service_no' => 'NCS2015006789',
                         'institution' => 'Obafemi Awolowo University',
                         'course' => 'Nursing',
                         'type' => 'Bachelor Degree',
@@ -1475,9 +1475,9 @@ class StaffSeeder extends Seeder
             // 20. MINIMAL PROFILE - Sokoto (Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2021/012345',
+                    'service_no' => 'NCS2021012345',
                     'email' => 'musa.usman@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08190123456',
                     'assigned_state' => 33, // Sokoto
                     'prison' => 239, // Sokoto
@@ -1499,12 +1499,12 @@ class StaffSeeder extends Seeder
                     'lga' => 'Sokoto North',
                     'department' => 'Security',
                     'file_no' => 'NCS/SK/2021/12345',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2021/012345',
+                        'service_no' => 'NCS2021012345',
                         'institution' => 'Government Secondary School Sokoto',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1517,9 +1517,9 @@ class StaffSeeder extends Seeder
             // 21. COMPLETE PROFILE - Anambra (Zone C)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2010/004123',
+                    'service_no' => 'NCS2010004123',
                     'email' => 'obinna.okafor@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08201234567',
                     'assigned_state' => 4, // Anambra
                     'prison' => 305, // Onitsha
@@ -1541,17 +1541,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Onitsha South',
                     'department' => 'Legal',
                     'file_no' => 'NCS/AN/2010/4123',
-                    'ippis' => '8012345678',
+                    'ippis' => '1000000021',
                     'duty' => 'Legal Officer',
                     'description' => 'Legal officer handling inmate cases',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 3, // Zone C
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2010/004123',
+                    'service_no' => 'NCS2010004123',
                     'pfa_name' => 'APT Pension Fund Managers',
                     'pension_pin' => 'PEN8012345678',
-                    'ippis' => '8012345678',
+                    'ippis' => '1000000021',
                     'nin' => '80123456789',
                     'bvn' => '23123456789',
                     'place_of_birth' => 'Onitsha, Anambra State',
@@ -1578,7 +1578,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2010/004123',
+                        'service_no' => 'NCS2010004123',
                         'institution' => 'Dennis Memorial Grammar School',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1586,7 +1586,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2003-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2010/004123',
+                        'service_no' => 'NCS2010004123',
                         'institution' => 'Nnamdi Azikiwe University Awka',
                         'course' => 'Law',
                         'type' => 'Bachelor Degree',
@@ -1599,9 +1599,9 @@ class StaffSeeder extends Seeder
             // 22. PARTIAL PROFILE - Benue (Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2017/008123',
+                    'service_no' => 'NCS2017008123',
                     'email' => 'peter.iorja@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08212345678',
                     'assigned_state' => 7, // Benue
                     'prison' => 337, // MSP Makurdi
@@ -1623,13 +1623,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Makurdi',
                     'department' => 'Agriculture',
                     'file_no' => 'NCS/BE/2017/8123',
-                    'ippis' => '9012345670',
+                    'ippis' => '1000000022',
                     'duty' => 'Farm Supervisor',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2017/008123',
+                    'service_no' => 'NCS2017008123',
                     'nin' => '90123456701',
                     'place_of_birth' => 'Makurdi, Benue State',
                     'contact_address' => '89 Wadata, Makurdi',
@@ -1652,7 +1652,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2017/008123',
+                        'service_no' => 'NCS2017008123',
                         'institution' => 'Mount St Gabriels Secondary School Makurdi',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -1660,7 +1660,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2013-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2017/008123',
+                        'service_no' => 'NCS2017008123',
                         'institution' => 'College of Agriculture Yandev',
                         'course' => 'Agricultural Extension',
                         'type' => 'National Diploma ND',
@@ -1673,9 +1673,9 @@ class StaffSeeder extends Seeder
             // 23. COMPLETE PROFILE - Kogi (Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2011/003234',
+                    'service_no' => 'NCS2011003234',
                     'email' => 'james.ocheje@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08223456789',
                     'assigned_state' => 22, // Kogi
                     'prison' => 362, // Lokoja
@@ -1697,17 +1697,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Lokoja',
                     'department' => 'Security',
                     'file_no' => 'NCS/KG/2011/3234',
-                    'ippis' => '0123456780',
+                    'ippis' => '1000000023',
                     'duty' => 'Chief Security Officer',
                     'description' => 'Security coordinator with tactical expertise',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2011/003234',
+                    'service_no' => 'NCS2011003234',
                     'pfa_name' => 'FCMB Pensions',
                     'pension_pin' => 'PEN0123456780',
-                    'ippis' => '0123456780',
+                    'ippis' => '1000000023',
                     'nin' => '01234567802',
                     'bvn' => '23234567890',
                     'place_of_birth' => 'Ankpa, Kogi State',
@@ -1734,7 +1734,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2011/003234',
+                        'service_no' => 'NCS2011003234',
                         'institution' => 'Government Secondary School Ankpa',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1742,7 +1742,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2002-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2011/003234',
+                        'service_no' => 'NCS2011003234',
                         'institution' => 'Kogi State University',
                         'course' => 'Geography',
                         'type' => 'Bachelor of Science BSc',
@@ -1755,9 +1755,9 @@ class StaffSeeder extends Seeder
             // 24. PARTIAL PROFILE - Ekiti (Zone F)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2016/006890',
+                    'service_no' => 'NCS2016006890',
                     'email' => 'samuel.oni@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08234567890',
                     'assigned_state' => 13, // Ekiti
                     'prison' => 301, // Ado-Ekiti
@@ -1779,13 +1779,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Ado Ekiti',
                     'department' => 'Transport',
                     'file_no' => 'NCS/EK/2016/6890',
-                    'ippis' => '1234567890',
+                    'ippis' => '1000000024',
                     'duty' => 'Transport Officer',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 6, // Zone F
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2016/006890',
+                    'service_no' => 'NCS2016006890',
                     'nin' => '12345678903',
                     'place_of_birth' => 'Ado-Ekiti, Ekiti State',
                     'contact_address' => '45 Ajilosun, Ado-Ekiti',
@@ -1808,7 +1808,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2016/006890',
+                        'service_no' => 'NCS2016006890',
                         'institution' => 'Christ School Ado-Ekiti',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1821,9 +1821,9 @@ class StaffSeeder extends Seeder
             // 25. MINIMAL PROFILE - Nasarawa (Zone D)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2022/013456',
+                    'service_no' => 'NCS2022013456',
                     'email' => 'john.doma@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08245678901',
                     'assigned_state' => 25, // Nasarawa
                     'prison' => 343, // MSP Keffi
@@ -1845,12 +1845,12 @@ class StaffSeeder extends Seeder
                     'lga' => 'Keffi',
                     'department' => 'Security',
                     'file_no' => 'NCS/NS/2022/13456',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 4, // Zone D
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2022/013456',
+                        'service_no' => 'NCS2022013456',
                         'institution' => 'Government Secondary School Keffi',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -1863,9 +1863,9 @@ class StaffSeeder extends Seeder
             // 26. COMPLETE PROFILE - Imo (Zone C)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2008/002567',
+                    'service_no' => 'NCS2008002567',
                     'email' => 'chioma.obi@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08256789012',
                     'assigned_state' => 16, // Imo
                     'prison' => 263, // Owerri
@@ -1887,17 +1887,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Owerri Municipal',
                     'department' => 'Human Resources',
                     'file_no' => 'NCS/IM/2008/2567',
-                    'ippis' => '2345678901',
+                    'ippis' => '1000000026',
                     'duty' => 'HR Manager',
                     'description' => 'Human resources specialist',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 3, // Zone C
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2008/002567',
+                    'service_no' => 'NCS2008002567',
                     'pfa_name' => 'Fidelity Pension Managers',
                     'pension_pin' => 'PEN2345678901',
-                    'ippis' => '2345678901',
+                    'ippis' => '1000000026',
                     'nin' => '23456789014',
                     'bvn' => '23345678901',
                     'place_of_birth' => 'Owerri, Imo State',
@@ -1924,7 +1924,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2008/002567',
+                        'service_no' => 'NCS2008002567',
                         'institution' => 'Girls Secondary School Owerri',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -1932,7 +1932,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2003-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2008/002567',
+                        'service_no' => 'NCS2008002567',
                         'institution' => 'Imo State University',
                         'course' => 'Industrial Relations and Personnel Management',
                         'type' => 'Bachelor of Science BSc',
@@ -1945,9 +1945,9 @@ class StaffSeeder extends Seeder
             // 27. PARTIAL PROFILE - Jigawa (Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2013/005123',
+                    'service_no' => 'NCS2013005123',
                     'email' => 'ismail.hassan@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08267890123',
                     'assigned_state' => 17, // Jigawa
                     'prison' => 96, // Hadejia New
@@ -1969,13 +1969,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Hadejia',
                     'department' => 'Works',
                     'file_no' => 'NCS/JG/2013/5123',
-                    'ippis' => '3456789012',
+                    'ippis' => '1000000027',
                     'duty' => 'Maintenance Officer',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2013/005123',
+                    'service_no' => 'NCS2013005123',
                     'nin' => '34567890125',
                     'place_of_birth' => 'Hadejia, Jigawa State',
                     'contact_address' => '56 Kano Road, Hadejia',
@@ -2001,7 +2001,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2013/005123',
+                        'service_no' => 'NCS2013005123',
                         'institution' => 'Government Secondary School Hadejia',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -2009,7 +2009,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2007-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2013/005123',
+                        'service_no' => 'NCS2013005123',
                         'institution' => 'Federal Polytechnic Kazaure',
                         'course' => 'Building Technology',
                         'type' => 'Higher National Diploma HND',
@@ -2022,9 +2022,9 @@ class StaffSeeder extends Seeder
             // 28. COMPLETE PROFILE - Gombe (Zone H)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2012/004345',
+                    'service_no' => 'NCS2012004345',
                     'email' => 'yakubu.adamu@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08278901234',
                     'assigned_state' => 15, // Gombe
                     'prison' => 136, // Gombe
@@ -2046,17 +2046,17 @@ class StaffSeeder extends Seeder
                     'lga' => 'Gombe',
                     'department' => 'Intelligence',
                     'file_no' => 'NCS/GO/2012/4345',
-                    'ippis' => '4567890123',
+                    'ippis' => '1000000028',
                     'duty' => 'Intelligence Officer',
                     'description' => 'Intelligence analyst',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 8, // Zone H
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2012/004345',
+                    'service_no' => 'NCS2012004345',
                     'pfa_name' => 'CrusaderSterling Pensions',
                     'pension_pin' => 'PEN4567890123',
-                    'ippis' => '4567890123',
+                    'ippis' => '1000000028',
                     'nin' => '45678901236',
                     'bvn' => '23456789012',
                     'place_of_birth' => 'Gombe, Gombe State',
@@ -2083,7 +2083,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2012/004345',
+                        'service_no' => 'NCS2012004345',
                         'institution' => 'Government College Gombe',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
@@ -2091,7 +2091,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2005-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2012/004345',
+                        'service_no' => 'NCS2012004345',
                         'institution' => 'Gombe State University',
                         'course' => 'History and International Studies',
                         'type' => 'Bachelor of Arts BA',
@@ -2104,9 +2104,9 @@ class StaffSeeder extends Seeder
             // 29. PARTIAL PROFILE - Ebonyi (Zone C)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2019/009456',
+                    'service_no' => 'NCS2019009456',
                     'email' => 'mathew.nweke@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08289012345',
                     'assigned_state' => 11, // Ebonyi
                     'prison' => 326, // Abakaliki
@@ -2128,13 +2128,13 @@ class StaffSeeder extends Seeder
                     'lga' => 'Abakaliki',
                     'department' => 'Medical Services',
                     'file_no' => 'NCS/EB/2019/9456',
-                    'ippis' => '5678901234',
+                    'ippis' => '1000000029',
                     'duty' => 'Pharmacy Technician',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 3, // Zone C
                 ],
                 'details' => [
-                    'service_no' => 'NCS/2019/009456',
+                    'service_no' => 'NCS2019009456',
                     'nin' => '56789012347',
                     'place_of_birth' => 'Abakaliki, Ebonyi State',
                     'contact_address' => '45 Enugu Road, Abakaliki',
@@ -2157,7 +2157,7 @@ class StaffSeeder extends Seeder
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2019/009456',
+                        'service_no' => 'NCS2019009456',
                         'institution' => 'Federal Government College Abakaliki',
                         'course' => 'General Studies',
                         'type' => 'WAEC SSCE',
@@ -2165,7 +2165,7 @@ class StaffSeeder extends Seeder
                         'end_date' => '2014-06-30',
                     ],
                     [
-                        'service_no' => 'NCS/2019/009456',
+                        'service_no' => 'NCS2019009456',
                         'institution' => 'Ebonyi State College of Health Technology',
                         'course' => 'Pharmacy Technology',
                         'type' => 'National Diploma ND',
@@ -2178,9 +2178,9 @@ class StaffSeeder extends Seeder
             // 30. MINIMAL PROFILE - Kebbi (Zone B)
             [
                 'staff' => [
-                    'service_no' => 'NCS/2023/014567',
+                    'service_no' => 'NCS2023014567',
                     'email' => 'suleiman.bello@ncs.gov.ng',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'),
                     'phone_number' => '08290123456',
                     'assigned_state' => 21, // Kebbi
                     'prison' => 221, // New Kebbi
@@ -2202,12 +2202,12 @@ class StaffSeeder extends Seeder
                     'lga' => 'Birnin Kebbi',
                     'department' => 'Operations',
                     'file_no' => 'NCS/KB/2023/14567',
-                    'status' => 'active',
+                    'status' => 1,
                     'zone_id' => 2, // Zone B
                 ],
                 'education' => [
                     [
-                        'service_no' => 'NCS/2023/014567',
+                        'service_no' => 'NCS2023014567',
                         'institution' => 'Sultan Abubakar College Birnin Kebbi',
                         'course' => 'General Studies',
                         'type' => 'NECO SSCE',
