@@ -1,15 +1,26 @@
 #!/bin/bash
+set -o errexit
 
 # Start PHP-FPM in the background
 php-fpm -D
 
-# Run Laravel optimizations
+echo "Clearing configuration cache..."
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+echo "Running database migrations..."
+php artisan migrate --seed --force --no-interaction
+
+echo "Optimizing application..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run migrations
-php artisan migrate --force
+echo "Setting storage permissions..."
+chmod -R 775 storage bootstrap/cache
 
+echo "Starting Nginx..."
 # Start Nginx in the foreground
 nginx -g "daemon off;"
