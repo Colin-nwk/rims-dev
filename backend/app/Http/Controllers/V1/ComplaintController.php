@@ -100,14 +100,15 @@ class ComplaintController extends Controller
             'priority' => 'sometimes|in:low,medium,high,critical',
         ]);
 
-        $staff = $request->user();
+        $creator = $request->user();
 
         $complaint = Complaint::create([
             'subject' => $validated['subject'],
             'category' => $validated['category'],
             'priority' => $validated['priority'] ?? 'medium',
             'status' => 'open',
-            'created_by' => $staff->id,
+            'created_by' => $creator->id,
+            'created_by_type' => get_class($creator),
         ]);
 
         $complaint->load(['creator', 'messages']);
@@ -155,6 +156,11 @@ class ComplaintController extends Controller
         // Update complaint timestamp
         $complaint->touch();
 
+        // Auto-mark as in-progress when any reply is added to an open ticket
+        if ($complaint->status === 'open') {
+            $complaint->update(['status' => 'in-progress']);
+        }
+
         // Reopen if resolved and new message added
         if ($complaint->status === 'resolved') {
             $complaint->update(['status' => 'in-progress']);
@@ -172,5 +178,90 @@ class ComplaintController extends Controller
         $complaint->delete();
 
         return $this->successResponse(null, 'Complaint deleted successfully');
+    }
+
+    /**
+     * Store a public complaint (no authentication required)
+     * Validates staff identity via service_no and ippis
+     */
+    public function storePublic(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'other_names' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'ippis' => 'required|string',
+            'service_no' => 'required|string',
+            'email' => 'nullable|email|max:255',
+            'related_to' => 'required|string',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Verify staff exists with matching service_no AND ippis
+        $staff = Staff::where('service_no', $validated['service_no'])
+            ->where('ippis', $validated['ippis'])
+            ->first();
+
+        if (! $staff) {
+            return $this->errorResponse('Staff record not found. Please verify your Service Number and IPPIS.', 404);
+        }
+
+        // Create complaint with staff as creator, status escalated
+        $complaint = Complaint::create([
+            'subject' => $validated['subject'],
+            'category' => 'Other',
+            'priority' => 'medium',
+            'status' => 'escalated',
+            'created_by' => $staff->id,
+            'created_by_type' => Staff::class,
+        ]);
+
+        // Format the first message with all details
+        $formattedMessage = $this->formatPublicComplaintMessage($validated);
+
+        $complaint->messages()->create([
+            'sender_id' => $staff->id,
+            'sender_type' => Staff::class,
+            'content' => $formattedMessage,
+            'is_internal' => false,
+        ]);
+
+        $complaint->load(['creator', 'messages']);
+
+        return $this->successResponse($complaint, 'Complaint submitted successfully', 201);
+    }
+
+    /**
+     * Format the public complaint message with all form details
+     */
+    private function formatPublicComplaintMessage(array $data): string
+    {
+        $fullName = trim("{$data['first_name']} {$data['other_names']} {$data['last_name']}");
+
+        $message = "<div style=\"margin-bottom: 16px;\">";
+        $message .= "<p><strong>Contact Information:</strong></p>";
+        $message .= "<ul style=\"margin: 8px 0; padding-left: 20px;\">";
+        $message .= "<li><strong>Name:</strong> {$fullName}</li>";
+        $message .= "<li><strong>Service Number:</strong> {$data['service_no']}</li>";
+        $message .= "<li><strong>IPPIS:</strong> {$data['ippis']}</li>";
+
+        if (! empty($data['phone_number'])) {
+            $message .= "<li><strong>Phone:</strong> {$data['phone_number']}</li>";
+        }
+        if (! empty($data['email'])) {
+            $message .= "<li><strong>Email:</strong> {$data['email']}</li>";
+        }
+
+        $message .= "</ul>";
+        $message .= "<p><strong>Related To:</strong> {$data['related_to']}</p>";
+        $message .= "</div>";
+        $message .= "<div style=\"border-top: 1px solid #e5e7eb; padding-top: 16px;\">";
+        $message .= "<p><strong>Message:</strong></p>";
+        $message .= $data['message'];
+        $message .= "</div>";
+
+        return $message;
     }
 }

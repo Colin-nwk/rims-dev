@@ -85,9 +85,15 @@ class StaffController extends Controller
 
     public function show(Staff $staff)
     {
-        $this->authorize('staff.view');
+        // Allow staff to view their own record without permission
+        $user = request()->user();
+        $isSelf = ($user instanceof Staff && $user->id === $staff->id);
 
-        return $this->successResponse($staff->load(['details', 'education']));
+        if (! $isSelf) {
+            $this->authorize('staff.view');
+        }
+
+        return $this->successResponse($staff->load(['details', 'education', 'roles']));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)
@@ -187,7 +193,6 @@ class StaffController extends Controller
 
     public function idCard(string $serviceNo)
     {
-        $this->authorize('staff.view');
         $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
 
         if (! $staff) {
@@ -196,6 +201,7 @@ class StaffController extends Controller
 
         return $this->successResponse([
             'service_no' => $staff->service_no,
+            'ippis' => $staff->ippis,
             'surname' => $staff->surname,
             'first_name' => $staff->first_name,
             'other_names' => $staff->other_names,

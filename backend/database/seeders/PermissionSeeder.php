@@ -18,6 +18,12 @@ class PermissionSeeder extends Seeder
             ['name' => 'staff.edit', 'description' => 'Edit existing staff records', 'group' => 'staff'],
             ['name' => 'staff.delete', 'description' => 'Delete staff records', 'group' => 'staff'],
 
+            // Staff Education Management
+            ['name' => 'staff-education.view', 'description' => 'View education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.create', 'description' => 'Create education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.edit', 'description' => 'Edit education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.delete', 'description' => 'Delete education records', 'group' => 'staff-education'],
+
             // User Management
             ['name' => 'user.view', 'description' => 'View system users', 'group' => 'user'],
             ['name' => 'user.create', 'description' => 'Create new system users', 'group' => 'user'],

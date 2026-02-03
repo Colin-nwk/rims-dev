@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use App\Http\Controllers\V1\StaffAuthController;
 use App\Http\Controllers\V1\StaffController;
+use App\Http\Controllers\V1\StaffEducationController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
@@ -29,11 +30,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('staff')->group(function () {
     Route::post('login', [StaffAuthController::class, 'login'])->middleware('throttle:auth');
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
-    Route::post('register', [StaffAuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('confirm', [StaffAuthController::class, 'confirmServiceNumber'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
-
-    // Public Staff Resources
-    Route::get('id-card/{serviceNo}', [StaffController::class, 'idCard']);
 });
 
 // User Authentication
@@ -41,9 +39,20 @@ Route::prefix('user')->group(function () {
     Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
 });
 
-// Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings)
-Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings');
-Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings');
+// Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings, Levels, Marital Statuses)
+Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+
+Route::get('generic-data', [GenericController::class, 'getGenericData']);
+
+// Staff ID Card - Public access (for QR code scanning)
+Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
+
+// Staff Education Certificate Viewer - Public access (for viewing certificates)
+Route::get('staff-education/{staffEducation}/certificate', [\App\Http\Controllers\V1\StaffEducationController::class, 'viewCertificate']);
+
+// Public Complaint Submission (validates staff via service_no + ippis)
+Route::post('complaints/public', [ComplaintController::class, 'storePublic'])->middleware('throttle:auth');
 
 // ==============================================================================
 // PROTECTED ROUTES (Sanctum Auth)
@@ -90,6 +99,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
     Route::delete('staff/{staff}/roles/{role}', [StaffController::class, 'removeRole']);
 
+    // --- Staff Education Management ---
+    Route::apiResource('staff-education', StaffEducationController::class);
+
     // --- User Management ---
     Route::prefix('user')->group(function () {
         Route::apiResource('users', UserController::class);
@@ -115,8 +127,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('complaints/{complaint}/messages', [ComplaintController::class, 'addMessage']);
 
     // --- Generic Resources (Write) ---
-    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings');
-    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings');
-    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings');
+    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
+    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses');
 
 });

@@ -85,31 +85,31 @@ class StaffAuthController extends Controller
     }
 
     /**
-     * Register new staff - creates initial record with service_no, file_no, ippis
+     * Confirm staff identity by matching service_no, ippis, and file_no
      */
-    public function register(Request $request)
+    public function confirmServiceNumber(Request $request)
     {
         $request->validate([
-            'service_no' => 'required|string|unique:staff,service_no',
-            'file_no' => 'required|string|unique:staff,file_no',
-            'ippis' => 'required|string|unique:staff_details,ippis',
+            'service_no' => 'required|string',
+            'file_no' => 'required|string',
+            'ippis' => 'required|string',
         ]);
 
-        $staff = \App\Models\Staff::create([
-            'service_no' => $request->service_no,
-            'file_no' => $request->file_no,
-            'status' => 0, // Inactive until password is set
-        ]);
+        // Find staff with matching service_no, file_no, AND ippis
+        $staff = \App\Models\Staff::where('service_no', $request->service_no)
+            ->where('file_no', $request->file_no)
+            ->where('ippis', $request->ippis)
+            ->first();
 
-        // Store ippis in staff_details
-        $staff->details()->create([
-            'ippis' => $request->ippis,
-        ]);
+        if (! $staff) {
+            return $this->errorResponse('Service number, IPPIS and name do not match.', 404);
+        }
 
         return $this->successResponse([
-            'message' => 'Registration initiated. Please set your password to complete.',
+            'first_name' => $staff->first_name,
+            'surname' => $staff->surname,
             'service_no' => $staff->service_no,
-        ], 'Staff registered successfully', 201);
+        ], 'Staff identity confirmed');
     }
 
     /**

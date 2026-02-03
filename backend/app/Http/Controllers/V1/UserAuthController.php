@@ -25,7 +25,7 @@ class UserAuthController extends Controller
             return $this->errorResponse('Invalid login details', 422);
         }
 
-        if ($user->status != 1) {
+        if ($user->status !== 'active') {
             return $this->errorResponse('Account is deactivated', 403);
         }
 

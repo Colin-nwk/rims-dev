@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base layer - only applies to specific elements, not * */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* Cursor pointer for interactive elements */
+  button,
+  a,
+  [role="button"],
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  a:disabled,
+  [role="button"]:disabled,
+  [type="button"]:disabled,
+  [type="submit"]:disabled,
+  [type="reset"]:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.test {
+  border: 1px solid red;
+}
+
+@theme {
+  /* NCoS Custom Green theme colors */
+  --color-ncos-green-50: #effef4;
+  --color-ncos-green-100: #d9fce3;
+  --color-ncos-green-200: #b5f8cc;
+  --color-ncos-green-300: #7ef0ac;
+  --color-ncos-green-400: #43e087;
+  --color-ncos-green-500: #1ac267;
+  --color-ncos-green-600: #008751;
+  --color-ncos-green-700: #0b7f43;
+  --color-ncos-green-800: #0e6538;
+  --color-ncos-green-900: #064e3b;
+  --color-ncos-green-950: #022c22;
+}
