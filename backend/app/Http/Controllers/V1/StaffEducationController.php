@@ -39,7 +39,10 @@ class StaffEducationController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('staff-education.view');
+        // Skip authorization for staff users (they can only see their own records anyway)
+        if (! $this->isStaffUser()) {
+            $this->authorize('staff-education.view');
+        }
 
         $query = StaffEducation::with('staff');
 
@@ -121,7 +124,10 @@ class StaffEducationController extends Controller
 
     public function store(StoreStaffEducationRequest $request): JsonResponse
     {
-        $this->authorize('staff-education.create');
+        // Skip authorization for staff users (they can only create records for themselves)
+        if (! $this->isStaffUser()) {
+            $this->authorize('staff-education.create');
+        }
 
         try {
             $data = $request->validated();
@@ -152,11 +158,13 @@ class StaffEducationController extends Controller
 
     public function show(StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff-education.view');
-
-        // Staff users can only view their own records
-        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
-            return $this->errorResponse('Unauthorized to view this record', 403);
+        // Staff users can only view their own records (skip authorization for self-service)
+        if ($this->isStaffUser()) {
+            if ($staffEducation->service_no !== $this->getStaffServiceNo()) {
+                return $this->errorResponse('Unauthorized to view this record', 403);
+            }
+        } else {
+            $this->authorize('staff-education.view');
         }
 
         return $this->successResponse($staffEducation->load('staff'));
@@ -164,11 +172,13 @@ class StaffEducationController extends Controller
 
     public function update(UpdateStaffEducationRequest $request, StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff-education.edit');
-
-        // Staff users can only edit their own records
-        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
-            return $this->errorResponse('Unauthorized to edit this record', 403);
+        // Staff users can only edit their own records (skip authorization for self-service)
+        if ($this->isStaffUser()) {
+            if ($staffEducation->service_no !== $this->getStaffServiceNo()) {
+                return $this->errorResponse('Unauthorized to edit this record', 403);
+            }
+        } else {
+            $this->authorize('staff-education.edit');
         }
 
         try {
@@ -205,11 +215,13 @@ class StaffEducationController extends Controller
 
     public function destroy(StaffEducation $staffEducation): JsonResponse
     {
-        $this->authorize('staff-education.delete');
-
-        // Staff users can only delete their own records
-        if ($this->isStaffUser() && $staffEducation->service_no !== $this->getStaffServiceNo()) {
-            return $this->errorResponse('Unauthorized to delete this record', 403);
+        // Staff users can only delete their own records (skip authorization for self-service)
+        if ($this->isStaffUser()) {
+            if ($staffEducation->service_no !== $this->getStaffServiceNo()) {
+                return $this->errorResponse('Unauthorized to delete this record', 403);
+            }
+        } else {
+            $this->authorize('staff-education.delete');
         }
 
         try {

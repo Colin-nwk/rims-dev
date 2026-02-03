@@ -1776,11 +1776,15 @@ const EditStaffFormPage: React.FC = () => {
               : "Back to Staff Directory"}
           </button>
           <div className="flex items-center justify-between">
-            <div>
+            <div className="space-y-0.5">
               <h1 className="text-2xl font-bold text-slate-900">
                 Edit Staff Record
               </h1>
-              <p className="text-slate-600 mt-0.5">
+              <p className="text-slate-900 font-medium">
+                Please note that all updates are subject to verification from
+                RIMS department.
+              </p>
+              <p className="text-slate-600">
                 {staffData.data.surname} {staffData.data.first_name} (
                 {staffData.data.service_no})
               </p>

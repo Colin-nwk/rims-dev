@@ -84,7 +84,13 @@ class StaffController extends Controller
 
     public function show(Staff $staff)
     {
-        $this->authorize('staff.view');
+        // Allow staff to view their own record without permission
+        $user = request()->user();
+        $isSelf = ($user instanceof Staff && $user->id === $staff->id);
+
+        if (! $isSelf) {
+            $this->authorize('staff.view');
+        }
 
         return $this->successResponse($staff->load(['details', 'education', 'roles']));
     }

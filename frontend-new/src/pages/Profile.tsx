@@ -499,7 +499,7 @@ const Profile = () => {
         <div className="relative px-6 py-8 sm:px-8 sm:py-10">
           {/* Edit Profile Button - Staff Only */}
           {isStaff && (
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+            <div className="absolute z-10 top-4 right-4 sm:top-6 sm:right-6">
               <Link to={ROUTES.PROFILE_EDIT}>
                 <Button
                   variant="secondary"
