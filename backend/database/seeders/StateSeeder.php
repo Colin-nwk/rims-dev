@@ -9,9 +9,6 @@ class StateSeeder extends Seeder
 {
     public function run()
     {
-        // Clear existing data to avoid duplicates
-        DB::table('states')->truncate();
-
         DB::table('states')->insert([
             // Zone A - Lagos (Lagos, Ogun)
             ['id' => 24, 'state' => 'Lagos', 'capital' => 'Ikeja', 'zone' => 'South West', 'zone_id' => 1, 'status' => 1, 'created_at' => now(), 'updated_at' => now()],
