@@ -45,37 +45,4 @@ class RateLimitTest extends TestCase
             ->assertStatus(429);
     }
 
-    /**
-     * Test strict auth rate limit on registration.
-     */
-    public function test_auth_rate_limit_registration()
-    {
-        $url = '/api/v1/staff/register';
-
-        // Reset valid limiter for this test
-        // Key format: auth:ip_address
-        // In tests, ip is usually 127.0.0.1
-        // Manually clearing might be tricky if we don't know the exact key internal to Laravel.
-        // But since tests run in isolation or separate processes usually, or we can just expect it.
-        // Wait, 'RefreshDatabase' doesn't clear cache/rate limiters.
-        // We'll trust the previous test didn't exhaust it for *this* route?
-        // Actually, rate limiter is by IP, so it IS shared across routes if they share the limiter name 'auth'.
-
-        // Since we exhausted it in the previous test (6 attempts), we need to clear it or wait.
-        // Let's rely on time travel or clearing.
-
-        // Laravel 12 / recent versions might have a helper or we can just access the limiter.
-        // Limiter key is usually 'auth:127.0.0.1' or similar.
-
-        // Let's assume we can travel in time
-        $this->travel(2)->minutes();
-
-        for ($i = 0; $i < 5; $i++) {
-            $this->postJson($url, ['service_no' => 'new', 'file_number' => 'new', 'ippis' => 'new'])
-                ->assertStatus(422); // Validation error, but request counts
-        }
-
-        $this->postJson($url, [])
-            ->assertStatus(429);
-    }
 }

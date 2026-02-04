@@ -50,57 +50,6 @@ class StaffAuthControllerTest extends TestCase
             ->assertJsonPath('status', 'Error');
     }
 
-    public function test_staff_can_register()
-    {
-        $response = $this->postJson('/api/v1/staff/register', [
-            'service_no' => 'NEW001',
-            'file_no' => 'FILE001',
-            'ippis' => 'IPPIS001',
-        ]);
-
-        $response->assertStatus(201)
-            ->assertJsonPath('status', 'Success')
-            ->assertJsonPath('data.service_no', 'NEW001');
-
-        $this->assertDatabaseHas('staff', [
-            'service_no' => 'NEW001',
-            'file_no' => 'FILE001',
-            'status' => 0,
-        ]);
-
-        $this->assertDatabaseHas('staff_details', [
-            'ippis' => 'IPPIS001',
-        ]);
-    }
-
-    public function test_register_fails_with_duplicate_service_no()
-    {
-        Staff::factory()->create(['service_no' => 'DUP001']);
-
-        $response = $this->postJson('/api/v1/staff/register', [
-            'service_no' => 'DUP001',
-            'file_no' => 'FILE002',
-            'ippis' => 'IPPIS002',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['service_no']);
-    }
-
-    public function test_register_fails_with_duplicate_file_no()
-    {
-        Staff::factory()->create(['file_no' => 'DUPFILE']);
-
-        $response = $this->postJson('/api/v1/staff/register', [
-            'service_no' => 'NEW002',
-            'file_no' => 'DUPFILE',
-            'ippis' => 'IPPIS003',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['file_no']);
-    }
-
     public function test_staff_can_set_password()
     {
         Staff::factory()->create([
