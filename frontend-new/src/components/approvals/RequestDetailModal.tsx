@@ -13,7 +13,6 @@ import {
   FileText,
   Clock,
   CheckCircle,
-  XCircle,
   AlertCircle,
 } from "lucide-react";
 
@@ -21,16 +20,12 @@ interface RequestDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   request: ChangeRequest | null;
-  onApprove?: (request: ChangeRequest) => void;
-  onReject?: (request: ChangeRequest) => void;
 }
 
 export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   isOpen,
   onClose,
-  request,
-  onApprove,
-  onReject,
+  request
 }) => {
   if (!request) return null;
 
@@ -73,7 +68,8 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   // Check if a string looks like an ISO date
   const isISODateString = (value: string): boolean => {
     // Match ISO 8601 date formats like "2025-01-06T00:00:00.000000Z" or "2025-01-06"
-    const isoDateRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/;
+    const isoDateRegex =
+      /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/;
     return isoDateRegex.test(value);
   };
 
@@ -81,10 +77,13 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   const formatDateValue = (dateString: string): string => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
-    
+
     // Check if time is midnight (date only)
-    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0 || date.getSeconds() !== 0;
-    
+    const hasTime =
+      date.getHours() !== 0 ||
+      date.getMinutes() !== 0 ||
+      date.getSeconds() !== 0;
+
     if (hasTime) {
       return date.toLocaleString("en-US", {
         year: "numeric",
@@ -95,7 +94,7 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
         hour12: true,
       });
     }
-    
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -114,7 +113,6 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     return String(value);
   };
 
-  const isPending = request.status === "PENDING";
 
   return (
     <Modal
@@ -275,30 +273,6 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
-          {isPending && (
-            <>
-              <Button
-                variant="danger"
-                onClick={() => {
-                  onReject?.(request);
-                  onClose();
-                }}
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Reject
-              </Button>
-              <Button
-                onClick={() => {
-                  onApprove?.(request);
-                  onClose();
-                }}
-                className="bg-emerald-600 hover:bg-emerald-700"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approve
-              </Button>
-            </>
-          )}
         </ModalFooter>
       </div>
     </Modal>

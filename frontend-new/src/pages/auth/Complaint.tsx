@@ -183,6 +183,7 @@ export default function Complaint() {
                   placeholder="First Name"
                   error={touched.first_name ? errors.first_name : undefined}
                   disabled={isSubmitting || formSubmitting}
+                  required={true}
                   {...getFieldProps("first_name")}
                 />
                 <Input
@@ -199,6 +200,7 @@ export default function Complaint() {
                   placeholder="Last Name"
                   error={touched.last_name ? errors.last_name : undefined}
                   disabled={isSubmitting || formSubmitting}
+                  required={true}
                   {...getFieldProps("last_name")}
                 />
               </div>
@@ -219,6 +221,7 @@ export default function Complaint() {
                   placeholder="IPPIS"
                   error={touched.ippis ? errors.ippis : undefined}
                   disabled={isSubmitting || formSubmitting}
+                  required={true}
                   {...getFieldProps("ippis")}
                 />
                 <Input
@@ -227,6 +230,7 @@ export default function Complaint() {
                   placeholder="Service Number"
                   error={touched.service_no ? errors.service_no : undefined}
                   disabled={isSubmitting || formSubmitting}
+                  required={true}
                   {...getFieldProps("service_no")}
                 />
               </div>
@@ -239,6 +243,7 @@ export default function Complaint() {
                   placeholder="Email Address"
                   error={touched.email ? errors.email : undefined}
                   disabled={isSubmitting || formSubmitting}
+                  required={true}
                   {...getFieldProps("email")}
                 />
                 <div className="space-y-1.5">
@@ -273,6 +278,7 @@ export default function Complaint() {
                 placeholder="Subject"
                 error={touched.subject ? errors.subject : undefined}
                 disabled={isSubmitting || formSubmitting}
+                required={true}
                 {...getFieldProps("subject")}
               />
 

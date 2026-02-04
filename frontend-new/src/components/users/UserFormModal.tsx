@@ -69,12 +69,13 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
   const handleSubmit = (values: CreateUserFormData | UpdateUserFormData) => {
     // Remove empty password fields when editing
     if (isEditing) {
-      const data = { ...values } as UpdateUserFormData;
+      const data = { ...values };
       if (!data.password || data.password.length === 0) {
-        delete data.password;
-        delete data.password_confirmation;
+        const { ...rest } = data;
+        onSubmit(rest as UpdateUserFormData);
+      } else {
+        onSubmit(data);
       }
-      onSubmit(data);
     } else {
       onSubmit(values);
     }
@@ -102,8 +103,10 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
+        validateOnChange={false}
+        validateOnBlur={true}
       >
-        {({ errors, touched, setFieldValue }) => (
+        {({ errors, touched, setFieldValue, dirty }) => (
           <Form className="space-y-5">
             {/* Name field */}
             <div className="space-y-1.5">
@@ -229,8 +232,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
-                          (errors as Record<string, string>).password &&
-                          (touched as Record<string, boolean>).password
+                          errors.password && touched.password
                             ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
                         }`}
@@ -256,7 +258,8 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
 
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-700">
-                      Confirm {!isEditing && <span className="text-red-500">*</span>}
+                      Confirm{" "}
+                      {!isEditing && <span className="text-red-500">*</span>}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -267,10 +270,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
                         className={`w-full pl-10 pr-10 py-2.5 sm:py-3 border rounded-xl text-sm transition-all duration-200 outline-none ${
-                          (errors as Record<string, string>)
-                            .password_confirmation &&
-                          (touched as Record<string, boolean>)
-                            .password_confirmation
+                          errors.password_confirmation && touched.password_confirmation
                             ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border-slate-200 bg-slate-50 focus:border-ncos-green-500 focus:ring-2 focus:ring-ncos-green-500/20 focus:bg-white"
                         }`}
@@ -329,7 +329,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || (isEditing && !dirty)}
                 className="w-full sm:w-auto"
               >
                 {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

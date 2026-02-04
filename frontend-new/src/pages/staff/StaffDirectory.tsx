@@ -197,7 +197,7 @@ const StaffDirectory = () => {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
                 Staff Directory
@@ -206,7 +206,7 @@ const StaffDirectory = () => {
                 Manage and view all staff members
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 items-center gap-3 w-full sm:w-max">
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -225,10 +225,7 @@ const StaffDirectory = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button
-                onClick={handleCreate}
-                className="bg-ncos-green-900 hover:bg-ncos-green-800"
-              >
+              <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Staff
               </Button>
@@ -264,7 +261,7 @@ const StaffDirectory = () => {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
+                className="bg-white px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>

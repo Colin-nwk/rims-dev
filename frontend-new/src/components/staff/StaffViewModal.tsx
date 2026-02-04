@@ -17,6 +17,8 @@ import { Modal, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { getFileUrl } from "@/lib/api/apiClient";
 import { Staff } from "@/lib/api/staff";
+import { useGenericData } from "@/lib/api";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
 
 interface StaffViewModalProps {
   isOpen: boolean;
@@ -71,6 +73,8 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
   onEdit,
   onViewIDCard,
 }) => {
+  const { data: genericData } = useGenericData();
+
   if (!staff) return null;
 
   const fullName =
@@ -186,8 +190,14 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
               icon={MapPin}
             />
             <InfoItem label="LGA" value={staff.lga} />
-            <InfoItem label="Assigned State" value={staff.assigned_state} />
-            <InfoItem label="Custodial Center" value={staff.prison} />
+            <InfoItem
+              label="Assigned State"
+              value={getStateName(staff.assigned_state, genericData?.states)}
+            />
+            <InfoItem
+              label="Custodial Center"
+              value={getPrisonName(staff.prison, genericData?.prisons)}
+            />
             <InfoItem label="Initial Command" value={staff.initial_command} />
             <InfoItem label="Present Command" value={staff.present_command} />
             <InfoItem
@@ -277,7 +287,7 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
         {onEdit && (
           <Button
             onClick={() => onEdit(staff)}
-            className="bg-ncos-green-900 hover:bg-ncos-green-800"
+            className="hidden sm:flex bg-ncos-green-900 hover:bg-ncos-green-800"
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit Staff
