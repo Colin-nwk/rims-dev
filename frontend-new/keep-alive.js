@@ -9,7 +9,7 @@ const BACKEND_URL =
   process.env.VITE_API_URL?.replace("/api/v1", "/up") ||
   "https://rims-dev-backend.onrender.com/up";
 
-const FRONTEND_URL = import.meta.env.DEV
+const FRONTEND_URL = process.env.NODE_ENV === 'development'
   ? "http://localhost:5174/health"
   : "https://rims-dev.onrender.com/health";
   
