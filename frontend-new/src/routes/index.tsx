@@ -23,10 +23,15 @@ import Profile from "@/pages/Profile";
 
 // Public pages
 import StaffProfile from "@/pages/staff/StaffProfile";
+import HealthCheck from "@/pages/HealthCheck";
 import NotFound from "@/pages/NotFound";
 
 export const routes = [
   // Public routes - (no auth or redirection required)
+  {
+    path: "/health",
+    element: <HealthCheck />,
+  },
   {
     path: ROUTES.STAFF_PROFILE,
     element: <StaffProfile />,
