@@ -277,7 +277,7 @@ const AdminUsers = () => {
                 Manage admin accounts and permissions
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 items-center gap-3 w-full sm:w-max">
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -361,7 +361,7 @@ const AdminUsers = () => {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
+              className="bg-white px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
             >
               <option value="5">5</option>
               <option value="10">10</option>

@@ -9,20 +9,25 @@ import { z } from "zod";
 export const createUserSchema = z
   .object({
     name: z
-      .string()
+      .string({ error: "Name is required" })
+      .min(1, "Name is required")
       .min(2, "Name must be at least 2 characters")
       .max(255, "Name must be less than 255 characters"),
     email: z
-      .string()
+      .string({ error: "Email is required" })
+      .min(1, "Email is required")
       .email("Please enter a valid email address")
       .max(255, "Email must be less than 255 characters"),
     password: z
-      .string()
+      .string({ error: "Password is required" })
+      .min(1, "Password is required")
       .min(8, "Password must be at least 8 characters")
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[a-z]/, "Password must contain at least one lowercase letter")
       .regex(/[0-9]/, "Password must contain at least one number"),
-    password_confirmation: z.string(),
+    password_confirmation: z
+      .string({ error: "Please confirm your password" })
+      .min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Passwords do not match",
@@ -33,25 +38,36 @@ export const createUserSchema = z
 export const updateUserSchema = z
   .object({
     name: z
-      .string()
+      .string({ error: "Name is required" })
+      .min(1, "Name is required")
       .min(2, "Name must be at least 2 characters")
-      .max(255, "Name must be less than 255 characters")
-      .optional(),
+      .max(255, "Name must be less than 255 characters"),
     email: z
-      .string()
+      .string({ error: "Email is required" })
+      .min(1, "Email is required")
       .email("Please enter a valid email address")
-      .max(255, "Email must be less than 255 characters")
-      .optional(),
+      .max(255, "Email must be less than 255 characters"),
     status: z.enum(["active", "inactive", "suspended"]).optional(),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
       .optional()
-      .or(z.literal("")),
-    password_confirmation: z.string().optional().or(z.literal("")),
+      .refine(
+        (val) => !val || val.length === 0 || val.length >= 8,
+        "Password must be at least 8 characters"
+      )
+      .refine(
+        (val) => !val || val.length === 0 || /[A-Z]/.test(val),
+        "Password must contain at least one uppercase letter"
+      )
+      .refine(
+        (val) => !val || val.length === 0 || /[a-z]/.test(val),
+        "Password must contain at least one lowercase letter"
+      )
+      .refine(
+        (val) => !val || val.length === 0 || /[0-9]/.test(val),
+        "Password must contain at least one number"
+      ),
+    password_confirmation: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -64,7 +80,7 @@ export const updateUserSchema = z
     {
       message: "Passwords do not match",
       path: ["password_confirmation"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -82,7 +98,7 @@ export const updateUserSchema = z
     {
       message: "Please enter a password first",
       path: ["password"],
-    }
+    },
   );
 
 // Schema for assigning a role

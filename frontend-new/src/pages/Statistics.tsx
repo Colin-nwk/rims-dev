@@ -8,6 +8,7 @@ import {
   X,
   RefreshCw,
   ChevronDown,
+  FilterX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -155,8 +156,13 @@ const Statistics: React.FC = () => {
                     ? "border-ncos-green-500 text-ncos-green-700"
                     : ""
                 }`}
+                title={showFilters ? "Hide Filters" : "Show Filters"}
               >
-                <Filter className="mr-1.5 h-4 w-4" />
+                {showFilters ? (
+                  <FilterX className="mr-1.5 w-4 h-4 text-red-700" />
+                ) : (
+                  <Filter className="mr-1.5 h-4 w-4" />
+                )}
                 Filters
                 {activeFilterCount > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ncos-green-600 text-[10px] font-bold text-white">

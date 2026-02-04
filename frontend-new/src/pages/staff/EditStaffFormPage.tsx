@@ -36,6 +36,7 @@ import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
 
 // Combined form values type for Edit (All tables)
 type EditStaffFormValues = Omit<CreateStaffDTO, "photo"> & {
@@ -1337,17 +1338,19 @@ const EducationTab: React.FC<{
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <h4 className="font-medium text-slate-900">Educational History</h4>
-        <Button
-          type="button"
-          size="sm"
-          onClick={addEducation}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Add Education
-        </Button>
+        <div className="flex justify-end w-full sm:w-max">
+          <Button
+            type="button"
+            size="sm"
+            onClick={addEducation}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Education
+          </Button>
+        </div>
       </div>
 
       {values.education && values.education.length > 0 ? (
@@ -1468,7 +1471,8 @@ const EducationTab: React.FC<{
 // Tab 9: Review
 const ReviewTab: React.FC<{
   formik: FormikProps<EditStaffFormValues>;
-}> = ({ formik }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+}> = ({ formik, genericData }) => {
   const { values, setFieldValue } = formik;
 
   return (
@@ -1518,7 +1522,8 @@ const ReviewTab: React.FC<{
                 Assigned State
               </p>
               <p className="text-slate-900 font-medium">
-                {values.assigned_state || "N/A"}
+                {getStateName(values.assigned_state, genericData?.states) ||
+                  "Not Provided"}
               </p>
             </div>
             <div>
@@ -1526,7 +1531,8 @@ const ReviewTab: React.FC<{
                 Custodial Center
               </p>
               <p className="text-slate-900 font-medium">
-                {values.prison || "N/A"}
+                {getPrisonName(values.prison, genericData?.prisons) ||
+                  "Not Provided"}
               </p>
             </div>
           </div>
@@ -1806,8 +1812,8 @@ const EditStaffFormPage: React.FC = () => {
             <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
             {/* Tab Content */}
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="max-w-7xl mx-auto py-6">
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
                 {activeTab === "basic" && (
                   <BasicInfoTab
                     formik={formik}
@@ -1842,14 +1848,18 @@ const EditStaffFormPage: React.FC = () => {
                 )}
                 {activeTab === "banking" && <BankingTab formik={formik} />}
                 {activeTab === "education" && <EducationTab formik={formik} />}
-                {activeTab === "review" && <ReviewTab formik={formik} />}
+                {activeTab === "review" && (
+                  <ReviewTab formik={formik} genericData={genericData} />
+                )}
 
                 {/* Save Button - Fixed at bottom of card */}
                 <div className="mt-6 pt-6 border-t border-slate-200 flex justify-end">
                   <Button
                     type="submit"
                     className="bg-emerald-600 hover:bg-emerald-700 gap-2"
-                    disabled={isSaving || updateStaff.isPending}
+                    disabled={
+                      isSaving || updateStaff.isPending || !formik.dirty
+                    }
                     isLoading={isSaving || updateStaff.isPending}
                   >
                     <Save className="w-4 h-4" />

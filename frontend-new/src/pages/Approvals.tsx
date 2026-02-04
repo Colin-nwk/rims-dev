@@ -270,7 +270,7 @@ const Approvals = () => {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
                 Approval Center
@@ -322,7 +322,7 @@ const Approvals = () => {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
+                className="bg-white not-first:px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -451,8 +451,6 @@ const Approvals = () => {
             setSelectedRequest(null);
           }}
           request={selectedRequest}
-          onApprove={handleApprove}
-          onReject={handleReject}
         />
 
         {/* Approve Modal */}

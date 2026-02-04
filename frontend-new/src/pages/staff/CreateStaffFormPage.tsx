@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useCreateStaff, CreateStaffDTO, sexOptions } from "@/lib/api/staff";
 import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
 
 // Form values type for Create (Staff table only - no details or education)
 interface CreateStaffFormValues {
@@ -831,7 +832,8 @@ const PostingOriginStep: React.FC<{
 // Step 4: Review & Submit
 const ReviewStep: React.FC<{
   formik: FormikProps<CreateStaffFormValues>;
-}> = ({ formik }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+}> = ({ formik, genericData }) => {
   const { values, setFieldValue } = formik;
 
   return (
@@ -882,7 +884,8 @@ const ReviewStep: React.FC<{
                 Assigned State
               </p>
               <p className="text-slate-900 font-medium">
-                {values.assigned_state || "Not provided"}
+                {getStateName(values.assigned_state, genericData?.states) ||
+                  "Not provided"}
               </p>
             </div>
             <div>
@@ -890,7 +893,8 @@ const ReviewStep: React.FC<{
                 Custodial Center
               </p>
               <p className="text-slate-900 font-medium">
-                {values.prison || "Not provided"}
+                {getPrisonName(values.prison, genericData?.prisons) ||
+                  "Not provided"}
               </p>
             </div>
           </div>
@@ -1117,7 +1121,9 @@ const CreateStaffFormPage: React.FC = () => {
                           isLoadingGeneric={isLoadingGeneric}
                         />
                       )}
-                      {currentStep === 3 && <ReviewStep formik={formik} />}
+                      {currentStep === 3 && (
+                        <ReviewStep formik={formik} genericData={genericData} />
+                      )}
                     </div>
 
                     {/* Navigation Footer */}

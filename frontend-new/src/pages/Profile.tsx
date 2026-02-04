@@ -10,6 +10,8 @@ import {
 import { getFileUrl } from "@/lib/api/apiClient";
 import { ROUTES } from "@/routes/constants";
 import { Button } from "@/components/ui/button";
+import { useGenericData } from "@/lib/api";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
 import {
   User,
   Mail,
@@ -84,6 +86,8 @@ const ProfileCard = ({
 
 // Staff profile component
 const StaffProfile = ({ user }: { user: StaffUser }) => {
+  const { data: genericData } = useGenericData();
+
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -165,7 +169,7 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={MapPin}
               label="State of Origin"
-              value={user.state_of_origin}
+              value={getStateName(user.state_of_origin, genericData?.states)}
             />
             <InfoItem
               icon={Building2}
@@ -217,9 +221,13 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={MapPin}
               label="Assigned State"
-              value={user.assigned_state}
+              value={getStateName(user.assigned_state, genericData?.states)}
             />
-            <InfoItem icon={Building2} label="Prison" value={user.prison} />
+            <InfoItem
+              icon={Building2}
+              label="Prison"
+              value={getPrisonName(user.prison, genericData?.prisons)}
+            />
             <InfoItem
               icon={Building2}
               label="Present Command"

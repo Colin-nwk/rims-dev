@@ -45,7 +45,7 @@ export default function MainLayout({
         {/* Header */}
         <AppHeader />
         {/* Page Content */}
-        <div className="bg-linear-to-br from-slate-50 to-slate-100 p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6 h-full overflow-x-auto">
+        <div className="bg-linear-to-br from-slate-50 to-slate-100 p-4 md:p-6 h-full overflow-x-auto">
           {children}
         </div>
       </div>
