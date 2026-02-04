@@ -16,6 +16,11 @@ class ChangeRequestWorkflowTest extends TestCase
 
     public function test_staff_creation_workflow()
     {
+        // Seed required reference data
+        $zone = \App\Models\Zone::create(['zone' => 'Test Zone']);
+        $state = \App\Models\State::create(['state' => 'Test State', 'capital' => 'Test Capital', 'zone_id' => $zone->id]);
+        $prison = \App\Models\Prison::create(['prison_name' => 'Test Prison', 'address' => 'Test Address', 'capacity' => '100', 'state_id' => $state->id]);
+
         $user = User::factory()->create();
         $this->actingAs($user);
 
@@ -28,9 +33,9 @@ class ChangeRequestWorkflowTest extends TestCase
             'surname' => 'Test',
             'first_name' => 'Staff',
             'password' => 'password',
-            'assigned_state' => 1,
-            'prison' => 1,
-            'zone_id' => 1,
+            'assigned_state' => $state->id,
+            'prison' => $prison->id,
+            'zone_id' => $zone->id,
             'sex' => 'M',
             'initial_rank' => 'Cpl',
             'present_rank' => 'Cpl',
