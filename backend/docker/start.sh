@@ -10,7 +10,7 @@ php artisan route:clear
 php artisan view:clear
 
 echo "Running database migrations..."
-php artisan migrate:fresh --seed --force --no-interaction
+php artisan migrate --force --no-interaction
 
 echo "Clearing cache after migrations..."
 php artisan cache:clear
