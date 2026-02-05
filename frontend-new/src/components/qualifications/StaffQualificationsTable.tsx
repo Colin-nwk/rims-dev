@@ -342,7 +342,10 @@ export const StaffQualificationsTable: React.FC<
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className="hover:bg-slate-50 transition-colors">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-4 text-sm whitespace-nowrap">
+                  <td
+                    key={cell.id}
+                    className="px-4 py-4 text-sm whitespace-nowrap"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

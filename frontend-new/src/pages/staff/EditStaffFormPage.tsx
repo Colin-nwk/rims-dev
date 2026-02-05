@@ -127,6 +127,120 @@ const formatDateForInput = (dateValue: string | null | undefined): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Helper to check if two values are equal (handles different data types)
+const areValuesEqual = (val1: unknown, val2: unknown): boolean => {
+  // Handle null/undefined equality
+  if (val1 === val2) return true;
+  if (val1 == null && val2 == null) return true;
+  if (val1 == null || val2 == null) return false;
+
+  // Handle empty strings vs null/undefined
+  if (val1 === "" && val2 == null) return true;
+  if (val1 == null && val2 === "") return true;
+
+  // Handle File objects (always consider changed if File is present)
+  if (val1 instanceof File || val2 instanceof File) return false;
+
+  // Handle arrays
+  if (Array.isArray(val1) && Array.isArray(val2)) {
+    if (val1.length !== val2.length) return false;
+    return val1.every((item, index) => areValuesEqual(item, val2[index]));
+  }
+
+  // Handle objects (but not File, which we checked above)
+  if (typeof val1 === "object" && typeof val2 === "object") {
+    const keys1 = Object.keys(val1);
+    const keys2 = Object.keys(val2);
+    const allKeys = new Set([...keys1, ...keys2]);
+
+    for (const key of allKeys) {
+      if (
+        !areValuesEqual(
+          (val1 as Record<string, unknown>)[key],
+          (val2 as Record<string, unknown>)[key],
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Handle primitive values (including number/string comparison)
+  return String(val1) === String(val2);
+};
+
+// Helper to extract only changed fields from form values
+const getChangedFields = (
+  currentValues: EditStaffFormValues,
+  initialValues: EditStaffFormValues,
+): Partial<EditStaffFormValues> => {
+  const changedFields: Partial<EditStaffFormValues> = {};
+
+  // Check top-level fields
+  (Object.keys(currentValues) as Array<keyof EditStaffFormValues>).forEach(
+    (key) => {
+      // Skip service_no - it's used in the endpoint URL, not the payload
+      if (key === "service_no") return;
+
+      const currentValue = currentValues[key];
+      const initialValue = initialValues[key];
+
+      // Handle details object separately
+      if (key === "details" && typeof currentValue === "object") {
+        const changedDetails: Partial<EditStaffFormValues["details"]> = {};
+        let hasChangedDetails = false;
+
+        if (currentValue && typeof currentValue === "object") {
+          Object.keys(currentValue).forEach((detailKey) => {
+            const currentDetail =
+              currentValue[detailKey as keyof typeof currentValue];
+            const initialDetail =
+              initialValue && typeof initialValue === "object"
+                ? initialValue[detailKey as keyof typeof initialValue]
+                : undefined;
+
+            if (!areValuesEqual(currentDetail, initialDetail)) {
+              (changedDetails as Record<string, unknown>)[detailKey] =
+                currentDetail;
+              hasChangedDetails = true;
+            }
+          });
+        }
+
+        if (hasChangedDetails) {
+          changedFields.details = changedDetails;
+        }
+        return;
+      }
+
+      // Handle education array separately
+      if (key === "education" && Array.isArray(currentValue)) {
+        if (!areValuesEqual(currentValue, initialValue)) {
+          changedFields.education = currentValue;
+        }
+        return;
+      }
+
+      // Handle photo (File object or string path)
+      if (key === "photo") {
+        // Only include if it's a new File upload
+        if (currentValue instanceof File) {
+          changedFields.photo = currentValue;
+        }
+        return;
+      }
+
+      // For all other fields, check if value changed
+      if (!areValuesEqual(currentValue, initialValue)) {
+        (changedFields as Record<string, unknown>)[key] = currentValue;
+      }
+    },
+  );
+
+  return changedFields;
+};
+
 // Select component
 const Select: React.FC<
   {
@@ -902,7 +1016,7 @@ const PhysicalMedicalTab: React.FC<{
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.details?.height ? errors.details?.height : undefined}
-          placeholder="e.g., 6.5ft"
+          placeholder="e.g., 1.75m"
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1686,20 +1800,36 @@ const EditStaffFormPage: React.FC = () => {
       };
 
   // Handle save
-  const handleSave = async (values: EditStaffFormValues) => {
+  const handleSave = async (
+    values: EditStaffFormValues,
+    formikHelpers?: { resetForm: () => void },
+  ) => {
     if (!serviceNo) return;
 
     setIsSaving(true);
     try {
+      // Extract only changed fields
+      const changedFields = getChangedFields(values, initialValues);
+
       const submitData: CreateStaffDTO = {
-        ...values,
-        photo: values.photo instanceof File ? values.photo : undefined,
-      };
+        ...changedFields,
+        photo:
+          changedFields.photo instanceof File ? changedFields.photo : undefined,
+      } as CreateStaffDTO;
 
       await updateStaff.mutateAsync({
         serviceNo,
         data: submitData,
       });
+
+      // Wait for React Query to refetch and Formik to reinitialize with fresh data
+      // This prevents form state accumulation across multiple saves
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Reset form to clear dirty state and use fresh initialValues from refetched data
+      if (formikHelpers) {
+        formikHelpers.resetForm();
+      }
 
       toast.success(
         <div className="flex items-center gap-2">
@@ -1800,8 +1930,9 @@ const EditStaffFormPage: React.FC = () => {
       </div>
 
       <Formik
+        key={staffData?.data?.updated_at || serviceNo}
         initialValues={initialValues}
-        onSubmit={handleSave}
+        onSubmit={(values, formikHelpers) => handleSave(values, formikHelpers)}
         validateOnBlur={true}
         validateOnChange={false}
         enableReinitialize

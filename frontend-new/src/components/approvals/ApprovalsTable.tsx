@@ -27,6 +27,7 @@ import {
   User,
   FileText,
 } from "lucide-react";
+import { Button } from "../ui/button";
 
 // Separate component for the select all checkbox to properly use hooks
 const SelectAllCheckbox: React.FC<{ table: Table<ChangeRequest> }> = ({
@@ -103,16 +104,6 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
     return "Unknown";
   };
 
-  // Preview data summary
-  const getDataPreview = (data: Record<string, unknown>): string => {
-    const keys = Object.keys(data).slice(0, 3);
-    if (keys.length === 0) return "No data";
-    const preview = keys
-      .map((key) => `${key}: ${String(data[key]).substring(0, 20)}`)
-      .join(", ");
-    return preview.length > 60 ? preview.substring(0, 60) + "..." : preview;
-  };
-
   const columns: ColumnDef<ChangeRequest>[] = [
     // Selection column
     {
@@ -180,21 +171,27 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
       header: "Requested By",
       accessorFn: (row) => getRequesterName(row),
       cell: ({ row }) => (
-        <span className="text-sm text-slate-600">
-          {getRequesterName(row.original)}
-        </span>
+        <div className="flex flex-col text-sm">
+          <span className="text-slate-800 font-semibold">
+            {getRequesterName(row.original)}
+          </span>
+          <span className="text-slate-600">
+            {row.original.requested_by?.email}
+          </span>
+        </div>
       ),
     },
     {
       id: "preview",
       header: "Changes Preview",
       cell: ({ row }) => (
-        <span
-          className="text-sm text-slate-500 truncate block max-w-xs"
+        <Button
+          onClick={() => onView?.(row.original)}
+          size="sm"
           title={JSON.stringify(row.original.data, null, 2)}
         >
-          {getDataPreview(row.original.data)}
-        </span>
+          <Eye className="w-4 h-4 mr-1.5" /> View Details
+        </Button>
       ),
       enableSorting: false,
     },
@@ -226,13 +223,6 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
         const isPending = row.original.status === "PENDING";
         return (
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => onView?.(row.original)}
-              className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-              title="View Details"
-            >
-              <Eye className="w-4 h-4" />
-            </button>
             {showActions && isPending && (
               <>
                 <button

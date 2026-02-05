@@ -45,6 +45,7 @@ export interface ChangeRequest {
   rejection_reason: string | null;
   created_at: string;
   updated_at: string;
+  model?: Record<string, unknown> | null; // Current data from the model (for UPDATE/SENSITIVE)
 }
 
 // Filters for querying change requests

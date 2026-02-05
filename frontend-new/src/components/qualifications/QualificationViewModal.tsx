@@ -43,35 +43,44 @@ export const QualificationViewModal: React.FC<QualificationViewModalProps> = ({
       <div className="space-y-6">
         {/* Staff Information Section */}
         {education.staff && (
-          <div className="p-6 bg-linear-to-br from-ncos-green-50 to-slate-50 rounded-xl border border-ncos-green-100">
+          <div className="p-4 sm:p-6 bg-linear-to-br from-ncos-green-50 to-slate-50 rounded-xl border border-ncos-green-100">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4">
               <User className="w-4 h-4" />
               Staff Information
             </h3>
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
               {education.staff.photo ? (
                 <img
                   src={getFileUrl(education.staff.photo)}
                   alt={`${education.staff.surname} ${education.staff.first_name}`}
-                  className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-md"
+                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 border-white shadow-md shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback)
+                      (fallback as HTMLElement).style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-ncos-green-600 text-white flex items-center justify-center font-bold text-lg border-3 border-white shadow-md">
-                  {education.staff.surname[0]}
-                  {education.staff.first_name[0]}
-                </div>
-              )}
-              <div className="flex-1">
-                <h4 className="text-lg font-bold text-slate-900 mb-1">
+              ) : null}
+              <div
+                className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-ncos-green-600 text-white flex items-center justify-center font-bold text-base sm:text-lg border-3 border-white shadow-md shrink-0 ${education.staff.photo ? "hidden" : ""}`}
+              >
+                {education.staff.surname[0]}
+                {education.staff.first_name[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1 wrap-break-word">
                   {education.staff.surname} {education.staff.first_name}{" "}
                   {education.staff.other_names || ""}
                 </h4>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
                   <span className="flex items-center gap-1.5 text-slate-600">
-                    <IdCard className="w-4 h-4" />
-                    {education.staff.service_no}
+                    <IdCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="break-all">
+                      {education.staff.service_no}
+                    </span>
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-ncos-green-600 text-white text-xs font-medium">
+                  <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-ncos-green-600 text-white text-xs font-medium">
                     {education.staff.present_rank}
                   </span>
                 </div>
@@ -166,7 +175,7 @@ export const QualificationViewModal: React.FC<QualificationViewModalProps> = ({
 
         {/* Certificate Section */}
         {education.url && (
-          <div className="p-6 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4">
               <FileText className="w-4 h-4" />
               Certificate/Document
@@ -175,16 +184,16 @@ export const QualificationViewModal: React.FC<QualificationViewModalProps> = ({
               href={getCertificateViewUrl(education.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-ncos-green-500 transition-colors group"
+              className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-ncos-green-500 transition-colors group w-full"
             >
-              <FileText className="w-5 h-5 text-slate-400 group-hover:text-ncos-green-600" />
-              <div className="flex-1 text-left">
+              <FileText className="w-5 h-5 text-slate-400 group-hover:text-ncos-green-600 shrink-0" />
+              <div className="flex-1 text-left min-w-0">
                 <p className="text-sm font-medium text-slate-900">
                   View Certificate
                 </p>
                 <p className="text-xs text-slate-500">Opens in new tab</p>
               </div>
-              <Eye className="w-4 h-4 text-slate-400 group-hover:text-ncos-green-600" />
+              <Eye className="w-4 h-4 text-slate-400 group-hover:text-ncos-green-600 shrink-0" />
             </a>
           </div>
         )}

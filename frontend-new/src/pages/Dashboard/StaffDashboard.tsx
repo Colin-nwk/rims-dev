@@ -154,15 +154,19 @@ const StaffDashboard = () => {
                   src={photoUrl}
                   alt={displayName}
                   className="w-full h-full rounded-xl object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.parentElement?.nextElementSibling;
+                    if (fallback) (fallback as HTMLElement).style.display = "flex";
+                  }}
                 />
               </div>
-            ) : (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-linear-to-br from-white/20 to-white/10 backdrop-blur-sm flex items-center justify-center border-4 border-white/20 shadow-2xl ring-2 ring-white/10">
-                <span className="text-2xl sm:text-3xl font-bold text-white">
-                  {initials}
-                </span>
-              </div>
-            )}
+            ) : null}
+            <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-linear-to-br from-white/20 to-white/10 backdrop-blur-sm flex items-center justify-center border-4 border-white/20 shadow-2xl ring-2 ring-white/10 ${photoUrl ? "hidden" : ""}`}>
+              <span className="text-2xl sm:text-3xl font-bold text-white">
+                {initials}
+              </span>
+            </div>
             {/* Online indicator */}
             <div className="absolute -bottom-1 -right-1 p-1 bg-linear-to-br from-emerald-600 to-emerald-700 rounded-full shadow-lg">
               <div className="w-3 h-3 rounded-full bg-emerald-300 animate-pulse" />
