@@ -116,33 +116,9 @@ class StaffDocumentService extends BaseService
      */
     public function all(array $filters = [])
     {
-        $query = StaffDocument::with(['staff', 'verifier']);
-
-        if (isset($filters['service_no'])) {
-            $query->where('service_no', $filters['service_no']);
-        }
-
-        if (isset($filters['document_type'])) {
-            $query->where('document_type', $filters['document_type']);
-        }
-
-        if (isset($filters['verification_status'])) {
-            $query->where('verification_status', $filters['verification_status']);
-        }
-
-        if (isset($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('document_name', 'like', '%'.$search.'%');
-            });
-        }
-
-        // Sorting
-        $sortField = $filters['sort_by'] ?? 'created_at';
-        $sortDirection = $filters['sort_direction'] ?? 'desc';
-        $query->orderBy($sortField, $sortDirection);
-
-        return $query->paginate($filters['per_page'] ?? 15);
+        return StaffDocument::with(['staff', 'verifier'])
+            ->filter($filters)
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

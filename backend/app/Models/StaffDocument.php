@@ -8,7 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class StaffDocument extends Model
 {
     /** @use HasFactory<\Database\Factories\StaffDocumentFactory> */
-    use HasFactory;
+    use HasFactory, \App\Traits\FilterableTrait;
+
+    public $searchable = [
+        'document_name',
+        'service_no',
+        'notes',
+    ];
+
+    public $filterable = [
+        'verification_status',
+        'document_type',
+        'service_no',
+        'verifier_id',
+        'verifier_type',
+    ];
 
     protected $fillable = [
         'service_no',
