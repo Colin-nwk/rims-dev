@@ -33,11 +33,15 @@ Route::prefix('staff')->group(function () {
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
     Route::post('confirm', [StaffAuthController::class, 'confirmServiceNumber'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
+    Route::post('forgot-password', [StaffAuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [StaffAuthController::class, 'resetPassword'])->middleware('throttle:auth');
 });
 
 // User Authentication
 Route::prefix('user')->group(function () {
     Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('forgot-password', [UserAuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [UserAuthController::class, 'resetPassword'])->middleware('throttle:auth');
 });
 
 // Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings, Levels, Marital Statuses)

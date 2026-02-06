@@ -3,9 +3,15 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StaffForgotPasswordRequest;
+use App\Http\Requests\StaffResetPasswordRequest;
+use App\Models\Staff;
+use App\Notifications\PasswordResetNotification;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class StaffAuthController extends Controller
 {
@@ -18,7 +24,7 @@ class StaffAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
+        $staff = Staff::where('service_no', $request->service_no)->first();
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             return $this->errorResponse('Invalid login details', 422);
@@ -53,7 +59,7 @@ class StaffAuthController extends Controller
             'state' => 'required|exists:states,id',
         ]);
 
-        $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
+        $staff = Staff::where('service_no', $request->service_no)->first();
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             return $this->errorResponse('Invalid login details', 422);
@@ -84,9 +90,6 @@ class StaffAuthController extends Controller
         ]);
     }
 
-    /**
-     * Confirm staff identity by matching service_no, ippis, and file_no
-     */
     public function confirmServiceNumber(Request $request)
     {
         $request->validate([
@@ -95,8 +98,7 @@ class StaffAuthController extends Controller
             'ippis' => 'required|string',
         ]);
 
-        // Find staff with matching service_no, file_no, AND ippis
-        $staff = \App\Models\Staff::where('service_no', $request->service_no)
+        $staff = Staff::where('service_no', $request->service_no)
             ->where('file_no', $request->file_no)
             ->where('ippis', $request->ippis)
             ->first();
@@ -112,9 +114,6 @@ class StaffAuthController extends Controller
         ], 'Staff identity confirmed');
     }
 
-    /**
-     * Set password for newly registered staff
-     */
     public function setPassword(Request $request)
     {
         $request->validate([
@@ -122,7 +121,7 @@ class StaffAuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $staff = \App\Models\Staff::where('service_no', $request->service_no)->first();
+        $staff = Staff::where('service_no', $request->service_no)->first();
 
         if ($staff->password) {
             return $this->errorResponse('Password already set. Please use login or reset password.', 400);
@@ -130,10 +129,9 @@ class StaffAuthController extends Controller
 
         $staff->update([
             'password' => Hash::make($request->password),
-            'status' => 1, // Activate staff
+            'status' => 1,
         ]);
 
-        // Auto-login after setting password
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
@@ -150,4 +148,43 @@ class StaffAuthController extends Controller
             'permissions' => [],
         ], 'Password set successfully');
     }
+
+    public function forgotPassword(StaffForgotPasswordRequest $request): JsonResponse
+    {
+        $staff = Staff::where('service_no', $request->service_no)
+            ->where('email', $request->email)
+            ->first();
+
+        if ($staff) {
+            $token = Password::broker('staff')->createToken($staff);
+            $resetUrl = config('app.frontend_url', config('app.url')) . '/staff/reset-password';
+            $staff->notify(new PasswordResetNotification($token, $resetUrl, 'staff'));
+        }
+
+        return $this->successResponse(null, 'If an account with those details exists, a password reset link has been sent.');
+    }
+
+    public function resetPassword(StaffResetPasswordRequest $request): JsonResponse
+    {
+        $staff = Staff::where('service_no', $request->service_no)->first();
+
+        if (! $staff) {
+            return $this->errorResponse('Invalid credentials.', 422);
+        }
+
+        $tokenValid = Password::broker('staff')->tokenExists($staff, $request->token);
+
+        if (! $tokenValid) {
+            return $this->errorResponse('This password reset token is invalid or has expired.', 422);
+        }
+
+        $staff->forceFill([
+            'password' => Hash::make($request->password),
+        ])->save();
+
+        Password::broker('staff')->deleteToken($staff);
+
+        return $this->successResponse(null, 'Password has been reset successfully.');
+    }
 }
+
