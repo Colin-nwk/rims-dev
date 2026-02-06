@@ -56,8 +56,7 @@ class Staff extends Authenticatable
         'ippis',
     ];
 
-
-     protected $hidden = [
+    protected $hidden = [
         'password',
         'remember_token',
     ];
@@ -106,6 +105,11 @@ class Staff extends Authenticatable
     public function education()
     {
         return $this->hasMany(StaffEducation::class, 'service_no', 'service_no');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(StaffDocument::class, 'service_no', 'service_no');
     }
 
     public function assignedState()
