@@ -33,10 +33,17 @@ trait FilterableTrait
             });
         }
 
-        // 2. Exact Filters (e.g. ?sex=M&status=1)
+        // 2. Exact Filters & Custom Methods
         // Define allowable filters in $filterable property on model
         $filterable = $this->filterable ?? [];
         foreach ($filters as $key => $value) {
+            // Check for custom filter method: filterKeyName($query, $value)
+            $method = 'filter' . \Illuminate\Support\Str::studly($key);
+            if (method_exists($this, $method)) {
+                $this->{$method}($query, $value);
+                continue;
+            }
+
             if (in_array($key, $filterable) && ! is_null($value)) {
                 $query->where($key, $value);
             }
