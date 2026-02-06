@@ -103,4 +103,10 @@ class AgeRangeFilterTest extends TestCase
         $user = \App\Models\User::factory()->create(['status' => 'active']);
         return $this->actingAs($user);
     }
+
+
+//     GET /api/v1/staff?age_range=18-25
+// GET /api/v1/staff?age_range=less 30
+// GET /api/v1/staff?age_range=60%2B  (Note: + must be encoded as %2B in URLs)
+
 }
