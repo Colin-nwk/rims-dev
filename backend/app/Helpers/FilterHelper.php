@@ -20,6 +20,13 @@ class FilterHelper
      * - "above 70": Staff older than 70 (71+).
      * - "> 50"    : Staff older than 50.
      *
+     * URL Encoding Examples:
+     * - "18-20"   -> ?age_range=18-20
+     * - "less 18" -> ?age_range=less%2018
+     * - "18+"     -> ?age_range=18%2B (Be careful: '+' must be encoded as %2B)
+     * - "> 50"    -> ?age_range=%3E%2050
+     * - "above 70"-> ?age_range=above%2070
+     *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $value
      * @return void
