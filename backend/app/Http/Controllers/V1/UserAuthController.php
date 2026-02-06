@@ -57,7 +57,7 @@ class UserAuthController extends Controller
 
         if ($user) {
             $token = Password::broker('users')->createToken($user);
-            $resetUrl = config('app.frontend_url', config('app.url')) . '/reset-password';
+            $resetUrl = config('app.frontend_url') . '/reset-password';
             $user->notify(new PasswordResetNotification($token, $resetUrl, 'user'));
         }
 

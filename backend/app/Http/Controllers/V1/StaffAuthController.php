@@ -157,7 +157,7 @@ class StaffAuthController extends Controller
 
         if ($staff) {
             $token = Password::broker('staff')->createToken($staff);
-            $resetUrl = config('app.frontend_url', config('app.url')) . '/staff/reset-password';
+            $resetUrl = config('app.frontend_url') . '/staff/reset-password';
             $staff->notify(new PasswordResetNotification($token, $resetUrl, 'staff'));
         }
 
