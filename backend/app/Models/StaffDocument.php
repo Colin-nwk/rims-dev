@@ -18,7 +18,8 @@ class StaffDocument extends Model
         'file_size',
         'mime_type',
         'verification_status',
-        'verified_by',
+        'verifier_id',
+        'verifier_type',
         'verified_at',
         'rejection_reason',
         'notes',
@@ -41,7 +42,7 @@ class StaffDocument extends Model
 
     public function verifier()
     {
-        return $this->belongsTo(User::class, 'verified_by');
+        return $this->morphTo();
     }
 
     public function isPending(): bool

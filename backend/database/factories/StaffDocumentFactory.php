@@ -37,6 +37,8 @@ class StaffDocumentFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'verification_status' => 'verified',
             'verified_at' => now(),
+            'verifier_id' => \App\Models\User::factory(),
+            'verifier_type' => \App\Models\User::class,
         ]);
     }
 
@@ -45,6 +47,8 @@ class StaffDocumentFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'verification_status' => 'rejected',
             'rejection_reason' => $this->faker->sentence(),
+            'verifier_id' => \App\Models\User::factory(),
+            'verifier_type' => \App\Models\User::class,
         ]);
     }
 }

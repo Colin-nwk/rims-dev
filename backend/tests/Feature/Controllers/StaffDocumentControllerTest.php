@@ -90,7 +90,7 @@ class StaffDocumentControllerTest extends TestCase
         $user = User::factory()->create();
         $admin = User::factory()->create();
         $staff = Staff::factory()->create(['service_no' => 'DOC_VERIFY_01']);
-
+        
         // Create an existing document
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_VERIFY_01',
@@ -104,11 +104,40 @@ class StaffDocumentControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonPath('data.verification_status', 'verified')
-            ->assertJsonPath('data.verified_by', $admin->id);
+            ->assertJsonPath('data.verifier_id', $admin->id)
+            ->assertJsonPath('data.verifier_type', User::class);
 
         $document->refresh();
         $this->assertEquals('verified', $document->verification_status);
-        $this->assertNotNull($document->verified_at);
+        $this->assertEquals($admin->id, $document->verifier_id);
+        $this->assertEquals(User::class, $document->verifier_type);
+    }
+
+    public function test_staff_approver_can_verify_document(): void
+    {
+        // Simulate a staff member with approval rights
+        $approverStaff = Staff::factory()->create(['service_no' => 'APPROVER_01']);
+        $staff = Staff::factory()->create(['service_no' => 'DOC_VERIFY_02']);
+        
+        $document = StaffDocument::factory()->create([
+            'service_no' => 'DOC_VERIFY_02',
+            'verification_status' => 'pending',
+        ]);
+
+        $this->actingAs($approverStaff, 'sanctum');
+        Gate::define('staff-document.verify', fn () => true);
+
+        $response = $this->postJson("/api/v1/staff-documents/{$document->id}/verify");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.verification_status', 'verified')
+            ->assertJsonPath('data.verifier_id', $approverStaff->id)
+            ->assertJsonPath('data.verifier_type', Staff::class);
+            
+        $document->refresh();
+        $this->assertEquals('verified', $document->verification_status);
+        $this->assertEquals($approverStaff->id, $document->verifier_id);
+        $this->assertEquals(Staff::class, $document->verifier_type);
     }
 
     public function test_admin_can_reject_document(): void
@@ -116,7 +145,7 @@ class StaffDocumentControllerTest extends TestCase
         $user = User::factory()->create();
         $admin = User::factory()->create();
         $staff = Staff::factory()->create(['service_no' => 'DOC_REJECT_01']);
-
+        
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_REJECT_01',
             'verification_status' => 'pending',
@@ -126,16 +155,20 @@ class StaffDocumentControllerTest extends TestCase
         Gate::define('staff-document.verify', fn () => true);
 
         $response = $this->postJson("/api/v1/staff-documents/{$document->id}/reject", [
-            'reason' => 'Photo too blurry',
+            'reason' => 'Photo too blurry'
         ]);
 
         $response->assertStatus(200)
             ->assertJsonPath('data.verification_status', 'rejected')
-            ->assertJsonPath('data.rejection_reason', 'Photo too blurry');
+            ->assertJsonPath('data.rejection_reason', 'Photo too blurry')
+            ->assertJsonPath('data.verifier_id', $admin->id)
+            ->assertJsonPath('data.verifier_type', User::class);
 
         $document->refresh();
         $this->assertEquals('rejected', $document->verification_status);
         $this->assertEquals('Photo too blurry', $document->rejection_reason);
+        $this->assertEquals($admin->id, $document->verifier_id);
+        $this->assertEquals(User::class, $document->verifier_type);
     }
 
     public function test_update_creates_change_request(): void

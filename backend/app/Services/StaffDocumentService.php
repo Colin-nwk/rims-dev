@@ -62,14 +62,15 @@ class StaffDocumentService extends BaseService
     /**
      * Verify document
      */
-    public function verify($id, $verifierId): StaffDocument
+    public function verify($id, $verifier): StaffDocument
     {
-        return DB::transaction(function () use ($id, $verifierId) {
+        return DB::transaction(function () use ($id, $verifier) {
             $document = $this->find($id);
 
             $document->update([
                 'verification_status' => 'verified',
-                'verified_by' => $verifierId instanceof \Illuminate\Database\Eloquent\Model ? $verifierId->id : $verifierId,
+                'verifier_id' => $verifier->getKey(),
+                'verifier_type' => $verifier->getMorphClass(),
                 'verified_at' => now(),
                 'rejection_reason' => null,
             ]);
@@ -81,14 +82,15 @@ class StaffDocumentService extends BaseService
     /**
      * Reject document
      */
-    public function reject($id, $verifierId, $reason): StaffDocument
+    public function reject($id, $verifier, $reason): StaffDocument
     {
-        return DB::transaction(function () use ($id, $verifierId, $reason) {
+        return DB::transaction(function () use ($id, $verifier, $reason) {
             $document = $this->find($id);
 
             $document->update([
                 'verification_status' => 'rejected',
-                'verified_by' => $verifierId instanceof \Illuminate\Database\Eloquent\Model ? $verifierId->id : $verifierId,
+                'verifier_id' => $verifier->getKey(),
+                'verifier_type' => $verifier->getMorphClass(),
                 'verified_at' => now(), // Still track when the decision was made
                 'rejection_reason' => $reason,
             ]);
