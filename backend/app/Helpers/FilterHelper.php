@@ -8,7 +8,17 @@ class FilterHelper
 {
     /**
      * Apply Age Range Filter to a query.
-     * Supported formats: "18-20", "less 18", "18+", "above 18"
+     *
+     * supported formats & examples:
+     * - "18-20"   : Staff between 18 and 20 years old (inclusive).
+     * - "21-30"   : Staff between 21 and 30 years old.
+     * - "less 18" : Staff younger than 18 (e.g. 17).
+     * - "under 20": Staff younger than 20.
+     * - "< 30"    : Staff younger than 30.
+     * - "18+"     : Staff 18 years or older.
+     * - "60+"     : Staff 60 years or older.
+     * - "above 70": Staff older than 70 (71+).
+     * - "> 50"    : Staff older than 50.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $value
