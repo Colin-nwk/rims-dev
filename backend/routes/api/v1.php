@@ -107,6 +107,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('staff-education', StaffEducationController::class);
 
     // --- Staff Document Management ---
+    Route::post('staff-documents/bulk', [StaffDocumentController::class, 'bulkStore']);
     Route::apiResource('staff-documents', StaffDocumentController::class);
     Route::post('staff-documents/{staffDocument}/verify', [StaffDocumentController::class, 'verify']);
     Route::post('staff-documents/{staffDocument}/reject', [StaffDocumentController::class, 'reject']);

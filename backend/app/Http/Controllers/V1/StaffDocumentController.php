@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBulkStaffDocumentRequest;
 use App\Http\Requests\StoreStaffDocumentRequest;
 use App\Http\Requests\UpdateStaffDocumentRequest;
 use App\Models\StaffDocument;
@@ -114,6 +115,84 @@ class StaffDocumentController extends Controller
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to submit document: '.$e->getMessage(), 500);
         }
+    }
+
+    public function bulkStore(StoreBulkStaffDocumentRequest $request): JsonResponse
+    {
+        // Skip authorization for staff users (they can only create records for themselves)
+        if (! $this->isStaffUser()) {
+            $this->authorize('staff-document.create');
+        }
+
+        $validated = $request->validated();
+        $serviceNo = $validated['service_no'];
+        
+        // Staff validation
+        if ($this->isStaffUser()) {
+            if ($serviceNo !== $this->getStaffServiceNo()) {
+                return $this->errorResponse('Unauthorized to create documents for this staff member', 403);
+            }
+        }
+
+        $createdRequests = [];
+        $errors = [];
+
+        foreach ($validated['documents'] as $index => $docData) {
+            try {
+                $docData['service_no'] = $serviceNo;
+                
+                // Ensure verification_status is pending for staff uploads
+                if ($this->isStaffUser()) {
+                    $docData['verification_status'] = 'pending';
+                }
+
+                // Handle file upload
+                if (isset($docData['file']) && $docData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                    $file = $docData['file'];
+                    $type = $docData['document_type'];
+                    $timestamp = now()->timestamp;
+                    $uniqueId = uniqid(); // Add uniqueness for bulk uploads in same second
+                    $filename = "{$serviceNo}_{$type}_{$timestamp}_{$uniqueId}";
+
+                    $path = $this->uploadFile($file, 'staff/documents', 'public', $filename);
+
+                    $docData['file_path'] = $path;
+                    $docData['file_size'] = $file->getSize();
+                    $docData['mime_type'] = $file->getMimeType();
+                    unset($docData['file']);
+                }
+
+                // Submit change request
+                $changeRequest = $this->changeRequestService->submit(
+                    'App\Models\StaffDocument',
+                    'CREATE',
+                    $docData,
+                    $request->user(),
+                    $serviceNo
+                );
+
+                $createdRequests[] = $changeRequest;
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'index' => $index,
+                    'document_name' => $docData['document_name'] ?? 'Unknown',
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+
+        if (empty($createdRequests) && !empty($errors)) {
+            return $this->errorResponse('Failed to submit any documents.', 500, ['errors' => $errors]);
+        }
+
+        return $this->successResponse(
+            [
+                'created' => $createdRequests,
+                'errors' => $errors
+            ], 
+            count($createdRequests) . ' document(s) submitted for approval.' . (count($errors) > 0 ? ' Some documents failed.' : ''),
+            201
+        );
     }
 
     public function show(StaffDocument $staffDocument): JsonResponse

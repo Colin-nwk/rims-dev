@@ -59,6 +59,55 @@ class StaffDocumentControllerTest extends TestCase
         ]);
     }
 
+
+    public function test_bulk_store_creates_multiple_change_requests(): void
+    {
+        $user = User::factory()->create();
+        $staff = Staff::factory()->create(['service_no' => 'DOC_BULK_01']);
+        $this->actingAs($user);
+
+        Gate::define('staff-document.create', fn () => true);
+
+        $file1 = UploadedFile::fake()->create('document1.pdf', 100);
+        $file2 = UploadedFile::fake()->create('document2.jpg', 100);
+
+        $data = [
+            'service_no' => 'DOC_BULK_01',
+            'documents' => [
+                [
+                    'document_type' => 'birth_certificate',
+                    'document_name' => 'Birth Certificate',
+                    'file' => $file1,
+                    'notes' => 'Doc 1',
+                ],
+                [
+                    'document_type' => 'passport',
+                    'document_name' => 'Passport',
+                    'file' => $file2,
+                    'notes' => 'Doc 2',
+                ]
+            ]
+        ];
+
+        $response = $this->postJson('/api/v1/staff-documents/bulk', $data);
+
+        $response->assertStatus(201)
+            ->assertJsonStructure(['data' => ['created', 'errors']]);
+
+        $this->assertCount(2, $response->json('data.created'));
+        $this->assertCount(0, $response->json('data.errors'));
+
+        // Verify change requests were created
+        $this->assertDatabaseHas('change_requests', [
+            'service_no' => 'DOC_BULK_01',
+            'model_type' => 'App\Models\StaffDocument',
+            'type' => 'CREATE',
+            'status' => 'PENDING',
+        ]);
+        
+        $this->assertEquals(2, \App\Models\ChangeRequest::where('service_no', 'DOC_BULK_01')->count());
+    }
+
     public function test_staff_can_upload_own_document(): void
     {
         $staff = Staff::factory()->create(['service_no' => 'DOC_SELF_01']);
