@@ -125,4 +125,14 @@ class Staff extends Authenticatable
     {
         return $this->belongsTo(State::class, 'assigned_state');
     }
+
+    public function initialCommand()
+    {
+        return $this->belongsTo(State::class, 'initial_command');
+    }
+
+    public function presentCommand()
+    {
+        return $this->belongsTo(State::class, 'present_command');
+    }
 }
