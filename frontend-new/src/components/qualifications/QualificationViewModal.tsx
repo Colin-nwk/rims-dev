@@ -51,7 +51,7 @@ export const QualificationViewModal: React.FC<QualificationViewModalProps> = ({
             <div className="flex items-start gap-3 sm:gap-4">
               {education.staff.photo ? (
                 <img
-                  src={getFileUrl(education.staff.photo)}
+                  src={getFileUrl(education.staff.photo, education.staff.updated_at)}
                   alt={`${education.staff.surname} ${education.staff.first_name}`}
                   className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 border-white shadow-md shrink-0"
                   onError={(e) => {

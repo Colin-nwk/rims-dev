@@ -485,7 +485,7 @@ const Profile = () => {
   }
 
   const isStaff = isStaffUser(user);
-  const photoUrl = isStaff && user.photo ? getFileUrl(user.photo) : null;
+  const photoUrl = isStaff && user.photo ? getFileUrl(user.photo, user.updated_at) : null;
 
   return (
     <div className="mx-auto max-w-6xl">

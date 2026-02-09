@@ -52,7 +52,8 @@ apiClient.interceptors.response.use(
 );
 
 // Helper to get full URL for uploaded files
-export const getFileUrl = (path: string | null | undefined): string => {
+// Pass updatedAt timestamp to bust browser cache when file changes
+export const getFileUrl = (path: string | null | undefined, updatedAt?: string | null): string => {
   if (!path) return "";
 
   // If already a full URL, return as is
@@ -63,8 +64,19 @@ export const getFileUrl = (path: string | null | undefined): string => {
   // Get base URL without /api/v1
   const baseUrl = BASE_URL.replace("/api/v1", "");
 
-  // Prepend storage path
-  return `${baseUrl}/storage/${path}`;
+  // Remove leading "public/" if present (legacy data compatibility)
+  const cleanPath = path.replace(/^public\//, "");
+
+  // Build URL with cache-busting query param
+  let url = `${baseUrl}/storage/${cleanPath}`;
+
+  if (updatedAt) {
+    // Use the updated_at timestamp as cache buster
+    const cacheBuster = new Date(updatedAt).getTime();
+    url += `?v=${cacheBuster}`;
+  }
+
+  return url;
 };
 
 export { apiClient };

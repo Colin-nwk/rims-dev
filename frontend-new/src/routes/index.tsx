@@ -1,5 +1,10 @@
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute, GuestRoute, AdminOnlyRoute } from "./guards";
+import {
+  ProtectedRoute,
+  GuestRoute,
+  AdminOnlyRoute,
+  StaffOnlyRoute,
+} from "./guards";
 import { ROUTES } from "./constants";
 
 // Auth pages
@@ -17,6 +22,7 @@ import CreateStaffFormPage from "@/pages/staff/CreateStaffFormPage";
 import EditStaffFormPage from "@/pages/staff/EditStaffFormPage";
 import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
+import ChangeRequests from "@/pages/ChangeRequests";
 import Statistics from "@/pages/Statistics";
 import RolesPermissions from "@/pages/RolesPermissions";
 import Profile from "@/pages/Profile";
@@ -85,6 +91,16 @@ export const routes = [
       {
         path: ROUTES.PROFILE_EDIT,
         element: <EditStaffFormPage />,
+      },
+      // Staff-only routes - admin users will be redirected to dashboard
+      {
+        element: <StaffOnlyRoute />,
+        children: [
+          {
+            path: ROUTES.CHANGE_REQUESTS,
+            element: <ChangeRequests />,
+          },
+        ],
       },
       // Admin-only routes - staff users will be redirected to dashboard
       {

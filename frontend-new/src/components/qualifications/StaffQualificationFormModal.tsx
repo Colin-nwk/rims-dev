@@ -24,6 +24,7 @@ import {
 } from "@/lib/api/staff-education";
 import { useGenericData } from "@/lib/api/statistics";
 import { getFileUrl } from "@/lib/api";
+import { getChangedFields } from "@/lib/utils";
 
 interface StaffQualificationFormModalProps {
   isOpen: boolean;
@@ -159,10 +160,24 @@ export const StaffQualificationFormModal: React.FC<
   const handleFormSubmit = (
     values: CreateStaffEducationFormData | UpdateStaffEducationFormData,
   ) => {
-    // Ensure service_no is set
-    values.service_no = serviceNo;
-    // Pass the education ID if editing, so parent knows to update instead of create
-    onSubmit(values, isEditing ? education?.id : undefined);
+    if (isEditing) {
+      // Only send changed fields for updates
+      const changedFields = getChangedFields(
+        values as Record<string, unknown>,
+        initialValues as Record<string, unknown>,
+        ["service_no"],
+      );
+      // Always include service_no for identification
+      changedFields.service_no = serviceNo;
+      onSubmit(
+        changedFields as CreateStaffEducationFormData | UpdateStaffEducationFormData,
+        education?.id,
+      );
+    } else {
+      // For create, send all fields
+      values.service_no = serviceNo;
+      onSubmit(values);
+    }
   };
 
   return (

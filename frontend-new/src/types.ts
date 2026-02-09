@@ -9,6 +9,6 @@ export type NavItem = {
   onClick?: () => void;
   className?: string;
   mobileOnly?: boolean;
-  /** If true, this menu item is only visible to admin users */
   adminOnly?: boolean;
+  staffOnly?: boolean;
 };

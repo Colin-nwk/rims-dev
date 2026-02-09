@@ -36,6 +36,7 @@ import {
 
 import { NewComplaintModal } from "@/components/complaints";
 import { ApiError } from "@/lib/api";
+import { ROUTES } from "@/routes/constants";
 
 // Loading skeleton component
 const DashboardSkeleton = () => (
@@ -134,7 +135,7 @@ const StaffDashboard = () => {
 
   const displayName = getDisplayName(staffUser);
   const initials = getUserInitials(staffUser);
-  const photoUrl = staffUser.photo ? getFileUrl(staffUser.photo) : null;
+  const photoUrl = staffUser.photo ? getFileUrl(staffUser.photo, staffUser.updated_at) : null;
   const retirementInfo = staffUser.retirement_time_remaining;
 
   return (
@@ -158,7 +159,8 @@ const StaffDashboard = () => {
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                       const fallback = e.currentTarget.nextElementSibling;
-                      if (fallback) (fallback as HTMLElement).style.display = "flex";
+                      if (fallback)
+                        (fallback as HTMLElement).style.display = "flex";
                     }}
                   />
                   <div className="hidden w-full h-full rounded-xl bg-linear-to-br from-emerald-100 to-teal-100 items-center justify-center">
@@ -244,56 +246,88 @@ const StaffDashboard = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Pending */}
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-amber-500">
-                      <Clock className="w-4 h-4 text-white" />
+                <button
+                  onClick={() =>
+                    navigate(`${ROUTES.CHANGE_REQUESTS}?status=pending`)
+                  }
+                  className="group p-4 rounded-xl bg-amber-50 border border-amber-200 cursor-pointer text-left transition-all duration-300 hover:shadow-lg hover:border-amber-400 hover:bg-amber-100 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-amber-500 group-hover:bg-amber-600 transition-colors">
+                        <Clock className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800">
+                        Pending
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-600">
-                      Pending
+                    <span className="text-xs text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                      View &rarr;
                     </span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-bold text-amber-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-amber-600 group-hover:text-amber-700">
                     {pendingRequests}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-600">
                     Awaiting approval
                   </p>
-                </div>
+                </button>
 
                 {/* Approved */}
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-emerald-500">
-                      <CheckCircle className="w-4 h-4 text-white" />
+                <button
+                  onClick={() =>
+                    navigate(`${ROUTES.CHANGE_REQUESTS}?status=approved`)
+                  }
+                  className="group p-4 rounded-xl bg-emerald-50 border border-emerald-200 cursor-pointer text-left transition-all duration-300 hover:shadow-lg hover:border-emerald-400 hover:bg-emerald-100 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-emerald-500 group-hover:bg-emerald-600 transition-colors">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800">
+                        Approved
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-600">
-                      Approved
+                    <span className="text-xs text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                      View &rarr;
                     </span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600 group-hover:text-emerald-700">
                     {approvedRequests}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-600">
                     Successfully processed
                   </p>
-                </div>
+                </button>
 
                 {/* Rejected */}
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-red-500">
-                      <XCircle className="w-4 h-4 text-white" />
+                <button
+                  onClick={() =>
+                    navigate(`${ROUTES.CHANGE_REQUESTS}?status=rejected`)
+                  }
+                  className="group p-4 rounded-xl bg-red-50 border border-red-200 cursor-pointer text-left transition-all duration-300 hover:shadow-lg hover:border-red-400 hover:bg-red-100 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-red-500 group-hover:bg-red-600 transition-colors">
+                        <XCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800">
+                        Rejected
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-600">
-                      Rejected
+                    <span className="text-xs text-red-600 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                      View &rarr;
                     </span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-bold text-red-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-red-600 group-hover:text-red-700">
                     {rejectedRequests}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Review feedback</p>
-                </div>
+                  <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-600">
+                    Review feedback
+                  </p>
+                </button>
               </div>
             )}
           </div>
@@ -306,7 +340,7 @@ const StaffDashboard = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {/* View Profile */}
               <button
-                onClick={() => navigate("/profile/edit")}
+                onClick={() => navigate(ROUTES.PROFILE_EDIT)}
                 className="group p-3 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 text-left"
               >
                 <div className="p-2 sm:p-3 rounded-xl bg-blue-100 text-blue-600 w-fit mb-2 sm:mb-3 group-hover:bg-blue-500 group-hover:text-white transition-colors">
@@ -322,7 +356,7 @@ const StaffDashboard = () => {
 
               {/* View Qualifications */}
               <button
-                onClick={() => navigate("/qualifications")}
+                onClick={() => navigate(ROUTES.QUALIFICATIONS)}
                 className="group p-3 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300 text-left"
               >
                 <div className="p-2 sm:p-3 rounded-xl bg-purple-100 text-purple-600 w-fit mb-2 sm:mb-3 group-hover:bg-purple-500 group-hover:text-white transition-colors">
@@ -354,7 +388,7 @@ const StaffDashboard = () => {
 
               {/* View Help Desk */}
               <button
-                onClick={() => navigate("/help-desk")}
+                onClick={() => navigate(ROUTES.HELP_DESK)}
                 className="group p-3 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all duration-300 text-left"
               >
                 <div className="p-2 sm:p-3 rounded-xl bg-teal-100 text-teal-600 w-fit mb-2 sm:mb-3 group-hover:bg-teal-500 group-hover:text-white transition-colors">

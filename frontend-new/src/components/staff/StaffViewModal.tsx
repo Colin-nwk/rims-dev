@@ -79,7 +79,7 @@ export const StaffViewModal: React.FC<StaffViewModalProps> = ({
 
   const fullName =
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
-  const photoUrl = getFileUrl(staff.photo);
+  const photoUrl = getFileUrl(staff.photo, staff.updated_at);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Staff Details" size="2xl">

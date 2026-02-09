@@ -140,8 +140,8 @@ export function ProtectedRoute({
       // Staff users only see non-admin items
       return items.filter((item) => !item.adminOnly);
     }
-    // Admin users see all items
-    return items;
+    // Admin users see all items except staff only
+    return items.filter((item) => !item.staffOnly);
   };
 
   const filteredMainNav = filterNavItems(mainNavItems);

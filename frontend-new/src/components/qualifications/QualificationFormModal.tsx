@@ -27,6 +27,7 @@ import {
 import { type Staff, useStaffList } from "@/lib/api/staff";
 import { useGenericData } from "@/lib/api/statistics";
 import { getFileUrl } from "@/lib/api";
+import { getChangedFields } from "@/lib/utils";
 
 interface QualificationFormModalProps {
   isOpen: boolean;
@@ -185,12 +186,24 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
   const handleFormSubmit = (
     values: CreateStaffEducationFormData | UpdateStaffEducationFormData,
   ) => {
-    // Add selected staff service_no if in create mode
-    if (!isEditing && selectedStaff) {
-      values.service_no = selectedStaff.service_no;
+    if (isEditing) {
+      // Only send changed fields for updates
+      const changedFields = getChangedFields(
+        values as Record<string, unknown>,
+        initialValues as Record<string, unknown>,
+        ["service_no"],
+      );
+      onSubmit(
+        changedFields as CreateStaffEducationFormData | UpdateStaffEducationFormData,
+        education?.id,
+      );
+    } else {
+      // For create, send all fields with selected staff service_no
+      if (selectedStaff) {
+        values.service_no = selectedStaff.service_no;
+      }
+      onSubmit(values);
     }
-    // Pass the education ID if editing, so parent knows to update instead of create
-    onSubmit(values, isEditing ? education?.id : undefined);
   };
 
   // Get display name for description
@@ -256,7 +269,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                     <div className="flex items-center gap-3">
                       {staff.photo ? (
                         <img
-                          src={getFileUrl(staff.photo)}
+                          src={getFileUrl(staff.photo, staff.updated_at)}
                           alt={`${staff.surname} ${staff.first_name}`}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
                         />
@@ -327,7 +340,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                         <>
                           {staff.photo ? (
                             <img
-                              src={getFileUrl(staff.photo)}
+                              src={getFileUrl(staff.photo, staff.updated_at)}
                               alt={`${staff.surname} ${staff.first_name}`}
                               className="w-12 h-12 rounded-full object-cover shrink-0"
                               onError={(e) => {

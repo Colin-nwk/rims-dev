@@ -65,7 +65,7 @@ export const RoleManageModal: React.FC<RoleManageModalProps> = ({
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
   const currentRoles = localRoles;
   const availableRoles = rolesData?.data || [];
-  const photoUrl = getFileUrl(staff.photo);
+  const photoUrl = getFileUrl(staff.photo, staff.updated_at);
 
   // Filter out roles that are already assigned
   const unassignedRoles = availableRoles.filter(
