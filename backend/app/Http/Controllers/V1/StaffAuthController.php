@@ -27,12 +27,18 @@ class StaffAuthController extends Controller
         $staff = Staff::where('service_no', $request->service_no)->first();
 
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
+            // Add a small delay to prevent timing attacks
+            usleep(random_int(100000, 300000)); // 100-300ms delay
+            
             return $this->errorResponse('Invalid login details', 422);
         }
 
         if ($staff->status != 1) {
             return $this->errorResponse('Account is deactivated', 403);
         }
+
+        // Update last login timestamp
+        $staff->update(['last_login' => now()]);
 
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);

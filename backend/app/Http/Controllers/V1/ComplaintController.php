@@ -238,28 +238,31 @@ class ComplaintController extends Controller
      */
     private function formatPublicComplaintMessage(array $data): string
     {
-        $fullName = trim("{$data['first_name']} {$data['other_names']} {$data['last_name']}");
+        // Sanitize all inputs to prevent XSS
+        $sanitizedData = array_map('htmlspecialchars', $data);
+        
+        $fullName = trim("{$sanitizedData['first_name']} {$sanitizedData['other_names']} {$sanitizedData['last_name']}");
 
         $message = "<div style=\"margin-bottom: 16px;\">";
         $message .= "<p><strong>Contact Information:</strong></p>";
         $message .= "<ul style=\"margin: 8px 0; padding-left: 20px;\">";
         $message .= "<li><strong>Name:</strong> {$fullName}</li>";
-        $message .= "<li><strong>Service Number:</strong> {$data['service_no']}</li>";
-        $message .= "<li><strong>IPPIS:</strong> {$data['ippis']}</li>";
+        $message .= "<li><strong>Service Number:</strong> {$sanitizedData['service_no']}</li>";
+        $message .= "<li><strong>IPPIS:</strong> {$sanitizedData['ippis']}</li>";
 
-        if (! empty($data['phone_number'])) {
-            $message .= "<li><strong>Phone:</strong> {$data['phone_number']}</li>";
+        if (! empty($sanitizedData['phone_number'])) {
+            $message .= "<li><strong>Phone:</strong> {$sanitizedData['phone_number']}</li>";
         }
-        if (! empty($data['email'])) {
-            $message .= "<li><strong>Email:</strong> {$data['email']}</li>";
+        if (! empty($sanitizedData['email'])) {
+            $message .= "<li><strong>Email:</strong> {$sanitizedData['email']}</li>";
         }
 
         $message .= "</ul>";
-        $message .= "<p><strong>Related To:</strong> {$data['related_to']}</p>";
+        $message .= "<p><strong>Related To:</strong> {$sanitizedData['related_to']}</p>";
         $message .= "</div>";
         $message .= "<div style=\"border-top: 1px solid #e5e7eb; padding-top: 16px;\">";
         $message .= "<p><strong>Message:</strong></p>";
-        $message .= $data['message'];
+        $message .= $sanitizedData['message'];
         $message .= "</div>";
 
         return $message;

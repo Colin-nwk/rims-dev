@@ -27,12 +27,18 @@ class UserAuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
+            // Add a small delay to prevent timing attacks
+            usleep(random_int(100000, 300000)); // 100-300ms delay
+            
             return $this->errorResponse('Invalid login details', 422);
         }
 
         if ($user->status !== 'active') {
             return $this->errorResponse('Account is deactivated', 403);
         }
+
+        // Update last login timestamp
+        $user->update(['last_login' => now()]);
 
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $user->createToken($deviceName);
