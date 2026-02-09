@@ -140,7 +140,7 @@ export default function StaffProfile() {
   }
 
   const staff = data.data;
-  const photoUrl = staff.photo ? getFileUrl(staff.photo) : "";
+  const photoUrl = staff.photo ? getFileUrl(staff.photo, staff.updated_at) : "";
 
   const fullName = [staff.first_name, staff.other_names, staff.surname]
     .filter(Boolean)

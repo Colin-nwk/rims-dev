@@ -14,6 +14,7 @@ export const ROUTES = {
   STAFF_EDIT: "/staff/edit/:serviceNo",
   ADMIN_USERS_DIRECTORY: "/admin-users",
   APPROVALS: "/approvals",
+  CHANGE_REQUESTS: "/change-requests",
   STATISTICS: "/statistics",
   ROLES_PERMISSIONS: "/admin/roles",
   PROFILE: "/profile",

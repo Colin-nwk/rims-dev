@@ -108,7 +108,7 @@ export const StaffTable: React.FC<StaffTableProps> = ({
         <div className="flex items-center gap-3">
           {row.original.photo ? (
             <img
-              src={getFileUrl(row.original.photo)}
+              src={getFileUrl(row.original.photo, row.original.updated_at)}
               alt={`${row.original.first_name} ${row.original.surname}`}
               className="object-cover w-10 h-10 border-2 rounded-full border-slate-200"
               onError={(e) => {

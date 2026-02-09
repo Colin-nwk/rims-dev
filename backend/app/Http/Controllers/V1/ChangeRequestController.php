@@ -22,10 +22,17 @@ class ChangeRequestController extends Controller
     public function index(Request $request)
     {
         $requests = ChangeRequest::visibleTo($request->user())
-            ->with(['requestedBy', 'approvedBy', 'model.details', 'model.education'])
+            ->with(['requestedBy', 'approvedBy', 'model'])
             ->filter($request->all())
             ->latest()
             ->paginate($request->per_page ?? 15);
+
+        // Eager load nested relationships only for Staff models
+        $requests->getCollection()->each(function ($changeRequest) {
+            if ($changeRequest->model instanceof \App\Models\Staff) {
+                $changeRequest->model->load(['details', 'education']);
+            }
+        });
 
         return $this->collectionResponse($requests);
     }

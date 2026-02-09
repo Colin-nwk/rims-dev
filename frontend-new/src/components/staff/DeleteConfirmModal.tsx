@@ -24,7 +24,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   const fullName =
     `${staff.surname} ${staff.first_name} ${staff.other_names || ""}`.trim();
-  const photoUrl = getFileUrl(staff.photo);
+  const photoUrl = getFileUrl(staff.photo, staff.updated_at);
 
   return (
     <Modal

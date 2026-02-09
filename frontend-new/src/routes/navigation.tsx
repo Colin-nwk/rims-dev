@@ -47,6 +47,12 @@ export const mainNavItems: NavItem[] = [
     adminOnly: true,
   },
   {
+    name: "Change Requests",
+    icon: <CheckSquare className="w-5 h-5" />,
+    path: ROUTES.CHANGE_REQUESTS,
+    staffOnly: true,
+  },
+  {
     name: "Statistics",
     icon: <ChartArea className="w-5 h-5" />,
     path: ROUTES.STATISTICS,
