@@ -272,14 +272,14 @@ const Complaints: React.FC = () => {
   return (
     <div className="relative">
       {/* Staff Login Navigation Button - Top Right */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* <div className="absolute top-4 right-4 z-10">
         <button
           onClick={() => window.location.href = "/staff-login"}
           className="px-4 py-2 text-sm font-medium text-white bg-ncos-green-900 rounded-lg shadow-md hover:bg-ncos-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ncos-green-900 transition-colors"
         >
           Staff Login
         </button>
-      </div>
+      </div> */}
 
       <div
         ref={containerRef}
