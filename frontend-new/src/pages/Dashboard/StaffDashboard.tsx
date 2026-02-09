@@ -148,21 +148,33 @@ const StaffDashboard = () => {
         <div className="relative flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar */}
           <div className="relative shrink-0">
-            {photoUrl ? (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-1 shadow-2xl ring-2 ring-white/10">
-                <img
-                  src={photoUrl}
-                  alt={displayName}
-                  className="w-full h-full rounded-xl object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-linear-to-br from-white/20 to-white/10 backdrop-blur-sm flex items-center justify-center border-4 border-white/20 shadow-2xl ring-2 ring-white/10">
-                <span className="text-2xl sm:text-3xl font-bold text-white">
-                  {initials}
-                </span>
-              </div>
-            )}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-1 shadow-2xl ring-2 ring-white/10">
+              {photoUrl ? (
+                <>
+                  <img
+                    src={photoUrl}
+                    alt={displayName}
+                    className="w-full h-full rounded-xl object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) (fallback as HTMLElement).style.display = "flex";
+                    }}
+                  />
+                  <div className="hidden w-full h-full rounded-xl bg-linear-to-br from-emerald-100 to-teal-100 items-center justify-center">
+                    <span className="text-2xl sm:text-3xl font-bold text-emerald-700">
+                      {initials}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full rounded-xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                  <span className="text-2xl sm:text-3xl font-bold text-emerald-700">
+                    {initials}
+                  </span>
+                </div>
+              )}
+            </div>
             {/* Online indicator */}
             <div className="absolute -bottom-1 -right-1 p-1 bg-linear-to-br from-emerald-600 to-emerald-700 rounded-full shadow-lg">
               <div className="w-3 h-3 rounded-full bg-emerald-300 animate-pulse" />

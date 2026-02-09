@@ -135,6 +135,35 @@ class StaffService {
   }
 
   /**
+   * Change password for currently authenticated staff
+   */
+  async changePassword(data: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/change-password`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Reset password for a staff member (Admin only)
+   */
+  async resetPassword(
+    serviceNo: string,
+    data: { password: string; password_confirmation: string },
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/${serviceNo}/reset-password`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
    * Convert DTO to FormData for file uploads
    */
   private toFormData(data: CreateStaffDTO | UpdateStaffDTO): FormData {
@@ -151,14 +180,20 @@ class StaffService {
 
     // Handle nested objects and arrays
     Object.entries(data).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
+      // Skip undefined, null, AND empty strings - only send values that have actual data
+      if (value === undefined || value === null || value === "") return;
 
       if (key === "photo" && value instanceof File) {
         formData.append(key, value);
       } else if (key === "details" && typeof value === "object") {
-        // Flatten details object
+        // Flatten details object - only include non-empty values
         Object.entries(value).forEach(([detailKey, detailValue]) => {
-          if (detailValue !== undefined && detailValue !== null) {
+          // Skip empty values in nested objects too
+          if (
+            detailValue !== undefined &&
+            detailValue !== null &&
+            detailValue !== ""
+          ) {
             formData.append(`details[${detailKey}]`, toFormValue(detailValue));
           }
         });
@@ -233,7 +268,9 @@ export const useStaff = (serviceNo: string, enabled: boolean = true) => {
     queryKey: staffQueryKeys.detail(serviceNo),
     queryFn: () => staffService.getByServiceNo(serviceNo),
     enabled: enabled && !!serviceNo,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 30,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -282,14 +319,17 @@ export const useUpdateStaff = () => {
       serviceNo: string;
       data: UpdateStaffDTO;
     }) => staffService.update(serviceNo, data),
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       // Invalidate all staff-related queries to ensure fresh data
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: staffQueryKeys.all,
         refetchType: "all",
       });
-      queryClient.invalidateQueries({
+
+      // Force refetch the specific staff detail to get latest DB state
+      await queryClient.refetchQueries({
         queryKey: staffQueryKeys.detail(variables.serviceNo),
+        type: "active",
       });
     },
   });
@@ -367,5 +407,33 @@ export const useRoles = () => {
     queryKey: staffQueryKeys.roles(),
     queryFn: () => staffService.getRoles(),
     staleTime: 1000 * 60 * 30, // 30 minutes - roles don't change often
+  });
+};
+
+/**
+ * Hook to change password for currently authenticated staff
+ */
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (data: {
+      current_password: string;
+      password: string;
+      password_confirmation: string;
+    }) => staffService.changePassword(data),
+  });
+};
+
+/**
+ * Hook to reset password for a staff member (Admin only)
+ */
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({
+      serviceNo,
+      data,
+    }: {
+      serviceNo: string;
+      data: { password: string; password_confirmation: string };
+    }) => staffService.resetPassword(serviceNo, data),
   });
 };

@@ -8,13 +8,7 @@ import {
   getTypeColor,
   getIdentifier,
 } from "@/lib/api/change-requests";
-import {
-  User,
-  FileText,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
+import { User, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 
 interface RequestDetailModalProps {
   isOpen: boolean;
@@ -25,7 +19,7 @@ interface RequestDetailModalProps {
 export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   isOpen,
   onClose,
-  request
+  request,
 }) => {
   if (!request) return null;
 
@@ -58,7 +52,9 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
 
   // Format data key for display
   const formatKey = (key: string): string => {
-    return key
+    // Remove any prefix before the last dot
+    const cleanKey = key.includes(".") ? key.split(".").pop() || key : key;
+    return cleanKey
       .replace(/_/g, " ")
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, (str) => str.toUpperCase())
@@ -113,6 +109,78 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     return String(value);
   };
 
+  // Helper to get current value from model data (handles nested paths like details.ippis)
+  const getCurrentValue = (key: string): unknown => {
+    if (!request.model) return undefined;
+
+    // Handle nested keys (e.g., "details.ippis")
+    const keys = key.split(".");
+    let value: unknown = request.model;
+
+    for (const k of keys) {
+      if (value && typeof value === "object" && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return undefined;
+      }
+    }
+
+    return value;
+  };
+
+  // Helper to flatten nested data for comparison (e.g., {details: {ippis: "123"}} -> {"details.ippis": "123"})
+  const flattenData = (
+    data: Record<string, unknown>,
+    prefix = "",
+  ): Record<string, unknown> => {
+    const result: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(data)) {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        !(value instanceof File)
+      ) {
+        // Recursively flatten nested objects
+        Object.assign(
+          result,
+          flattenData(value as Record<string, unknown>, newKey),
+        );
+      } else {
+        result[newKey] = value;
+      }
+    }
+
+    return result;
+  };
+
+  // Check if values are different (handles null/undefined/empty string equality)
+  const valuesAreDifferent = (
+    currentVal: unknown,
+    proposedVal: unknown,
+  ): boolean => {
+    // Normalize null, undefined, and empty string
+    const normalize = (val: unknown) => {
+      if (val === null || val === undefined || val === "") return null;
+      return val;
+    };
+
+    const normCurrent = normalize(currentVal);
+    const normProposed = normalize(proposedVal);
+
+    if (normCurrent === normProposed) return false;
+
+    // For objects/arrays, do JSON comparison
+    if (typeof normCurrent === "object" || typeof normProposed === "object") {
+      return JSON.stringify(normCurrent) !== JSON.stringify(normProposed);
+    }
+
+    // Convert to string for comparison
+    return String(normCurrent) !== String(normProposed);
+  };
 
   return (
     <Modal
@@ -120,7 +188,7 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
       onClose={onClose}
       title="Change Request Details"
       description={`Review the details of this ${request.type.toLowerCase()} request`}
-      size="xl"
+      size="2xl"
     >
       <div className="space-y-6">
         {/* Header Info */}
@@ -247,23 +315,178 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
           <h4 className="mb-3 text-sm font-semibold text-slate-900">
             {request.type === "CREATE" ? "New Data" : "Proposed Changes"}
           </h4>
-          <div className="p-4 overflow-hidden border rounded-lg bg-slate-50 border-slate-200">
-            <div className="max-h-64 overflow-y-auto">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {Object.entries(request.data).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="p-3 bg-white border rounded-md border-slate-100"
-                  >
-                    <span className="block text-xs font-medium uppercase tracking-wider text-slate-400">
-                      {formatKey(key)}
-                    </span>
-                    <span className="block mt-1 text-sm text-slate-900 wrap-break-word">
-                      {formatValue(value)}
-                    </span>
-                  </div>
-                ))}
+
+          {/* Info banner when model data is missing for UPDATE/SENSITIVE */}
+          {(request.type === "UPDATE" || request.type === "SENSITIVE") &&
+            !request.model && (
+              <div className="mb-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-xs text-blue-700">
+                  <strong>Note:</strong> Current values are not available for
+                  comparison. Only proposed changes are shown below.
+                </p>
               </div>
+            )}
+
+          <div className="overflow-hidden border rounded-lg bg-slate-50 border-slate-200">
+            <div className="max-h-96 overflow-y-auto p-4">
+              {request.type === "CREATE" ? (
+                // For CREATE requests, show simple grid
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {Object.entries(request.data).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="p-3 bg-white border rounded-md border-slate-100 hover:shadow-sm transition-shadow"
+                    >
+                      <span className="block text-xs font-medium uppercase tracking-wider text-slate-400">
+                        {formatKey(key)}
+                      </span>
+                      <span className="block mt-1 text-sm text-slate-900 wrap-break-word">
+                        {formatValue(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // For UPDATE/SENSITIVE requests, show before/after comparison
+                <div className="space-y-2">
+                  {(() => {
+                    const flattenedData = flattenData(request.data);
+                    const entries = Object.entries(flattenedData);
+
+                    return entries.map(([key, proposedValue]) => {
+                      const currentValue = getCurrentValue(key);
+                      const hasChanged = valuesAreDifferent(
+                        currentValue,
+                        proposedValue,
+                      );
+                      // Check if current value is empty (new field being added)
+                      const isNewField =
+                        currentValue === undefined ||
+                        currentValue === null ||
+                        currentValue === "";
+                      const isActualChange = hasChanged && !isNewField;
+
+                      return (
+                        <div
+                          key={key}
+                          className={`p-4 bg-white border rounded-lg transition-all ${
+                            isNewField
+                              ? "border-blue-200 bg-blue-50/50"
+                              : hasChanged
+                                ? "border-amber-200 bg-amber-50/50"
+                                : "border-slate-100"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                                {formatKey(key)}
+                              </span>
+
+                              {request.model && request.model_id ? (
+                                // Show before/after comparison
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                  {!isNewField && (
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-slate-400 mb-1">
+                                        Current
+                                      </div>
+                                      <div
+                                        className={`text-sm font-medium wrap-break-word ${
+                                          isActualChange
+                                            ? "text-slate-500 line-through"
+                                            : "text-slate-700"
+                                        }`}
+                                      >
+                                        {formatValue(currentValue)}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {hasChanged && (
+                                    <>
+                                      {!isNewField && (
+                                        <>
+                                          <div className="hidden sm:block shrink-0">
+                                            <svg
+                                              className="w-5 h-5 text-amber-500"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M13 7l5 5m0 0l-5 5m5-5H6"
+                                              />
+                                            </svg>
+                                          </div>
+                                          <div className="sm:hidden shrink-0">
+                                            <svg
+                                              className="w-4 h-4 text-amber-500"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                                              />
+                                            </svg>
+                                          </div>
+                                        </>
+                                      )}
+
+                                      <div className="flex-1 min-w-0">
+                                        <div
+                                          className={`text-xs font-medium mb-1 ${
+                                            isNewField
+                                              ? "text-blue-600"
+                                              : "text-emerald-600"
+                                          }`}
+                                        >
+                                          {isNewField
+                                            ? "New Value"
+                                            : "Proposed"}
+                                        </div>
+                                        <div
+                                          className={`text-sm font-semibold wrap-break-word ${
+                                            isNewField
+                                              ? "text-blue-700"
+                                              : "text-emerald-700"
+                                          }`}
+                                        >
+                                          {formatValue(proposedValue)}
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              ) : (
+                                // No current data available, just show proposed
+                                <div className="text-sm font-medium text-slate-900 wrap-break-word">
+                                  {formatValue(proposedValue)}
+                                </div>
+                              )}
+                            </div>
+
+                            {isNewField && (
+                              <div className="shrink-0">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                  New
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              )}
             </div>
           </div>
         </div>

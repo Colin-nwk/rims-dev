@@ -11,6 +11,7 @@ use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
@@ -109,6 +110,11 @@ class StaffController extends Controller
         try {
             $data = $request->validated();
 
+            // Filter to only include fields that were actually sent in the request
+            $data = array_filter($data, function ($value, $key) use ($request) {
+                return $request->has($key);
+            }, ARRAY_FILTER_USE_BOTH);
+
             $sensitiveFields = [
                 'dob',
                 'date_of_first_appointment',
@@ -174,6 +180,7 @@ class StaffController extends Controller
                         $staff->id
                     );
                 }
+
                 return $res;
             });
 
@@ -232,5 +239,23 @@ class StaffController extends Controller
         $staff->removeRole($roleId);
 
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
+    }
+
+    /**
+     * Reset password for a staff member (Admin only)
+     */
+    public function resetPassword(Request $request, Staff $staff)
+    {
+        $this->authorize('staff.edit');
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $staff->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $this->successResponse(null, 'Staff password has been reset successfully');
     }
 }

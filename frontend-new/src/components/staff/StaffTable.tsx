@@ -111,13 +111,19 @@ export const StaffTable: React.FC<StaffTableProps> = ({
               src={getFileUrl(row.original.photo)}
               alt={`${row.original.first_name} ${row.original.surname}`}
               className="object-cover w-10 h-10 border-2 rounded-full border-slate-200"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                const fallback = e.currentTarget.nextElementSibling;
+                if (fallback) (fallback as HTMLElement).style.display = "flex";
+              }}
             />
-          ) : (
-            <div className="flex items-center justify-center w-10 h-10 text-sm font-semibold text-white rounded-full bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
-              {row.original.first_name?.[0]}
-              {row.original.surname?.[0]}
-            </div>
-          )}
+          ) : null}
+          <div
+            className={`flex items-center justify-center w-10 h-10 text-sm font-semibold text-white rounded-full bg-linear-to-br from-ncos-green-500 to-ncos-green-700 ${row.original.photo ? "hidden" : ""}`}
+          >
+            {row.original.first_name?.[0]}
+            {row.original.surname?.[0]}
+          </div>
           <div>
             <div className="font-medium text-slate-900">
               {row.original.surname} {row.original.first_name}

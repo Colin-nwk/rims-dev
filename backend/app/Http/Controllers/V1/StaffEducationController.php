@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStaffEducationRequest;
 use App\Http\Requests\UpdateStaffEducationRequest;
 use App\Models\StaffEducation;
+use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
@@ -16,12 +17,15 @@ class StaffEducationController extends Controller
 {
     use ApiResponseTrait, FileUploadTrait;
 
+    public function __construct(protected ChangeRequestService $changeRequestService) {}
+
     /**
      * Check if the current user is a staff member (not admin)
      */
     private function isStaffUser(): bool
     {
         $user = request()->user();
+
         return $user instanceof \App\Models\Staff;
     }
 
@@ -34,6 +38,7 @@ class StaffEducationController extends Controller
         if ($user instanceof \App\Models\Staff) {
             return $user->service_no;
         }
+
         return null;
     }
 
@@ -58,12 +63,12 @@ class StaffEducationController extends Controller
 
         // Filter by institution (partial match)
         if ($request->has('institution')) {
-            $query->where('institution', 'like', '%' . $request->institution . '%');
+            $query->where('institution', 'like', '%'.$request->institution.'%');
         }
 
         // Filter by course (partial match)
         if ($request->has('course')) {
-            $query->where('course', 'like', '%' . $request->course . '%');
+            $query->where('course', 'like', '%'.$request->course.'%');
         }
 
         // Filter by education type
@@ -91,8 +96,8 @@ class StaffEducationController extends Controller
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('institution', 'like', '%' . $search . '%')
-                    ->orWhere('course', 'like', '%' . $search . '%');
+                $q->where('institution', 'like', '%'.$search.'%')
+                    ->orWhere('course', 'like', '%'.$search.'%');
             });
         }
 
@@ -148,11 +153,18 @@ class StaffEducationController extends Controller
                 $data['url'] = $path;
             }
 
-            $education = StaffEducation::create($data);
+            // Submit change request for approval
+            $changeRequest = $this->changeRequestService->submit(
+                'App\Models\StaffEducation',
+                'CREATE',
+                $data,
+                $request->user(),
+                $data['service_no']
+            );
 
-            return $this->successResponse($education->load('staff'), 'Education record created successfully', 201);
+            return $this->successResponse($changeRequest, 'Education record submitted for approval.', 201);
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to create education record: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to submit education record: '.$e->getMessage(), 500);
         }
     }
 
@@ -191,11 +203,6 @@ class StaffEducationController extends Controller
 
             // Handle file upload for certificate/document
             if ($request->hasFile('url')) {
-                // Delete old file if it exists
-                if ($staffEducation->url) {
-                    $this->deleteFile($staffEducation->url);
-                }
-
                 $file = $request->file('url');
                 $serviceNo = $data['service_no'] ?? $staffEducation->service_no;
                 $type = $data['type'] ?? $staffEducation->type;
@@ -205,11 +212,19 @@ class StaffEducationController extends Controller
                 $data['url'] = $path;
             }
 
-            $staffEducation->update($data);
+            // Submit change request for approval
+            $changeRequest = $this->changeRequestService->submit(
+                'App\Models\StaffEducation',
+                'UPDATE',
+                $data,
+                $request->user(),
+                $staffEducation->service_no,
+                $staffEducation->id
+            );
 
-            return $this->successResponse($staffEducation->load('staff'), 'Education record updated successfully');
+            return $this->successResponse($changeRequest, 'Education record update submitted for approval.');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to update education record: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to submit education record update: '.$e->getMessage(), 500);
         }
     }
 
@@ -234,7 +249,7 @@ class StaffEducationController extends Controller
 
             return $this->successResponse(null, 'Education record deleted successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to delete education record: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to delete education record: '.$e->getMessage(), 500);
         }
     }
 
@@ -246,7 +261,7 @@ class StaffEducationController extends Controller
     {
         try {
             // Check if certificate exists
-            if (!$staffEducation->url) {
+            if (! $staffEducation->url) {
                 return response()->json(['error' => 'No certificate found'], 404);
             }
 
@@ -254,7 +269,7 @@ class StaffEducationController extends Controller
             $filePath = $staffEducation->url;
 
             // Check if file exists in storage
-            if (!Storage::disk('public')->exists($filePath)) {
+            if (! Storage::disk('public')->exists($filePath)) {
                 return response()->json(['error' => 'Certificate file not found'], 404);
             }
 
@@ -263,7 +278,7 @@ class StaffEducationController extends Controller
 
             // Determine proper MIME type for inline viewing based on extension
             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-            $contentType = match(strtolower($extension)) {
+            $contentType = match (strtolower($extension)) {
                 'pdf' => 'application/pdf',
                 'jpg', 'jpeg' => 'image/jpeg',
                 'png' => 'image/png',
@@ -273,12 +288,12 @@ class StaffEducationController extends Controller
             // Return file response with inline disposition
             return response($file, 200)
                 ->header('Content-Type', $contentType)
-                ->header('Content-Disposition', 'inline; filename="' . basename($filePath) . '"')
+                ->header('Content-Disposition', 'inline; filename="'.basename($filePath).'"')
                 ->header('Cache-Control', 'public, max-age=31536000')
                 ->header('X-Content-Type-Options', 'nosniff');
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to load certificate: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to load certificate: '.$e->getMessage()], 500);
         }
     }
 }

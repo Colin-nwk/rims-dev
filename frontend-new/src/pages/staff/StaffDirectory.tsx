@@ -239,14 +239,6 @@ const StaffDirectory = () => {
                 Total:{" "}
                 <span className="font-semibold text-slate-900">{total}</span>
               </div>
-              {selectedRows.length > 0 && (
-                <div>
-                  Selected:{" "}
-                  <span className="font-semibold text-ncos-green-900">
-                    {selectedRows.length}
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Per page selector */}
@@ -285,19 +277,25 @@ const StaffDirectory = () => {
 
         {/* Bulk actions bar */}
         {selectedRows.length > 0 && (
-          <div className="flex items-center justify-between p-4 mb-4 border rounded-lg bg-ncos-green-50 border-ncos-green-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 mb-4 border rounded-lg bg-ncos-green-50 border-ncos-green-200">
             <span className="text-sm font-medium text-ncos-green-900">
               {selectedRows.length} item(s) selected
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelectedRows([])}
+                className="flex-1 sm:flex-none"
               >
                 Clear Selection
               </Button>
-              <Button variant="danger" size="sm" onClick={handleBulkDelete}>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleBulkDelete}
+                className="flex-1 sm:flex-none"
+              >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Delete Selected
               </Button>
