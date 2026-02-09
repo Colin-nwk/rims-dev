@@ -48,6 +48,11 @@ class UserService extends BaseService
     {
         return User::with('roles')->filter($filters)->paginate($filters['per_page'] ?? 15);
     }
+    
+    public function allWithRelationships(array $filters = [])
+    {
+        return User::with('roles')->filter($filters)->paginate($filters['per_page'] ?? 15);
+    }
 
     /**
      * Execute Change Request

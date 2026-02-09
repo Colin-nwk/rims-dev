@@ -31,7 +31,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         $this->authorize('staff.view');
-        $staff = $this->staffService->all($request->all());
+        $staff = $this->staffService->allWithRelationships($request->all());
 
         return $this->collectionResponse($staff);
     }
@@ -93,7 +93,15 @@ class StaffController extends Controller
             $this->authorize('staff.view');
         }
 
-        return $this->successResponse($staff->load(['details', 'education', 'roles']));
+        return $this->successResponse($staff->load([
+            'details', 
+            'education', 
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents'
+        ]));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)
@@ -193,7 +201,15 @@ class StaffController extends Controller
 
     public function idCard(string $serviceNo)
     {
-        $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
+        $staff = Staff::with([
+            'details', 
+            'education', 
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents'
+        ])->where('service_no', $serviceNo)->first();
 
         if (! $staff) {
             return $this->errorResponse('Staff not found.', 404);

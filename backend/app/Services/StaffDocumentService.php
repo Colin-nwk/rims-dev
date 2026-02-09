@@ -120,6 +120,18 @@ class StaffDocumentService extends BaseService
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
+    
+    /**
+     * List document records with filters and relationships
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function allWithRelationships(array $filters = [])
+    {
+        return StaffDocument::with(['staff', 'verifier'])
+            ->filter($filters)
+            ->paginate($filters['per_page'] ?? 15);
+    }
 
     /**
      * Execute Change Request for document records
