@@ -11,6 +11,7 @@ use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
@@ -238,5 +239,23 @@ class StaffController extends Controller
         $staff->removeRole($roleId);
 
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
+    }
+
+    /**
+     * Reset password for a staff member (Admin only)
+     */
+    public function resetPassword(Request $request, Staff $staff)
+    {
+        $this->authorize('staff.edit');
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $staff->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $this->successResponse(null, 'Staff password has been reset successfully');
     }
 }

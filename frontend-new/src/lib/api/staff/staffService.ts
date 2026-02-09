@@ -135,6 +135,35 @@ class StaffService {
   }
 
   /**
+   * Change password for currently authenticated staff
+   */
+  async changePassword(data: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/change-password`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Reset password for a staff member (Admin only)
+   */
+  async resetPassword(
+    serviceNo: string,
+    data: { password: string; password_confirmation: string },
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/${serviceNo}/reset-password`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
    * Convert DTO to FormData for file uploads
    */
   private toFormData(data: CreateStaffDTO | UpdateStaffDTO): FormData {
@@ -378,5 +407,33 @@ export const useRoles = () => {
     queryKey: staffQueryKeys.roles(),
     queryFn: () => staffService.getRoles(),
     staleTime: 1000 * 60 * 30, // 30 minutes - roles don't change often
+  });
+};
+
+/**
+ * Hook to change password for currently authenticated staff
+ */
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (data: {
+      current_password: string;
+      password: string;
+      password_confirmation: string;
+    }) => staffService.changePassword(data),
+  });
+};
+
+/**
+ * Hook to reset password for a staff member (Admin only)
+ */
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({
+      serviceNo,
+      data,
+    }: {
+      serviceNo: string;
+      data: { password: string; password_confirmation: string };
+    }) => staffService.resetPassword(serviceNo, data),
   });
 };

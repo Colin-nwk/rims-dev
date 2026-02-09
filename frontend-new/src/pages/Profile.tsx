@@ -524,11 +524,24 @@ const Profile = () => {
             {/* Avatar */}
             <div className="relative">
               {photoUrl ? (
-                <img
-                  src={photoUrl}
-                  alt={displayName}
-                  className="bg-white w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
-                />
+                <>
+                  <img
+                    src={photoUrl}
+                    alt={displayName}
+                    className="bg-white w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback)
+                        (fallback as HTMLElement).style.display = "flex";
+                    }}
+                  />
+                  <div className="hidden w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur-sm items-center justify-center border-4 border-white/30 shadow-xl">
+                    <span className="text-3xl sm:text-4xl font-bold text-white">
+                      {initials}
+                    </span>
+                  </div>
+                </>
               ) : (
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 shadow-xl">
                   <span className="text-3xl sm:text-4xl font-bold text-white">

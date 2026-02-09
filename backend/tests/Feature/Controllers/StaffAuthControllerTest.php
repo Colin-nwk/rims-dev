@@ -156,4 +156,107 @@ class StaffAuthControllerTest extends TestCase
             'tokenable_type' => get_class($staff),
         ]);
     }
+
+    public function test_staff_can_change_password()
+    {
+        $staff = Staff::factory()->create([
+            'service_no' => 'CHGPWD001',
+            'password' => Hash::make('oldpassword123'),
+            'status' => 1,
+        ]);
+
+        $this->actingAs($staff, 'sanctum');
+
+        $response = $this->postJson('/api/v1/staff/change-password', [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword456',
+            'password_confirmation' => 'newpassword456',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'Success')
+            ->assertJsonPath('message', 'Password changed successfully');
+
+        // Verify old password no longer works
+        $staff->refresh();
+        $this->assertFalse(Hash::check('oldpassword123', $staff->password));
+
+        // Verify new password works
+        $this->assertTrue(Hash::check('newpassword456', $staff->password));
+    }
+
+    public function test_change_password_fails_with_wrong_current_password()
+    {
+        $staff = Staff::factory()->create([
+            'service_no' => 'CHGPWD002',
+            'password' => Hash::make('correctpassword'),
+            'status' => 1,
+        ]);
+
+        $this->actingAs($staff, 'sanctum');
+
+        $response = $this->postJson('/api/v1/staff/change-password', [
+            'current_password' => 'wrongpassword',
+            'password' => 'newpassword456',
+            'password_confirmation' => 'newpassword456',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('status', 'Error');
+
+        // Verify password unchanged
+        $staff->refresh();
+        $this->assertTrue(Hash::check('correctpassword', $staff->password));
+    }
+
+    public function test_change_password_requires_confirmation()
+    {
+        $staff = Staff::factory()->create([
+            'service_no' => 'CHGPWD003',
+            'password' => Hash::make('oldpassword'),
+            'status' => 1,
+        ]);
+
+        $this->actingAs($staff, 'sanctum');
+
+        $response = $this->postJson('/api/v1/staff/change-password', [
+            'current_password' => 'oldpassword',
+            'password' => 'newpassword456',
+            'password_confirmation' => 'mismatchpassword',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_change_password_requires_minimum_length()
+    {
+        $staff = Staff::factory()->create([
+            'service_no' => 'CHGPWD004',
+            'password' => Hash::make('oldpassword'),
+            'status' => 1,
+        ]);
+
+        $this->actingAs($staff, 'sanctum');
+
+        $response = $this->postJson('/api/v1/staff/change-password', [
+            'current_password' => 'oldpassword',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_change_password_requires_authentication()
+    {
+        $response = $this->postJson('/api/v1/staff/change-password', [
+            'current_password' => 'oldpassword',
+            'password' => 'newpassword456',
+            'password_confirmation' => 'newpassword456',
+        ]);
+
+        $response->assertStatus(401);
+    }
 }

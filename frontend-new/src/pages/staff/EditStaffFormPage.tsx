@@ -20,6 +20,7 @@ import {
   Plus,
   Trash2,
   CheckCircle,
+  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ import { ROUTES } from "@/routes/constants";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
 import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
+import { ChangePasswordModal } from "@/components/staff/ChangePasswordModal";
 
 // Combined form values type for Edit (All tables)
 type EditStaffFormValues = Omit<CreateStaffDTO, "photo"> & {
@@ -1705,6 +1707,11 @@ const EditStaffFormPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic");
   const [isSaving, setIsSaving] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  // Determine if user is changing their own password
+  const isOwnPassword =
+    user && isStaffUser(user) && user.service_no === serviceNo;
 
   const { data: staffData, isLoading: isLoadingStaff } = useStaff(
     serviceNo || "",
@@ -1911,7 +1918,7 @@ const EditStaffFormPage: React.FC = () => {
               ? "Back to Profile"
               : "Back to Staff Directory"}
           </button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-0.5">
               <h1 className="text-2xl font-bold text-slate-900">
                 Edit Staff Record
@@ -1924,6 +1931,17 @@ const EditStaffFormPage: React.FC = () => {
                 {staffData.data.surname} {staffData.data.first_name} (
                 {staffData.data.service_no})
               </p>
+            </div>
+            <div className="shrink-0">
+              <Button
+                type="button"
+                onClick={() => setIsPasswordModalOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+              >
+                <Key className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Change Password</span>
+                <span className="sm:hidden">Password</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -2002,6 +2020,19 @@ const EditStaffFormPage: React.FC = () => {
           </Form>
         )}
       </Formik>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        serviceNo={serviceNo || ""}
+        staffName={
+          staffData?.data
+            ? `${staffData.data.surname} ${staffData.data.first_name}`
+            : undefined
+        }
+        isOwnPassword={!!isOwnPassword}
+      />
     </div>
   );
 };

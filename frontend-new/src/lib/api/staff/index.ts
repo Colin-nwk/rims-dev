@@ -15,6 +15,8 @@ export {
   useAssignRole,
   useRemoveRole,
   useRoles,
+  useChangePassword,
+  useResetPassword,
 } from "./staffService";
 
 export * from "./types";
