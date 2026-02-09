@@ -129,6 +129,18 @@ export default function StaffLogin() {
               >
                 {isPending || isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
+              
+              {/* Public Complaint Link */}
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate("/complaint")}
+                  className="text-xs font-medium transition-colors sm:text-sm text-ncos-green-900 hover:text-gold-600"
+                  disabled={isPending || isSubmitting}
+                >
+                  Need to submit a complaint? Go to Public Complaint Portal
+                </button>
+              </div>
             </Form>
           )}
         </Formik>
