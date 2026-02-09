@@ -95,6 +95,46 @@ export function useSetPassword() {
 }
 
 /**
+ * Hook for forgot password mutation
+ * Sends password reset link to user's email
+ */
+export function useForgotPassword() {
+  return useMutation<ApiResponse<{ message: string }>, ApiError, ForgotPasswordRequest>({
+    mutationFn: (data) => authService.forgotPassword(data),
+  });
+}
+
+/**
+ * Hook for staff forgot password mutation
+ * Sends password reset link to staff member's email
+ */
+export function useStaffForgotPassword() {
+  return useMutation<ApiResponse<{ message: string }>, ApiError, StaffForgotPasswordRequest>({
+    mutationFn: (data) => authService.staffForgotPassword(data),
+  });
+}
+
+/**
+ * Hook for reset password mutation
+ * Updates user's password with new password
+ */
+export function useResetPassword() {
+  return useMutation<ApiResponse<{ message: string }>, ApiError, ResetPasswordRequest>({
+    mutationFn: (data) => authService.resetPassword(data),
+  });
+}
+
+/**
+ * Hook for staff reset password mutation
+ * Updates staff member's password with new password
+ */
+export function useStaffResetPassword() {
+  return useMutation<ApiResponse<{ message: string }>, ApiError, StaffResetPasswordRequest>({
+    mutationFn: (data) => authService.staffResetPassword(data),
+  });
+}
+
+/**
  * Hook for getting user permissions
  * Only runs if user is authenticated
  */

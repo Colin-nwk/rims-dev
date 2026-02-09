@@ -100,6 +100,58 @@ class AuthService {
   }
 
   /**
+   * Forgot password - sends password reset link to user's email
+   */
+  async forgotPassword(
+    data: ForgotPasswordRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      "/user/forgot-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Staff forgot password - sends password reset link to staff member's email
+   */
+  async staffForgotPassword(
+    data: StaffForgotPasswordRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      "/staff/forgot-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Reset password - updates user's password with new password
+   */
+  async resetPassword(
+    data: ResetPasswordRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      "/user/reset-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Staff reset password - updates staff member's password with new password
+   */
+  async staffResetPassword(
+    data: StaffResetPasswordRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      "/staff/reset-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
    * Get current user from localStorage
    */
   getUser(): User | null {

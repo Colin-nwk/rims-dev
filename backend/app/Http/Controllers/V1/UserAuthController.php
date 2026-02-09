@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
+
 class UserAuthController extends Controller
 {
     use ApiResponseTrait;
@@ -60,6 +61,7 @@ class UserAuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $user = User::where('email', $request->email)->first();
+        
 
         if ($user) {
             $token = Password::broker('users')->createToken($user);
@@ -70,6 +72,7 @@ class UserAuthController extends Controller
         // Always return success to prevent email enumeration
         return $this->successResponse(null, 'If an account with that email exists, a password reset link has been sent.');
     }
+
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {

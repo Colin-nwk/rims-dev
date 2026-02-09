@@ -3,6 +3,8 @@ export const ROUTES = {
   STAFF_LOGIN: "/staff-login",
   ADMIN_LOGIN: "/admin-login",
   CONFIRM_SERVICE_NUMBER: "/confirm-service-number",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
   PUBLIC_COMPLAINT: "/complaint",
 
   // Protected

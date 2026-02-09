@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             MaritalStatusSeeder::class,
 
             // Main data seeders
-            StaffSeeder::class,
+            // StaffSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
