@@ -202,13 +202,13 @@ class StaffController extends Controller
     public function idCard(string $serviceNo)
     {
         $staff = Staff::with([
-            'details', 
-            'education', 
-            'roles',
             'assignedState',
-            'initialCommand',
-            'presentCommand',
-            'documents'
+            // 'details', 
+            // 'education', 
+            // 'roles',
+            // 'initialCommand',
+            // 'presentCommand',
+            // 'documents'
         ])->where('service_no', $serviceNo)->first();
 
         if (! $staff) {
