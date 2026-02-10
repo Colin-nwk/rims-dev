@@ -191,6 +191,8 @@ class StaffAuthController extends Controller
         Password::broker('staff')->deleteToken($staff);
 
         return $this->successResponse(null, 'Password has been reset successfully.');
+    }
+
     /**
      * Change password for authenticated staff
      */

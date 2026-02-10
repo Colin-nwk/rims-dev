@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Storage;
 
 class StaffEducationService extends BaseService
 {
+
+     /**
+     * List document records with filters and relationships
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function allWithRelationships(array $filters = [])
+    {
+        return StaffEducation::with(['staff'])->filter($filters)
+            ->paginate($filters['per_page'] ?? 15);;
+    }
+
     /**
      * Create education record
      */
