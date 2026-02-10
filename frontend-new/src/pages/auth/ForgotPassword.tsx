@@ -75,9 +75,9 @@ export default function ForgotPassword() {
     });
   };
 
-  const toggleUserType = () => {
-    setIsStaff(!isStaff);
-  };
+  // const toggleUserType = () => {
+  //   setIsStaff(!isStaff);
+  // };
 
   return (
     <AuthLayout>
@@ -105,22 +105,20 @@ export default function ForgotPassword() {
             <button
               type="button"
               onClick={() => setIsStaff(false)}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                !isStaff
-                  ? "bg-white text-ncos-green-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${!isStaff
+                ? "bg-white text-ncos-green-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Admin User
             </button>
             <button
               type="button"
               onClick={() => setIsStaff(true)}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                isStaff
-                  ? "bg-white text-ncos-green-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${isStaff
+                ? "bg-white text-ncos-green-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Staff Member
             </button>

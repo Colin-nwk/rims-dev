@@ -1,40 +1,40 @@
-import { Link, useLocation } from "react-router-dom";
-import { ReactNode, useState } from "react";
-import { Menu, X } from "lucide-react";
+// import { Link, useLocation } from "react-router-dom";
+import { ReactNode } from "react";
+// import { Menu, X } from "lucide-react";
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
-const navItems: { label: string; path: string; external?: boolean }[] = [
-  { label: "Login", path: "/staff-login" },
-  { label: "Confirm Service Number/IPPIS", path: "/confirm-service-number" },
-  { label: "Make a Request", path: "/complaint" },
-  // {
-  //   label: "Telegram Help",
-  //   path: "https://t.me/your_telegram_support",
-  //   external: true,
-  // },
-];
+// const navItems: { label: string; path: string; external?: boolean }[] = [
+//   { label: "Login", path: "/staff-login" },
+//   { label: "Confirm Service Number/IPPIS", path: "/confirm-service-number" },
+//   { label: "Make a Request", path: "/complaint" },
+//   // {
+//   //   label: "Telegram Help",
+//   //   path: "https://t.me/your_telegram_support",
+//   //   external: true,
+//   // },
+// ];
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // const location = useLocation();
+  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isActive = (path: string) => {
-    // For login, match both /staff-login and /admin-login
-    if (path === "/staff-login") {
-      return (
-        location.pathname === "/staff-login" ||
-        location.pathname === "/admin-login"
-      );
-    }
-    return location.pathname === path;
-  };
+  // const isActive = (path: string) => {
+  //   // For login, match both /staff-login and /admin-login
+  //   if (path === "/staff-login") {
+  //     return (
+  //       location.pathname === "/staff-login" ||
+  //       location.pathname === "/admin-login"
+  //     );
+  //   }
+  //   return location.pathname === path;
+  // };
 
-  const handleNavClick = () => {
-    setMobileMenuOpen(false);
-  };
+  // const handleNavClick = () => {
+  //   setMobileMenuOpen(false);
+  // };
 
   return (
     <div className="relative flex flex-col min-h-screen overflow-hidden bg-ncos-green-950">
