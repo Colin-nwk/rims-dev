@@ -8,6 +8,10 @@ import type {
   ConfirmServiceNumberRequest,
   ConfirmServiceNumberResponse,
   SetPasswordRequest,
+  ForgotPasswordRequest,
+  StaffForgotPasswordRequest,
+  ResetPasswordRequest,
+  StaffResetPasswordRequest,
 } from "./types";
 
 /**

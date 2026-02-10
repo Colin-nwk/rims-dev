@@ -8,6 +8,10 @@ import type {
   ConfirmServiceNumberRequest,
   ConfirmServiceNumberResponse,
   SetPasswordRequest,
+  ForgotPasswordRequest,
+  StaffForgotPasswordRequest,
+  ResetPasswordRequest,
+  StaffResetPasswordRequest,
 } from "@/lib/api/auth/types";
 import { getDisplayName, getUserInitials } from "@/lib/api/auth/types";
 import type { ApiResponse, ApiError } from "@/lib/api/types";
