@@ -269,7 +269,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                     <div className="flex items-center gap-3">
                       {staff.photo ? (
                         <img
-                          src={getFileUrl(staff.photo, staff.updated_at)}
+                          src={getFileUrl(staff.photo)}
                           alt={`${staff.surname} ${staff.first_name}`}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
                         />
@@ -340,7 +340,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                         <>
                           {staff.photo ? (
                             <img
-                              src={getFileUrl(staff.photo, staff.updated_at)}
+                              src={getFileUrl(staff.photo)}
                               alt={`${staff.surname} ${staff.first_name}`}
                               className="w-12 h-12 rounded-full object-cover shrink-0"
                               onError={(e) => {
