@@ -11,12 +11,12 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 // Create Role Schema
 export const createRoleSchema = z.object({
   name: z
-    .string()
+    .string({ error: "Role name is required" })
     .min(1, "Role name is required")
     .min(2, "Role name must be at least 2 characters")
     .max(255, "Role name must be less than 255 characters"),
   slug: z
-    .string()
+    .string({ error: "Slug is required" })
     .min(1, "Slug is required")
     .max(255, "Slug must be less than 255 characters")
     .regex(
@@ -35,12 +35,12 @@ export type CreateRoleFormData = z.infer<typeof createRoleSchema>;
 // Update Role Schema (all fields optional)
 export const updateRoleSchema = z.object({
   name: z
-    .string()
+    .string({ error: "Role name is required" })
     .min(2, "Role name must be at least 2 characters")
     .max(255, "Role name must be less than 255 characters")
     .optional(),
   slug: z
-    .string()
+    .string({ error: "Slug is required" })
     .max(255, "Slug must be less than 255 characters")
     .regex(
       slugPattern,

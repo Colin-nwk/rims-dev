@@ -56,6 +56,9 @@ class StaffFactory extends Factory
             'duty' => $this->faker->jobTitle(),
             'description' => $this->faker->sentence(),
             'status' => 1,
+            'assigned_state' => null,
+            'prison' => null,
+            'zone_id' => null,
         ];
     }
 }

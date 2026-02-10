@@ -270,7 +270,7 @@ const Approvals = () => {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
                 Approval Center
@@ -300,14 +300,6 @@ const Approvals = () => {
                 Total:{" "}
                 <span className="font-semibold text-slate-900">{total}</span>
               </div>
-              {selectedRows.length > 0 && (
-                <div>
-                  Selected:{" "}
-                  <span className="font-semibold text-ncos-green-900">
-                    {selectedRows.length}
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Per page selector */}
@@ -322,7 +314,7 @@ const Approvals = () => {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
+                className="bg-white not-first:px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -384,15 +376,16 @@ const Approvals = () => {
 
         {/* Bulk actions bar */}
         {selectedRows.length > 0 && activeTab === "pending" && (
-          <div className="flex items-center justify-between p-4 mb-4 border rounded-lg bg-ncos-green-50 border-ncos-green-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 mb-4 border rounded-lg bg-ncos-green-50 border-ncos-green-200">
             <span className="text-sm font-medium text-ncos-green-900">
               {selectedRows.length} request(s) selected
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedRows([])}
+                className="flex-1 sm:flex-none"
               >
                 Clear Selection
               </Button>
@@ -401,7 +394,7 @@ const Approvals = () => {
                 size="sm"
                 onClick={handleBulkReject}
                 disabled={bulkReject.isPending}
-                className="text-red-600 border-red-200 hover:bg-red-50"
+                className="text-red-600 border-red-200 hover:bg-red-50 flex-1 sm:flex-none"
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Reject Selected
@@ -410,7 +403,7 @@ const Approvals = () => {
                 size="sm"
                 onClick={handleBulkApprove}
                 disabled={bulkApprove.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 flex-1 sm:flex-none"
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Approve Selected
@@ -451,8 +444,6 @@ const Approvals = () => {
             setSelectedRequest(null);
           }}
           request={selectedRequest}
-          onApprove={handleApprove}
-          onReject={handleReject}
         />
 
         {/* Approve Modal */}

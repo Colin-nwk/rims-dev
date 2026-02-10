@@ -162,7 +162,7 @@ export default function Register() {
               confirmServiceNumberSchema,
             )}
             onSubmit={handleConfirm}
-            validateOnBlur={true}
+            validateOnBlur={false}
             validateOnChange={false}
           >
             {({ errors, touched, isSubmitting, getFieldProps }) => (
@@ -236,7 +236,7 @@ export default function Register() {
             initialValues={passwordInitialValues}
             validationSchema={toFormikValidationSchema(setPasswordSchema)}
             onSubmit={handleSetPassword}
-            validateOnBlur={true}
+            validateOnBlur={false}
             validateOnChange={false}
             enableReinitialize
           >

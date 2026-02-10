@@ -95,7 +95,7 @@ export function Modal({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between flex-shrink-0 p-6 pb-0">
+          <div className="flex items-start justify-between shrink-0 p-6 pb-0">
             <div className="flex-1">
               {title && (
                 <h2

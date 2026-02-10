@@ -127,7 +127,7 @@ export const PermissionsModal: React.FC<PermissionsModalProps> = ({
               );
 
               return (
-                <div key={group} className="space-y-3">
+                <div key={group} className="space-y-3 w-[98%]">
                   {/* Group Header */}
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
@@ -197,15 +197,15 @@ export const PermissionsModal: React.FC<PermissionsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-4 border-t border-slate-200">
+          <div className="flex items-center gap-2 text-sm text-slate-600 w-full">
             <CheckCircle2 className="w-4 h-4 text-ncos-green-500" />
             <span className="font-medium">
               {selectedPermissions.size} permission
               {selectedPermissions.size !== 1 ? "s" : ""} selected
             </span>
           </div>
-          <div className="flex gap-3">
+          <div className="flex justify-end gap-3 w-full">
             <Button
               type="button"
               variant="ghost"

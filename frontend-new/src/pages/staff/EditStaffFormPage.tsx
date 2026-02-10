@@ -20,6 +20,7 @@ import {
   Plus,
   Trash2,
   CheckCircle,
+  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,8 @@ import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
+import { ChangePasswordModal } from "@/components/staff/ChangePasswordModal";
 
 // Combined form values type for Edit (All tables)
 type EditStaffFormValues = Omit<CreateStaffDTO, "photo"> & {
@@ -124,6 +127,120 @@ const formatDateForInput = (dateValue: string | null | undefined): string => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+// Helper to check if two values are equal (handles different data types)
+const areValuesEqual = (val1: unknown, val2: unknown): boolean => {
+  // Handle null/undefined equality
+  if (val1 === val2) return true;
+  if (val1 == null && val2 == null) return true;
+  if (val1 == null || val2 == null) return false;
+
+  // Handle empty strings vs null/undefined
+  if (val1 === "" && val2 == null) return true;
+  if (val1 == null && val2 === "") return true;
+
+  // Handle File objects (always consider changed if File is present)
+  if (val1 instanceof File || val2 instanceof File) return false;
+
+  // Handle arrays
+  if (Array.isArray(val1) && Array.isArray(val2)) {
+    if (val1.length !== val2.length) return false;
+    return val1.every((item, index) => areValuesEqual(item, val2[index]));
+  }
+
+  // Handle objects (but not File, which we checked above)
+  if (typeof val1 === "object" && typeof val2 === "object") {
+    const keys1 = Object.keys(val1);
+    const keys2 = Object.keys(val2);
+    const allKeys = new Set([...keys1, ...keys2]);
+
+    for (const key of allKeys) {
+      if (
+        !areValuesEqual(
+          (val1 as Record<string, unknown>)[key],
+          (val2 as Record<string, unknown>)[key],
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Handle primitive values (including number/string comparison)
+  return String(val1) === String(val2);
+};
+
+// Helper to extract only changed fields from form values
+const getChangedFields = (
+  currentValues: EditStaffFormValues,
+  initialValues: EditStaffFormValues,
+): Partial<EditStaffFormValues> => {
+  const changedFields: Partial<EditStaffFormValues> = {};
+
+  // Check top-level fields
+  (Object.keys(currentValues) as Array<keyof EditStaffFormValues>).forEach(
+    (key) => {
+      // Skip service_no - it's used in the endpoint URL, not the payload
+      if (key === "service_no") return;
+
+      const currentValue = currentValues[key];
+      const initialValue = initialValues[key];
+
+      // Handle details object separately
+      if (key === "details" && typeof currentValue === "object") {
+        const changedDetails: Partial<EditStaffFormValues["details"]> = {};
+        let hasChangedDetails = false;
+
+        if (currentValue && typeof currentValue === "object") {
+          Object.keys(currentValue).forEach((detailKey) => {
+            const currentDetail =
+              currentValue[detailKey as keyof typeof currentValue];
+            const initialDetail =
+              initialValue && typeof initialValue === "object"
+                ? initialValue[detailKey as keyof typeof initialValue]
+                : undefined;
+
+            if (!areValuesEqual(currentDetail, initialDetail)) {
+              (changedDetails as Record<string, unknown>)[detailKey] =
+                currentDetail;
+              hasChangedDetails = true;
+            }
+          });
+        }
+
+        if (hasChangedDetails) {
+          changedFields.details = changedDetails;
+        }
+        return;
+      }
+
+      // Handle education array separately
+      if (key === "education" && Array.isArray(currentValue)) {
+        if (!areValuesEqual(currentValue, initialValue)) {
+          changedFields.education = currentValue;
+        }
+        return;
+      }
+
+      // Handle photo (File object or string path)
+      if (key === "photo") {
+        // Only include if it's a new File upload
+        if (currentValue instanceof File) {
+          changedFields.photo = currentValue;
+        }
+        return;
+      }
+
+      // For all other fields, check if value changed
+      if (!areValuesEqual(currentValue, initialValue)) {
+        (changedFields as Record<string, unknown>)[key] = currentValue;
+      }
+    },
+  );
+
+  return changedFields;
 };
 
 // Select component
@@ -901,7 +1018,7 @@ const PhysicalMedicalTab: React.FC<{
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.details?.height ? errors.details?.height : undefined}
-          placeholder="e.g., 6.5ft"
+          placeholder="e.g., 1.75m"
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1337,17 +1454,19 @@ const EducationTab: React.FC<{
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <h4 className="font-medium text-slate-900">Educational History</h4>
-        <Button
-          type="button"
-          size="sm"
-          onClick={addEducation}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Add Education
-        </Button>
+        <div className="flex justify-end w-full sm:w-max">
+          <Button
+            type="button"
+            size="sm"
+            onClick={addEducation}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Education
+          </Button>
+        </div>
       </div>
 
       {values.education && values.education.length > 0 ? (
@@ -1468,7 +1587,8 @@ const EducationTab: React.FC<{
 // Tab 9: Review
 const ReviewTab: React.FC<{
   formik: FormikProps<EditStaffFormValues>;
-}> = ({ formik }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+}> = ({ formik, genericData }) => {
   const { values, setFieldValue } = formik;
 
   return (
@@ -1518,7 +1638,8 @@ const ReviewTab: React.FC<{
                 Assigned State
               </p>
               <p className="text-slate-900 font-medium">
-                {values.assigned_state || "N/A"}
+                {getStateName(values.assigned_state, genericData?.states) ||
+                  "Not Provided"}
               </p>
             </div>
             <div>
@@ -1526,7 +1647,8 @@ const ReviewTab: React.FC<{
                 Custodial Center
               </p>
               <p className="text-slate-900 font-medium">
-                {values.prison || "N/A"}
+                {getPrisonName(values.prison, genericData?.prisons) ||
+                  "Not Provided"}
               </p>
             </div>
           </div>
@@ -1585,6 +1707,11 @@ const EditStaffFormPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic");
   const [isSaving, setIsSaving] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  // Determine if user is changing their own password
+  const isOwnPassword =
+    user && isStaffUser(user) && user.service_no === serviceNo;
 
   const { data: staffData, isLoading: isLoadingStaff } = useStaff(
     serviceNo || "",
@@ -1680,20 +1807,36 @@ const EditStaffFormPage: React.FC = () => {
       };
 
   // Handle save
-  const handleSave = async (values: EditStaffFormValues) => {
+  const handleSave = async (
+    values: EditStaffFormValues,
+    formikHelpers?: { resetForm: () => void },
+  ) => {
     if (!serviceNo) return;
 
     setIsSaving(true);
     try {
+      // Extract only changed fields
+      const changedFields = getChangedFields(values, initialValues);
+
       const submitData: CreateStaffDTO = {
-        ...values,
-        photo: values.photo instanceof File ? values.photo : undefined,
-      };
+        ...changedFields,
+        photo:
+          changedFields.photo instanceof File ? changedFields.photo : undefined,
+      } as CreateStaffDTO;
 
       await updateStaff.mutateAsync({
         serviceNo,
         data: submitData,
       });
+
+      // Wait for React Query to refetch and Formik to reinitialize with fresh data
+      // This prevents form state accumulation across multiple saves
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Reset form to clear dirty state and use fresh initialValues from refetched data
+      if (formikHelpers) {
+        formikHelpers.resetForm();
+      }
 
       toast.success(
         <div className="flex items-center gap-2">
@@ -1775,7 +1918,7 @@ const EditStaffFormPage: React.FC = () => {
               ? "Back to Profile"
               : "Back to Staff Directory"}
           </button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-0.5">
               <h1 className="text-2xl font-bold text-slate-900">
                 Edit Staff Record
@@ -1789,13 +1932,25 @@ const EditStaffFormPage: React.FC = () => {
                 {staffData.data.service_no})
               </p>
             </div>
+            <div className="shrink-0">
+              <Button
+                type="button"
+                onClick={() => setIsPasswordModalOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+              >
+                <Key className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Change Password</span>
+                <span className="sm:hidden">Password</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       <Formik
+        key={staffData?.data?.updated_at || serviceNo}
         initialValues={initialValues}
-        onSubmit={handleSave}
+        onSubmit={(values, formikHelpers) => handleSave(values, formikHelpers)}
         validateOnBlur={true}
         validateOnChange={false}
         enableReinitialize
@@ -1806,8 +1961,8 @@ const EditStaffFormPage: React.FC = () => {
             <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
             {/* Tab Content */}
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="max-w-7xl mx-auto py-6">
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
                 {activeTab === "basic" && (
                   <BasicInfoTab
                     formik={formik}
@@ -1842,14 +1997,18 @@ const EditStaffFormPage: React.FC = () => {
                 )}
                 {activeTab === "banking" && <BankingTab formik={formik} />}
                 {activeTab === "education" && <EducationTab formik={formik} />}
-                {activeTab === "review" && <ReviewTab formik={formik} />}
+                {activeTab === "review" && (
+                  <ReviewTab formik={formik} genericData={genericData} />
+                )}
 
                 {/* Save Button - Fixed at bottom of card */}
                 <div className="mt-6 pt-6 border-t border-slate-200 flex justify-end">
                   <Button
                     type="submit"
                     className="bg-emerald-600 hover:bg-emerald-700 gap-2"
-                    disabled={isSaving || updateStaff.isPending}
+                    disabled={
+                      isSaving || updateStaff.isPending || !formik.dirty
+                    }
                     isLoading={isSaving || updateStaff.isPending}
                   >
                     <Save className="w-4 h-4" />
@@ -1861,6 +2020,19 @@ const EditStaffFormPage: React.FC = () => {
           </Form>
         )}
       </Formik>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        serviceNo={serviceNo || ""}
+        staffName={
+          staffData?.data
+            ? `${staffData.data.surname} ${staffData.data.first_name}`
+            : undefined
+        }
+        isOwnPassword={!!isOwnPassword}
+      />
     </div>
   );
 };

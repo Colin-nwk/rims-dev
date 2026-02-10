@@ -79,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Legacy Staff Profile Endpoint (kept for compatibility)
     Route::prefix('staff')->group(function () {
         Route::get('user', fn (Request $request) => $request->user());
+        Route::post('change-password', [StaffAuthController::class, 'changePassword']);
     });
 
     // User Profile Endpoint
@@ -106,6 +107,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
     Route::delete('staff/{staff}/roles/{role}', [StaffController::class, 'removeRole']);
+    // Staff Password Reset (Admin)
+    Route::post('staff/{staff}/reset-password', [StaffController::class, 'resetPassword']);
 
     // --- Staff Education Management ---
     Route::apiResource('staff-education', StaffEducationController::class);

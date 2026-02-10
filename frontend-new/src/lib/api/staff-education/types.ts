@@ -88,7 +88,7 @@ export type UpdateStaffEducationFormData = Omit<
 const requiredString = (fieldName: string) =>
   z
     .string({
-      message: `${fieldName} must be text`,
+      error: `${fieldName} is required`,
     })
     .min(1, `${fieldName} is required`);
 

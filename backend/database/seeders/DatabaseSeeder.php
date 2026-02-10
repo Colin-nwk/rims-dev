@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ZoneSeeder::class,
             StateSeeder::class,
             PrisonSeeder::class,
+            LGASeeder::class,
             BloodGroupSeeder::class,
             BloodGenotypeSeeder::class,
             ComplexionSeeder::class,
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
 
             // Main data seeders
             // StaffSeeder::class,
+            SqlStaffSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,

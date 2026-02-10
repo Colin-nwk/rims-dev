@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import {
@@ -27,6 +27,7 @@ import {
 import { type Staff, useStaffList } from "@/lib/api/staff";
 import { useGenericData } from "@/lib/api/statistics";
 import { getFileUrl } from "@/lib/api";
+import { getChangedFields } from "@/lib/utils";
 
 interface QualificationFormModalProps {
   isOpen: boolean;
@@ -51,8 +52,6 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
   );
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [staffSearch, setStaffSearch] = useState("");
-  // Track existing file URL from the server
-  const [existingFileUrl, setExistingFileUrl] = useState<string | null>(null);
   // Track newly selected file preview (base64 data URL)
   const [newFilePreview, setNewFilePreview] = useState<string | null>(null);
   // Track if user wants to replace the existing file
@@ -60,17 +59,18 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
 
   const isEditing = !!education;
 
-  // Reset file states when education prop changes (modal opens/closes)
-  useEffect(() => {
-    if (education?.url) {
-      setExistingFileUrl(getFileUrl(education.url));
-    } else {
-      setExistingFileUrl(null);
-    }
+  // Compute existingFileUrl directly from education prop (derived state)
+  const existingFileUrl = education?.url ? getFileUrl(education.url) : null;
+
+  const [trackedEducationId, setTrackedEducationId] = useState<
+    number | undefined
+  >(education?.id);
+  if (trackedEducationId !== education?.id) {
+    setTrackedEducationId(education?.id);
     setNewFilePreview(null);
     setIsReplacingFile(false);
     setStage(education ? "form" : "search");
-  }, [education]);
+  }
   const title = isEditing ? "Edit Qualification" : "Add Qualification";
 
   const { data: genericData } = useGenericData();
@@ -178,7 +178,6 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
     setStage(education ? "form" : "search");
     setSelectedStaff(null);
     setStaffSearch("");
-    setExistingFileUrl(education?.url ? getFileUrl(education.url) : null);
     setNewFilePreview(null);
     setIsReplacingFile(false);
     onClose();
@@ -187,12 +186,24 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
   const handleFormSubmit = (
     values: CreateStaffEducationFormData | UpdateStaffEducationFormData,
   ) => {
-    // Add selected staff service_no if in create mode
-    if (!isEditing && selectedStaff) {
-      values.service_no = selectedStaff.service_no;
+    if (isEditing) {
+      // Only send changed fields for updates
+      const changedFields = getChangedFields(
+        values as Record<string, unknown>,
+        initialValues as Record<string, unknown>,
+        ["service_no"],
+      );
+      onSubmit(
+        changedFields as CreateStaffEducationFormData | UpdateStaffEducationFormData,
+        education?.id,
+      );
+    } else {
+      // For create, send all fields with selected staff service_no
+      if (selectedStaff) {
+        values.service_no = selectedStaff.service_no;
+      }
+      onSubmit(values);
     }
-    // Pass the education ID if editing, so parent knows to update instead of create
-    onSubmit(values, isEditing ? education?.id : undefined);
   };
 
   // Get display name for description
@@ -258,7 +269,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                     <div className="flex items-center gap-3">
                       {staff.photo ? (
                         <img
-                          src={getFileUrl(staff.photo)}
+                          src={getFileUrl(staff.photo, staff.updated_at)}
                           alt={`${staff.surname} ${staff.first_name}`}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
                         />
@@ -329,21 +340,30 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                         <>
                           {staff.photo ? (
                             <img
-                              src={getFileUrl(staff.photo)}
+                              src={getFileUrl(staff.photo, staff.updated_at)}
                               alt={`${staff.surname} ${staff.first_name}`}
-                              className="w-12 h-12 rounded-full object-cover"
+                              className="w-12 h-12 rounded-full object-cover shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                const fallback =
+                                  e.currentTarget.nextElementSibling;
+                                if (fallback)
+                                  (fallback as HTMLElement).style.display =
+                                    "flex";
+                              }}
                             />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold">
-                              {staff.surname[0]}
-                              {staff.first_name[0]}
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-medium text-slate-900">
+                          ) : null}
+                          <div
+                            className={`w-12 h-12 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold shrink-0 ${staff.photo ? "hidden" : ""}`}
+                          >
+                            {staff.surname[0]}
+                            {staff.first_name[0]}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-slate-900 wrap-break-word">
                               {staff.surname} {staff.first_name}
                             </p>
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-slate-500 break-all">
                               {staff.service_no}
                             </p>
                           </div>
@@ -465,18 +485,18 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                     {/* Show existing file when editing and not replacing */}
                     {existingFileUrl && !isReplacingFile && !newFilePreview ? (
                       <div className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
                             {isImageFile(existingFileUrl) ? (
-                              <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
                                 <Image className="w-6 h-6 text-blue-600" />
                               </div>
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
                                 <File className="w-6 h-6 text-red-600" />
                               </div>
                             )}
-                            <div>
+                            <div className="min-w-0">
                               <p className="text-sm font-medium text-slate-900">
                                 Certificate Attached
                               </p>
@@ -485,12 +505,12 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
                             <a
                               href={existingFileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-ncos-green-700 bg-ncos-green-100 rounded-lg hover:bg-ncos-green-200 transition-colors"
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-ncos-green-700 bg-ncos-green-100 rounded-lg hover:bg-ncos-green-200 transition-colors flex-1 sm:flex-none"
                             >
                               <Eye className="w-4 h-4" />
                               View
@@ -498,7 +518,7 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                             <button
                               type="button"
                               onClick={handleStartReplaceFile}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition-colors"
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition-colors flex-1 sm:flex-none"
                             >
                               <RefreshCw className="w-4 h-4" />
                               Replace
@@ -513,7 +533,11 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                           type="button"
                           onClick={() => handleRemoveNewFile(setFieldValue)}
                           className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
-                          title={existingFileUrl ? "Cancel replacement" : "Remove file"}
+                          title={
+                            existingFileUrl
+                              ? "Cancel replacement"
+                              : "Remove file"
+                          }
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -531,17 +555,23 @@ export const QualificationFormModal: React.FC<QualificationFormModalProps> = ({
                           )}
                           <div>
                             <p className="text-sm font-medium text-slate-900">
-                              {existingFileUrl ? "New File Selected" : "File Selected"}
+                              {existingFileUrl
+                                ? "New File Selected"
+                                : "File Selected"}
                             </p>
                             <p className="text-xs text-ncos-green-600">
-                              {existingFileUrl ? "Will replace existing file on save" : "Ready to upload"}
+                              {existingFileUrl
+                                ? "Will replace existing file on save"
+                                : "Ready to upload"}
                             </p>
                           </div>
                         </div>
                         {existingFileUrl && (
                           <button
                             type="button"
-                            onClick={() => handleCancelReplaceFile(setFieldValue)}
+                            onClick={() =>
+                              handleCancelReplaceFile(setFieldValue)
+                            }
                             className="mt-3 text-xs text-slate-600 hover:text-slate-800 underline"
                           >
                             Cancel and keep existing file

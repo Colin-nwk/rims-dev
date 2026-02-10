@@ -10,6 +10,8 @@ import {
 import { getFileUrl } from "@/lib/api/apiClient";
 import { ROUTES } from "@/routes/constants";
 import { Button } from "@/components/ui/button";
+import { useGenericData } from "@/lib/api";
+import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
 import {
   User,
   Mail,
@@ -84,6 +86,8 @@ const ProfileCard = ({
 
 // Staff profile component
 const StaffProfile = ({ user }: { user: StaffUser }) => {
+  const { data: genericData } = useGenericData();
+
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -165,7 +169,7 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={MapPin}
               label="State of Origin"
-              value={user.state_of_origin}
+              value={getStateName(user.state_of_origin, genericData?.states)}
             />
             <InfoItem
               icon={Building2}
@@ -217,9 +221,13 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={MapPin}
               label="Assigned State"
-              value={user.assigned_state}
+              value={getStateName(user.assigned_state, genericData?.states)}
             />
-            <InfoItem icon={Building2} label="Prison" value={user.prison} />
+            <InfoItem
+              icon={Building2}
+              label="Prison"
+              value={getPrisonName(user.prison, genericData?.prisons)}
+            />
             <InfoItem
               icon={Building2}
               label="Present Command"
@@ -477,7 +485,7 @@ const Profile = () => {
   }
 
   const isStaff = isStaffUser(user);
-  const photoUrl = isStaff && user.photo ? getFileUrl(user.photo) : null;
+  const photoUrl = isStaff && user.photo ? getFileUrl(user.photo, user.updated_at) : null;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -516,11 +524,24 @@ const Profile = () => {
             {/* Avatar */}
             <div className="relative">
               {photoUrl ? (
-                <img
-                  src={photoUrl}
-                  alt={displayName}
-                  className="bg-white w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
-                />
+                <>
+                  <img
+                    src={photoUrl}
+                    alt={displayName}
+                    className="bg-white w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback)
+                        (fallback as HTMLElement).style.display = "flex";
+                    }}
+                  />
+                  <div className="hidden w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur-sm items-center justify-center border-4 border-white/30 shadow-xl">
+                    <span className="text-3xl sm:text-4xl font-bold text-white">
+                      {initials}
+                    </span>
+                  </div>
+                </>
               ) : (
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 shadow-xl">
                   <span className="text-3xl sm:text-4xl font-bold text-white">

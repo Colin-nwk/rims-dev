@@ -234,7 +234,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
               >
                 {staffData.photo ? (
                   <img
-                    src={getFileUrl(staffData.photo)}
+                    src={getFileUrl(staffData.photo, staffData.updated_at)}
                     alt={fullName}
                     style={{
                       width: "100%",

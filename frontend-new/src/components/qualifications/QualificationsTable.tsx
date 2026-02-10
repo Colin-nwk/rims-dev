@@ -102,16 +102,20 @@ export const QualificationsTable: React.FC<QualificationsTableProps> = ({
               <div className="shrink-0">
                 {staff.photo ? (
                   <img
-                    src={getFileUrl(staff.photo)}
+                    src={getFileUrl(staff.photo, staff.updated_at)}
                     alt={`${staff.surname} ${staff.first_name}`}
                     className="w-10 h-10 rounded-full object-cover border-2 border-slate-200"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                    }}
                   />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold text-sm border-2 border-ncos-green-200">
-                    {staff.surname[0]}
-                    {staff.first_name[0]}
-                  </div>
-                )}
+                ) : null}
+                <div className={`w-10 h-10 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold text-sm border-2 border-ncos-green-200 ${staff.photo ? 'hidden' : ''}`}>
+                  {staff.surname[0]}
+                  {staff.first_name[0]}
+                </div>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-slate-900 truncate">

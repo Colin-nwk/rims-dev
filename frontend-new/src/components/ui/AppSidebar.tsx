@@ -382,7 +382,7 @@ const AppSidebar: React.FC<{
             <div className="pt-2 mt-2 border-t border-ncos-green-700 lg:hidden">
               <button
                 onClick={() => logout()}
-                className="flex items-center w-full gap-3 px-4 py-3 font-medium text-red-300 transition-colors rounded-lg hover:bg-red-900/30"
+                className="flex items-center w-full gap-3 px-4 py-3 font-semibold text-red-400 transition-colors rounded-lg hover:bg-red-900/40"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sign Out</span>

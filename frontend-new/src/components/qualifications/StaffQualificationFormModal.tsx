@@ -24,6 +24,7 @@ import {
 } from "@/lib/api/staff-education";
 import { useGenericData } from "@/lib/api/statistics";
 import { getFileUrl } from "@/lib/api";
+import { getChangedFields } from "@/lib/utils";
 
 interface StaffQualificationFormModalProps {
   isOpen: boolean;
@@ -159,10 +160,24 @@ export const StaffQualificationFormModal: React.FC<
   const handleFormSubmit = (
     values: CreateStaffEducationFormData | UpdateStaffEducationFormData,
   ) => {
-    // Ensure service_no is set
-    values.service_no = serviceNo;
-    // Pass the education ID if editing, so parent knows to update instead of create
-    onSubmit(values, isEditing ? education?.id : undefined);
+    if (isEditing) {
+      // Only send changed fields for updates
+      const changedFields = getChangedFields(
+        values as Record<string, unknown>,
+        initialValues as Record<string, unknown>,
+        ["service_no"],
+      );
+      // Always include service_no for identification
+      changedFields.service_no = serviceNo;
+      onSubmit(
+        changedFields as CreateStaffEducationFormData | UpdateStaffEducationFormData,
+        education?.id,
+      );
+    } else {
+      // For create, send all fields
+      values.service_no = serviceNo;
+      onSubmit(values);
+    }
   };
 
   return (
@@ -296,18 +311,18 @@ export const StaffQualificationFormModal: React.FC<
                   {/* Show existing file when editing and not replacing */}
                   {existingFileUrl && !isReplacingFile && !newFilePreview ? (
                     <div className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           {isImageFile(existingFileUrl) ? (
-                            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
                               <Image className="w-6 h-6 text-blue-600" />
                             </div>
                           ) : (
-                            <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
                               <File className="w-6 h-6 text-red-600" />
                             </div>
                           )}
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-sm font-medium text-slate-900">
                               Certificate Attached
                             </p>
@@ -316,12 +331,12 @@ export const StaffQualificationFormModal: React.FC<
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           <a
                             href={existingFileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-ncos-green-700 bg-ncos-green-100 rounded-lg hover:bg-ncos-green-200 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-ncos-green-700 bg-ncos-green-100 rounded-lg hover:bg-ncos-green-200 transition-colors flex-1 sm:flex-none"
                           >
                             <Eye className="w-4 h-4" />
                             View
@@ -329,7 +344,7 @@ export const StaffQualificationFormModal: React.FC<
                           <button
                             type="button"
                             onClick={handleStartReplaceFile}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition-colors flex-1 sm:flex-none"
                           >
                             <RefreshCw className="w-4 h-4" />
                             Replace

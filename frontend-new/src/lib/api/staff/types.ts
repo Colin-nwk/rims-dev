@@ -206,6 +206,7 @@ export interface StaffIDCardData {
   status: number;
   sex?: string;
   assigned_state_name?: string;
+  updated_at?: string;
 }
 
 // Role type

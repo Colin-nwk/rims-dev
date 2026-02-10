@@ -18,6 +18,7 @@ export default defineConfig({
   preview: {
     port: 5174,
     host: true,
+    allowedHosts: ['rims-dev.onrender.com'],
   },
   build: {
     outDir: 'dist',

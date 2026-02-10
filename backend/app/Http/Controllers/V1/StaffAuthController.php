@@ -191,6 +191,31 @@ class StaffAuthController extends Controller
         Password::broker('staff')->deleteToken($staff);
 
         return $this->successResponse(null, 'Password has been reset successfully.');
+    /**
+     * Change password for authenticated staff
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $staff = $request->user();
+
+        if (! $staff instanceof \App\Models\Staff) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+
+        if (! Hash::check($request->current_password, $staff->password)) {
+            return $this->errorResponse('Current password is incorrect', 422);
+        }
+
+        $staff->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $this->successResponse(null, 'Password changed successfully');
     }
 }
 

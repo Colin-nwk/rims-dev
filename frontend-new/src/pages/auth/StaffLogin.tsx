@@ -82,7 +82,7 @@ export default function StaffLogin() {
           initialValues={initialValues}
           validationSchema={toFormikValidationSchema(staffLoginSchema)}
           onSubmit={handleSubmit}
-          validateOnBlur={true}
+          validateOnBlur={false}
           validateOnChange={false}
         >
           {({ errors, touched, isSubmitting, getFieldProps }) => (
@@ -112,7 +112,11 @@ export default function StaffLogin() {
               <div className="flex items-center justify-end">
                 <button
                   type="button"
-                  onClick={() => navigate("/forgot-password")}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigate("/forgot-password");
+                  }}
                   className="text-xs font-medium transition-colors sm:text-sm text-ncos-green-900 hover:text-gold-600 disabled:opacity-50 active:text-gold-700"
                   disabled={isPending || isSubmitting}
                 >

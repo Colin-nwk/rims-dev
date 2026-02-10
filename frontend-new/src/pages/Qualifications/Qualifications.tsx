@@ -140,27 +140,27 @@ const Qualifications = () => {
         },
         {
           onSuccess: () => {
-            toast.success("Qualification updated successfully");
+            toast.success("Qualification update submitted for approval");
             setIsFormModalOpen(false);
             setSelectedEducation(null);
             setIsEditMode(false);
             refetch();
           },
           onError: (error) => {
-            toast.error(error?.message || "Failed to update qualification");
+            toast.error(error?.message || "Failed to submit qualification update");
           },
         },
       );
     } else {
       createEducation.mutate(formData as CreateStaffEducationFormData, {
         onSuccess: () => {
-          toast.success("Qualification added successfully");
+          toast.success("Qualification submitted for approval");
           setIsFormModalOpen(false);
           setSelectedEducation(null);
           refetch();
         },
         onError: (error) => {
-          toast.error(error?.message || "Failed to add qualification");
+          toast.error(error?.message || "Failed to submit qualification");
         },
       });
     }
@@ -255,7 +255,7 @@ const Qualifications = () => {
                 Manage staff education records and qualifications
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 items-center gap-3 w-full sm:w-max">
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -357,7 +357,7 @@ const Qualifications = () => {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
+              className="bg-white px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors"
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -380,19 +380,25 @@ const Qualifications = () => {
 
         {/* Bulk actions bar */}
         {selectedRows.length > 0 && (
-          <div className="flex items-center justify-between p-4 mb-4 border rounded-xl bg-ncos-green-50 border-ncos-green-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 mb-4 border rounded-xl bg-ncos-green-50 border-ncos-green-200">
             <span className="text-sm font-medium text-ncos-green-900">
               {selectedRows.length} qualification(s) selected
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSelectedRows([])}
+                className="flex-1 sm:flex-none"
               >
                 Clear Selection
               </Button>
-              <Button variant="danger" size="sm" onClick={handleBulkDelete}>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleBulkDelete}
+                className="flex-1 sm:flex-none"
+              >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Delete Selected
               </Button>
