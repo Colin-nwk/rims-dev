@@ -270,91 +270,103 @@ const Complaints: React.FC = () => {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="h-[calc(100vh-8.5rem)] flex gap-0 relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
-    >
-      {/* Left Panel - Complaints List */}
+    <div className="relative">
+      {/* Staff Login Navigation Button - Top Right */}
+      {/* <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => window.location.href = "/staff-login"}
+          className="px-4 py-2 text-sm font-medium text-white bg-ncos-green-900 rounded-lg shadow-md hover:bg-ncos-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ncos-green-900 transition-colors"
+        >
+          Staff Login
+        </button>
+      </div> */}
+
       <div
-        className={`
-          border-r border-slate-200 shrink-0 transition-all duration-300
-          ${selectedId ? "hidden md:block" : "block"}
-          ${isListCollapsed ? "md:w-0 md:min-w-0 md:overflow-hidden" : "w-full md:w-auto"}
-        `}
-        style={{
-          width: !isListCollapsed && isDesktop ? `${listWidth}px` : undefined,
-        }}
+        ref={containerRef}
+        className="h-[calc(100vh-8.5rem)] flex gap-0 relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
       >
-        <ComplaintsList
-          complaints={complaints}
-          selectedId={selectedId}
-          onSelect={handleSelectComplaint}
-          onNewTicket={handleOpenNewModal}
-          statusFilter={statusFilter}
-          onFilterChange={handleFilterChange}
-          priorityFilter={priorityFilter}
-          onPriorityFilterChange={handlePriorityFilterChange}
-          dateFilter={dateFilter}
-          onDateFilterChange={setDateFilter}
-          isLoading={isLoadingList}
-          isCollapsed={isListCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-          currentPage={page}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          onPageChange={handlePageChange}
+        {/* Left Panel - Complaints List */}
+        <div
+          className={`
+            border-r border-slate-200 shrink-0 transition-all duration-300
+            ${selectedId ? "hidden md:block" : "block"}
+            ${isListCollapsed ? "md:w-0 md:min-w-0 md:overflow-hidden" : "w-full md:w-auto"}
+          `}
+          style={{
+            width: !isListCollapsed && isDesktop ? `${listWidth}px` : undefined,
+          }}
+        >
+          <ComplaintsList
+            complaints={complaints}
+            selectedId={selectedId}
+            onSelect={handleSelectComplaint}
+            onNewTicket={handleOpenNewModal}
+            statusFilter={statusFilter}
+            onFilterChange={handleFilterChange}
+            priorityFilter={priorityFilter}
+            onPriorityFilterChange={handlePriorityFilterChange}
+            dateFilter={dateFilter}
+            onDateFilterChange={setDateFilter}
+            isLoading={isLoadingList}
+            isCollapsed={isListCollapsed}
+            onToggleCollapse={handleToggleCollapse}
+            currentPage={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={handlePageChange}
+          />
+        </div>
+
+        {/* Right Panel - Chat View */}
+        <div
+          className={`
+            flex-1 flex flex-col min-w-0 relative
+            ${selectedId ? "flex" : "hidden md:flex"}
+          `}
+        >
+          {/* Resize Handle */}
+          {!isListCollapsed && (
+            <div
+              className="hidden md:block absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-ncos-green-500 transition-colors z-20 group"
+              onMouseDown={handleMouseDown}
+            >
+              <div className="absolute inset-y-0 -left-1 -right-1" />
+            </div>
+          )}
+
+          {isLoadingDetail && selectedId ? (
+            <div className="flex-1 flex items-center justify-center bg-slate-50/50">
+              <div className="text-center">
+                <Loader2 className="w-8 h-8 animate-spin text-slate-400 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">Loading conversation...</p>
+              </div>
+            </div>
+          ) : (
+            <ComplaintChat
+              complaint={selectedComplaint || null}
+              currentUserId={user.id}
+              onBack={handleBack}
+              onSendMessage={handleSendMessage}
+              onEscalate={handleEscalate}
+              onResolve={handleResolve}
+              onDelete={handleDelete}
+              isSending={addMessage.isPending}
+              isUpdating={updateStatus.isPending}
+              canManage={canManageComplaints}
+              isListCollapsed={isListCollapsed}
+              onToggleList={handleToggleCollapse}
+            />
+          )}
+        </div>
+
+        {/* New Complaint Modal */}
+        <NewComplaintModal
+          isOpen={isNewModalOpen}
+          onClose={handleCloseNewModal}
+          onSubmit={handleCreateComplaint}
+          isLoading={createComplaint.isPending}
         />
       </div>
-
-      {/* Right Panel - Chat View */}
-      <div
-        className={`
-          flex-1 flex flex-col min-w-0 relative
-          ${selectedId ? "flex" : "hidden md:flex"}
-        `}
-      >
-        {/* Resize Handle */}
-        {!isListCollapsed && (
-          <div
-            className="hidden md:block absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-ncos-green-500 transition-colors z-20 group"
-            onMouseDown={handleMouseDown}
-          >
-            <div className="absolute inset-y-0 -left-1 -right-1" />
-          </div>
-        )}
-
-        {isLoadingDetail && selectedId ? (
-          <div className="flex-1 flex items-center justify-center bg-slate-50/50">
-            <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">Loading conversation...</p>
-            </div>
-          </div>
-        ) : (
-          <ComplaintChat
-            complaint={selectedComplaint || null}
-            currentUserId={user.id}
-            onBack={handleBack}
-            onSendMessage={handleSendMessage}
-            onEscalate={handleEscalate}
-            onResolve={handleResolve}
-            onDelete={handleDelete}
-            isSending={addMessage.isPending}
-            isUpdating={updateStatus.isPending}
-            canManage={canManageComplaints}
-            isListCollapsed={isListCollapsed}
-            onToggleList={handleToggleCollapse}
-          />
-        )}
-      </div>
-
-      {/* New Complaint Modal */}
-      <NewComplaintModal
-        isOpen={isNewModalOpen}
-        onClose={handleCloseNewModal}
-        onSubmit={handleCreateComplaint}
-        isLoading={createComplaint.isPending}
-      />
     </div>
   );
 };

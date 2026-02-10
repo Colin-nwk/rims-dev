@@ -56,8 +56,7 @@ class Staff extends Authenticatable
         'ippis',
     ];
 
-
-     protected $hidden = [
+    protected $hidden = [
         'password',
         'remember_token',
     ];
@@ -88,6 +87,15 @@ class Staff extends Authenticatable
         'zone_id',
     ];
 
+    /**
+     * Filter by Age Range.
+     * Supported formats: "18-20", "less 18", "18+", "above 18"
+     */
+    public function filterAgeRange($query, $value)
+    {
+        \App\Helpers\FilterHelper::applyAgeRangeFilter($query, $value);
+    }
+
     protected function casts(): array
     {
         return [
@@ -108,8 +116,23 @@ class Staff extends Authenticatable
         return $this->hasMany(StaffEducation::class, 'service_no', 'service_no');
     }
 
+    public function documents()
+    {
+        return $this->hasMany(StaffDocument::class, 'service_no', 'service_no');
+    }
+
     public function assignedState()
     {
         return $this->belongsTo(State::class, 'assigned_state');
+    }
+
+    public function initialCommand()
+    {
+        return $this->belongsTo(State::class, 'initial_command');
+    }
+
+    public function presentCommand()
+    {
+        return $this->belongsTo(State::class, 'present_command');
     }
 }

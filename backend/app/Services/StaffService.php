@@ -49,7 +49,8 @@ class StaffService extends BaseService
                 }
             }
 
-            return $staff;
+            // Return the created staff with all relationships
+            return $this->find($staff->id);
         });
     }
 
@@ -59,7 +60,7 @@ class StaffService extends BaseService
     public function update($id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $staff = $this->find($id);
+            $staff = Staff::findOrFail($id);
 
             // Update Staff
             if (isset($data['password'])) {
@@ -100,7 +101,8 @@ class StaffService extends BaseService
                 }
             }
 
-            return $staff;
+            // Return the updated staff with all relationships
+            return $this->find($id);
         });
     }
 
@@ -115,7 +117,15 @@ class StaffService extends BaseService
 
     public function find($id)
     {
-        return Staff::with(['details', 'education', 'roles'])->findOrFail($id);
+        return Staff::with([
+            'details', 
+            'education', 
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents'
+        ])->findOrFail($id);
     }
 
     public function all(array $filters = [])
@@ -123,6 +133,21 @@ class StaffService extends BaseService
         return Staff::with(['details', 'education', 'roles'])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
+    }
+    
+    public function allWithRelationships(array $filters = [])
+    {
+        return Staff::with([
+            'details', 
+            'education', 
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents'
+        ])
+        ->filter($filters)
+        ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

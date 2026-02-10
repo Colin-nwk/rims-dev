@@ -104,6 +104,33 @@ export interface SetPasswordRequest {
   password_confirmation: string;
 }
 
+// Forgot password request payload
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+// Staff forgot password request payload
+export interface StaffForgotPasswordRequest {
+  service_no: string;
+  email: string;
+}
+
+// Reset password request payload
+export interface ResetPasswordRequest {
+  token: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+// Staff reset password request payload
+export interface StaffResetPasswordRequest {
+  token: string;
+  service_no: string;
+  password: string;
+  password_confirmation: string;
+}
+
 // Type guards for user discrimination
 export function isStaffUser(user: User): user is StaffUser {
   return "service_no" in user;

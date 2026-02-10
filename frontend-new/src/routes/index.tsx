@@ -11,6 +11,8 @@ import { ROUTES } from "./constants";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import StaffLogin from "@/pages/auth/StaffLogin";
 import Register from "@/pages/auth/Register";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ResetPassword from "@/pages/auth/ResetPassword";
 import PublicComplaint from "@/pages/auth/Complaint";
 
 // Protected pages
@@ -62,6 +64,14 @@ export const routes = [
       {
         path: ROUTES.CONFIRM_SERVICE_NUMBER,
         element: <Register />,
+      },
+      {
+        path: ROUTES.FORGOT_PASSWORD,
+        element: <ForgotPassword />,
+      },
+      {
+        path: ROUTES.RESET_PASSWORD,
+        element: <ResetPassword />,
       },
     ],
   },

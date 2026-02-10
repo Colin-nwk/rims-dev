@@ -27,6 +27,69 @@ export const staffLoginSchema = z.object({
 
 export type StaffLoginFormData = z.infer<typeof staffLoginSchema>;
 
+// Forgot password schema for admin users
+export const forgotPasswordSchema = z.object({
+  email: z.email("Enter a valid email address"),
+});
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
+// Staff forgot password schema
+export const staffForgotPasswordSchema = z.object({
+  service_no: z
+    .string({ error: "Service number is required" })
+    .min(1, "Service number is required"),
+  email: z.email("Enter a valid email address"),
+});
+
+export type StaffForgotPasswordFormData = z.infer<typeof staffForgotPasswordSchema>;
+
+// Reset password schema
+export const resetPasswordSchema = z
+  .object({
+    token: z.string({ error: "Token is required" }),
+    email: z.string().email("Enter a valid email address"),
+    password: z
+      .string({ error: "Password is required" })
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+    password_confirmation: z
+      .string({ error: "Please confirm your password" })
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
+// Staff reset password schema
+export const staffResetPasswordSchema = z
+  .object({
+    token: z.string({ error: "Token is required" }),
+    service_no: z
+      .string({ error: "Service number is required" })
+      .min(1, "Service number is required"),
+    password: z
+      .string({ error: "Password is required" })
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+    password_confirmation: z
+      .string({ error: "Please confirm your password" })
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
+
+export type StaffResetPasswordFormData = z.infer<typeof staffResetPasswordSchema>;
+
 // Retirement time remaining schema
 const retirementTimeRemainingSchema = z.object({
   status: z.string(),

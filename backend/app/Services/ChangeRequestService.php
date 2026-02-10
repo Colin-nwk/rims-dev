@@ -107,6 +107,7 @@ class ChangeRequestService
             'App\Models\Staff' => App::make(\App\Services\StaffService::class),
             'App\Models\User' => App::make(\App\Services\UserService::class),
             'App\Models\StaffEducation' => App::make(\App\Services\StaffEducationService::class),
+            'App\Models\StaffDocument' => App::make(\App\Services\StaffDocumentService::class),
             default => throw new Exception("No service found for model: {$modelType}"),
         };
     }

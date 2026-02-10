@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use App\Http\Controllers\V1\StaffAuthController;
 use App\Http\Controllers\V1\StaffController;
+use App\Http\Controllers\V1\StaffDocumentController;
 use App\Http\Controllers\V1\StaffEducationController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
@@ -32,11 +33,15 @@ Route::prefix('staff')->group(function () {
     Route::post('state/login', [StaffAuthController::class, 'stateLogin'])->middleware('throttle:auth');
     Route::post('confirm', [StaffAuthController::class, 'confirmServiceNumber'])->middleware('throttle:auth');
     Route::post('set-password', [StaffAuthController::class, 'setPassword'])->middleware('throttle:auth');
+    Route::post('forgot-password', [StaffAuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [StaffAuthController::class, 'resetPassword'])->middleware('throttle:auth');
 });
 
 // User Authentication
 Route::prefix('user')->group(function () {
     Route::post('login', [UserAuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('forgot-password', [UserAuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [UserAuthController::class, 'resetPassword'])->middleware('throttle:auth');
 });
 
 // Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings, Levels, Marital Statuses)
@@ -50,6 +55,9 @@ Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
 
 // Staff Education Certificate Viewer - Public access (for viewing certificates)
 Route::get('staff-education/{staffEducation}/certificate', [\App\Http\Controllers\V1\StaffEducationController::class, 'viewCertificate']);
+
+// Staff Document Viewer - (Secure access with token validation inside controller)
+Route::get('staff-documents/{staffDocument}/view', [\App\Http\Controllers\V1\StaffDocumentController::class, 'viewDocument']);
 
 // Public Complaint Submission (validates staff via service_no + ippis)
 Route::post('complaints/public', [ComplaintController::class, 'storePublic'])->middleware('throttle:auth');
@@ -104,6 +112,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Staff Education Management ---
     Route::apiResource('staff-education', StaffEducationController::class);
+
+    // --- Staff Document Management ---
+    Route::post('staff-documents/bulk', [StaffDocumentController::class, 'bulkStore']);
+    Route::apiResource('staff-documents', StaffDocumentController::class);
+    Route::post('staff-documents/{staffDocument}/verify', [StaffDocumentController::class, 'verify']);
+    Route::post('staff-documents/{staffDocument}/reject', [StaffDocumentController::class, 'reject']);
+    Route::get('staff-documents/{staffDocument}/download', [StaffDocumentController::class, 'download']);
 
     // --- User Management ---
     Route::prefix('user')->group(function () {

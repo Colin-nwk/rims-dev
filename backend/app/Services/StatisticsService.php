@@ -46,6 +46,9 @@ class StatisticsService
             'state_of_origin' => $this->getStateOfOriginDistribution($filters, $totalStaff),
             'assigned_state' => $this->getAssignedStateDistribution($filters, $totalStaff),
             'present_rank' => $this->getPresentRankDistribution($filters, $totalStaff),
+            'initial_rank' => $this->getInitialRankDistribution($filters, $totalStaff),
+            'initial_command' => $this->getInitialCommandDistribution($filters, $totalStaff),
+            'present_command' => $this->getPresentCommandDistribution($filters, $totalStaff),
             'level' => $this->getLevelDistribution($filters, $totalStaff),
             'department' => $this->getDepartmentDistribution($filters, $totalStaff),
             'education_type' => $this->getEducationTypeDistribution($totalEducation),
@@ -93,6 +96,30 @@ class StatisticsService
         $total = (clone $query)->count();
 
         return $this->getPresentRankDistribution($filters, $total);
+    }
+    
+    public function getInitialRankStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getInitialRankDistribution($filters, $total);
+    }
+    
+    public function getInitialCommandStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getInitialCommandDistribution($filters, $total);
+    }
+    
+    public function getPresentCommandStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getPresentCommandDistribution($filters, $total);
     }
 
     public function getEducationTypeStats(array $filters = []): array
@@ -254,7 +281,7 @@ class StatisticsService
             ->selectRaw('state_of_origin as label, COUNT(*) as count')
             ->groupBy('state_of_origin')
             ->orderByDesc('count')
-            ->limit(50)
+            ->orderByDesc('count')
             ->get()
             ->map(fn ($item) => [
                 'label' => $item->label ?? 'Not Specified',
@@ -271,7 +298,7 @@ class StatisticsService
             ->selectRaw('states.state as label, COUNT(*) as count')
             ->groupBy('states.state')
             ->orderByDesc('count')
-            ->limit(50)
+            ->orderByDesc('count')
             ->get()
             ->map(fn ($item) => [
                 'label' => $item->label ?? 'Unassigned',
@@ -284,10 +311,62 @@ class StatisticsService
     private function getPresentRankDistribution(array $filters, int $total): array
     {
         return $this->buildStaffQuery($filters)
-            ->selectRaw('present_rank as label, COUNT(*) as count')
-            ->groupBy('present_rank')
+            ->leftJoin('rankings', 'staff.present_rank', '=', 'rankings.title')
+            ->selectRaw('COALESCE(rankings.title, staff.present_rank) as label, COUNT(*) as count')
+            ->groupBy('label')
             ->orderByDesc('count')
-            ->limit(50)
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => $item->label ?? 'Not Specified',
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+    
+    private function getInitialCommandDistribution(array $filters, int $total): array
+    {
+        return $this->buildStaffQuery($filters)
+            ->leftJoin('states as initial_states', 'staff.initial_command', '=', 'initial_states.id')
+            ->selectRaw('COALESCE(initial_states.state, "Unassigned") as label, COUNT(*) as count')
+            ->groupBy('label')
+            ->orderByDesc('count')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => $item->label ?? 'Not Specified',
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+    
+    private function getPresentCommandDistribution(array $filters, int $total): array
+    {
+        return $this->buildStaffQuery($filters)
+            ->leftJoin('states as present_states', 'staff.present_command', '=', 'present_states.id')
+            ->selectRaw('COALESCE(present_states.state, "Unassigned") as label, COUNT(*) as count')
+            ->groupBy('label')
+            ->orderByDesc('count')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => $item->label ?? 'Not Specified',
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+    
+    private function getInitialRankDistribution(array $filters, int $total): array
+    {
+        return $this->buildStaffQuery($filters)
+            ->leftJoin('rankings as initial_rankings', 'staff.initial_rank', '=', 'initial_rankings.title')
+            ->selectRaw('COALESCE(initial_rankings.title, staff.initial_rank) as label, COUNT(*) as count')
+            ->groupBy('label')
+            ->orderByDesc('count')
+            ->orderByDesc('count')
             ->get()
             ->map(fn ($item) => [
                 'label' => $item->label ?? 'Not Specified',
@@ -299,13 +378,18 @@ class StatisticsService
 
     private function getLevelDistribution(array $filters, int $total): array
     {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+        $concat = $connection === 'sqlite' ? "'GL-' || staff.level" : "CONCAT('GL-', staff.level)";
+
         return $this->buildStaffQuery($filters)
-            ->selectRaw('level as label, COUNT(*) as count')
-            ->groupBy('level')
-            ->orderBy('level')
+            ->leftJoin('levels', 'staff.level', '=', 'levels.level_number')
+            ->selectRaw("COALESCE(levels.level, {$concat}) as label, COUNT(*) as count")
+            ->groupBy('label', 'staff.level')
+            ->orderBy('staff.level')
             ->get()
             ->map(fn ($item) => [
-                'label' => $item->label !== null ? 'GL-'.$item->label : 'Not Specified',
+                'label' => $item->label ?? 'Not Specified',
                 'count' => $item->count,
                 'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
             ])
@@ -318,7 +402,7 @@ class StatisticsService
             ->selectRaw('department as label, COUNT(*) as count')
             ->groupBy('department')
             ->orderByDesc('count')
-            ->limit(50)
+            ->orderByDesc('count')
             ->get()
             ->map(fn ($item) => [
                 'label' => $item->label ?? 'Not Specified',
@@ -406,7 +490,7 @@ class StatisticsService
             ->groupBy('state_of_origin', 'year')
             ->orderBy('state_of_origin')
             ->orderBy('year')
-            ->limit(200)
+            ->orderBy('year')
             ->get()
             ->map(fn ($item) => [
                 'state' => $item->state_of_origin,

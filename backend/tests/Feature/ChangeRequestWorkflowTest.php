@@ -24,6 +24,11 @@ class ChangeRequestWorkflowTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Create required states and prisons
+        $state = \App\Models\State::factory()->create();
+        $prison = \App\Models\Prison::factory()->create(['state_id' => $state->id]);
+        $zone = \App\Models\Zone::factory()->create();
+
         // Grant Permissions
         \Illuminate\Support\Facades\Gate::define('staff.create', fn () => true);
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
