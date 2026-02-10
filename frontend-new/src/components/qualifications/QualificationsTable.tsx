@@ -102,7 +102,7 @@ export const QualificationsTable: React.FC<QualificationsTableProps> = ({
               <div className="shrink-0">
                 {staff.photo ? (
                   <img
-                    src={getFileUrl(staff.photo, staff.updated_at)}
+                    src={getFileUrl(staff.photo)}
                     alt={`${staff.surname} ${staff.first_name}`}
                     className="w-10 h-10 rounded-full object-cover border-2 border-slate-200"
                     onError={(e) => {
