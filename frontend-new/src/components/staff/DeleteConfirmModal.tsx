@@ -61,7 +61,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
                 className="object-cover w-12 h-12 rounded-lg"
               />
             ) : (
-              <div className="flex items-center justify-center w-12 h-12 text-sm font-bold text-white rounded-lg bg-gradient-to-br from-ncos-green-500 to-ncos-green-700">
+              <div className="flex items-center justify-center w-12 h-12 text-sm font-bold text-white rounded-lg bg-linear-to-br from-ncos-green-500 to-ncos-green-700">
                 {staff.first_name?.[0]}
                 {staff.surname?.[0]}
               </div>

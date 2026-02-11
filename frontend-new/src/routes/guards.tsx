@@ -4,7 +4,7 @@ import { isAdminUser, isStaffUser } from "@/lib/api/auth/types";
 import { NavItem } from "@/types";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { ROUTES } from "./constants";
-import { mainNavItems, othersNavItems } from "./navigation";
+import { useMainNavItems, useOthersNavItems } from "./navigation";
 
 /**
  * Loading spinner component for auth state transitions
@@ -105,6 +105,24 @@ export function ProtectedRoute({
     hasAllPermissions,
   } = useAuth();
 
+  // Get navigation items with dynamic badges (must be called before any returns)
+  const mainNavItems = useMainNavItems();
+  const othersNavItems = useOthersNavItems();
+
+  // Filter navigation items based on user type
+  const filterNavItems = (items: NavItem[]): NavItem[] => {
+    if (!user) return items;
+    if (isStaffUser(user)) {
+      // Staff users only see non-admin items
+      return items.filter((item) => !item.adminOnly);
+    }
+    // Admin users see all items except staff only
+    return items.filter((item) => !item.staffOnly);
+  };
+
+  const filteredMainNav = filterNavItems(mainNavItems);
+  const filteredOthersNav = filterNavItems(othersNavItems);
+
   // Show loading spinner while checking auth state
   if (isLoading) {
     return <AuthLoadingSpinner />;
@@ -132,20 +150,6 @@ export function ProtectedRoute({
       return <UnauthorizedAccess />;
     }
   }
-
-  // Filter navigation items based on user type
-  const filterNavItems = (items: NavItem[]): NavItem[] => {
-    if (!user) return items;
-    if (isStaffUser(user)) {
-      // Staff users only see non-admin items
-      return items.filter((item) => !item.adminOnly);
-    }
-    // Admin users see all items except staff only
-    return items.filter((item) => !item.staffOnly);
-  };
-
-  const filteredMainNav = filterNavItems(mainNavItems);
-  const filteredOthersNav = filterNavItems(othersNavItems);
 
   // Render children or Outlet wrapped with MainLayout
   return (

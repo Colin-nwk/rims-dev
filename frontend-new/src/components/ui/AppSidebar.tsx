@@ -157,7 +157,16 @@ const AppSidebar: React.FC<{
                     {nav.icon}
                   </span>
                   {(isExpanded || isHovered || isMobileOpen) && (
-                    <span className={`menu-item-text`}>{nav.name}</span>
+                    <>
+                      <span className={`menu-item-text`}>{nav.name}</span>
+                      {nav.badge !== undefined && nav.badge !== 0 && (
+                        <span className="ml-auto flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-semibold text-white bg-red-500 rounded-full">
+                          {typeof nav.badge === "number" && nav.badge > 99
+                            ? "99+"
+                            : nav.badge}
+                        </span>
+                      )}
+                    </>
                   )}
                 </Link>
               )
@@ -270,13 +279,7 @@ const AppSidebar: React.FC<{
   return (
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 py-2 bg-ncos-green-900 text-white h-screen transition-all duration-300 ease-in-out z-50 border-ncos-green-800
-        ${
-          isExpanded || isMobileOpen
-            ? "w-64"
-            : isHovered
-              ? "w-64"
-              : "w-22.5"
-        }
+        ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-22.5"}
         ${
           isMobileOpen
             ? "right-0 translate-x-0 lg:left-0 lg:right-auto"

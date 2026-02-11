@@ -39,7 +39,8 @@ export const useDashboardStats = (options?: { refetchInterval?: number }) => {
   return useQuery({
     queryKey: dashboardQueryKeys.stats(),
     queryFn: () => dashboardService.getStats(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 30, // 30 seconds - shorter for more responsive badge updates
+    refetchOnMount: true,
     refetchOnWindowFocus: true,
     ...options,
   });

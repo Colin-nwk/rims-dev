@@ -48,6 +48,17 @@ class ChangeRequest extends Model
     public function scopeVisibleTo($query, $user)
     {
         if ($user->cannot('change_request.view_all')) {
+            // For staff users, show both:
+            // 1. Requests they submitted (requested_by_id matches their ID)
+            // 2. Requests about their profile (service_no matches their service_no)
+            if ($user instanceof \App\Models\Staff) {
+                return $query->where(function ($q) use ($user) {
+                    $q->where('requested_by_id', $user->id)
+                      ->orWhere('service_no', $user->service_no);
+                });
+            }
+            
+            // For non-staff users without view_all permission, only show their own requests
             return $query->where('requested_by_id', $user->id);
         }
 

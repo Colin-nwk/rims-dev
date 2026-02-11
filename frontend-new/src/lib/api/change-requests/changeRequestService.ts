@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
+import { dashboardQueryKeys } from "../dashboard/dashboardService";
 import type { ApiResponse, PaginatedResponse, QueryOptions } from "../types";
 import type {
   ChangeRequest,
@@ -74,12 +75,13 @@ export const changeRequestQueryKeys = {
 export const useChangeRequests = (
   options?: QueryOptions,
   filters?: ChangeRequestFilters,
-  queryOptions?: { enabled?: boolean },
+  queryOptions?: { enabled?: boolean; refetchInterval?: number },
 ) => {
   return useQuery({
     queryKey: changeRequestQueryKeys.list(options, filters),
     queryFn: () => changeRequestService.getAll(options, filters),
-    staleTime: 1000 * 60 * 1, // 1 minute - reduced for fresher data
+    staleTime: 1000 * 30, // 30 seconds - for responsive badge updates
+    refetchOnMount: true,
     refetchOnWindowFocus: true,
     ...queryOptions,
   });
@@ -99,6 +101,10 @@ export const useApproveRequest = () => {
         queryKey: changeRequestQueryKeys.all,
         refetchType: "all",
       });
+      // Invalidate dashboard stats to update pending count badge
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.all,
+      });
     },
   });
 };
@@ -117,6 +123,10 @@ export const useRejectRequest = () => {
       queryClient.invalidateQueries({
         queryKey: changeRequestQueryKeys.all,
         refetchType: "all",
+      });
+      // Invalidate dashboard stats to update pending count badge
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.all,
       });
     },
   });
@@ -142,6 +152,10 @@ export const useBulkApprove = () => {
         queryKey: changeRequestQueryKeys.all,
         refetchType: "all",
       });
+      // Invalidate dashboard stats to update pending count badge
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.all,
+      });
     },
   });
 };
@@ -165,6 +179,10 @@ export const useBulkReject = () => {
       queryClient.invalidateQueries({
         queryKey: changeRequestQueryKeys.all,
         refetchType: "all",
+      });
+      // Invalidate dashboard stats to update pending count badge
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.all,
       });
     },
   });
