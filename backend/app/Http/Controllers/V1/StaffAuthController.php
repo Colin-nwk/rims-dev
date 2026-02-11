@@ -29,7 +29,7 @@ class StaffAuthController extends Controller
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             // Add a small delay to prevent timing attacks
             usleep(random_int(100000, 300000)); // 100-300ms delay
-            
+
             return $this->errorResponse('Invalid login details', 422);
         }
 
@@ -162,8 +162,10 @@ class StaffAuthController extends Controller
             ->first();
 
         if ($staff) {
-            $token = Password::broker('staff')->createToken($staff);
-            $resetUrl = config('app.frontend_url') . '/staff/reset-password';
+            /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
+            $broker = Password::broker('staff');
+            $token = $broker->createToken($staff);
+            $resetUrl = config('app.frontend_url').'/staff/reset-password';
             $staff->notify(new PasswordResetNotification($token, $resetUrl, 'staff'));
         }
 
@@ -178,7 +180,9 @@ class StaffAuthController extends Controller
             return $this->errorResponse('Invalid credentials.', 422);
         }
 
-        $tokenValid = Password::broker('staff')->tokenExists($staff, $request->token);
+        /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
+        $broker = Password::broker('staff');
+        $tokenValid = $broker->tokenExists($staff, $request->token);
 
         if (! $tokenValid) {
             return $this->errorResponse('This password reset token is invalid or has expired.', 422);
@@ -188,7 +192,7 @@ class StaffAuthController extends Controller
             'password' => Hash::make($request->password),
         ])->save();
 
-        Password::broker('staff')->deleteToken($staff);
+        $broker->deleteToken($staff);
 
         return $this->successResponse(null, 'Password has been reset successfully.');
     }
@@ -220,4 +224,3 @@ class StaffAuthController extends Controller
         return $this->successResponse(null, 'Password changed successfully');
     }
 }
-

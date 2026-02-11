@@ -112,8 +112,14 @@ export default function ResetPassword() {
         </div>
 
         {/* Instructions */}
-        <div className="p-3 mb-4 text-sm text-center bg-blue-50 border border-blue-200 rounded-lg sm:p-4 sm:mb-6 text-blue-800">
-          Enter your new password to reset your account password.
+        <div className="p-3 mb-4 text-sm bg-blue-50 border border-blue-200 rounded-lg sm:p-4 sm:mb-6 text-blue-800">
+          <p className="text-center mb-2">Enter your new password. Requirements:</p>
+          <ul className="list-disc list-inside space-y-0.5 text-xs">
+            <li>At least 8 characters</li>
+            <li>At least one uppercase letter (A-Z)</li>
+            <li>At least one lowercase letter (a-z)</li>
+            <li>At least one number (0-9)</li>
+          </ul>
         </div>
 
         {/* Reset Password Form with Formik */}

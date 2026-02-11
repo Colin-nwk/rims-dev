@@ -75,10 +75,6 @@ export default function ForgotPassword() {
     });
   };
 
-  // const toggleUserType = () => {
-  //   setIsStaff(!isStaff);
-  // };
-
   return (
     <AuthLayout>
       <Card className="w-full max-w-md p-6 mx-auto shadow-2xl sm:p-8 backdrop-blur-md bg-white/95 border-white/20">
