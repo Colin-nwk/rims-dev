@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Formik, Form, type FormikHelpers } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
@@ -18,22 +17,19 @@ import AuthLayout from "@/layouts/AuthLayout";
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isStaff, setIsStaff] = useState(false);
-  
+
   // Extract token and email/service_no from URL params
   const token = searchParams.get("token") || "";
   const email = searchParams.get("email") || "";
   const serviceNo = searchParams.get("service_no") || "";
 
-  const { mutate: resetPassword, isPending: isUserPending } = useResetPassword();
-  const { mutate: staffResetPassword, isPending: isStaffPending } = useStaffResetPassword();
-
   // Determine if this is a staff reset based on presence of service_no
-  useEffect(() => {
-    if (serviceNo) {
-      setIsStaff(true);
-    }
-  }, [serviceNo]);
+  const isStaff = !!serviceNo;
+
+  const { mutate: resetPassword, isPending: isUserPending } =
+    useResetPassword();
+  const { mutate: staffResetPassword, isPending: isStaffPending } =
+    useStaffResetPassword();
 
   const userInitialValues: ResetPasswordFormData = {
     token,
@@ -61,7 +57,9 @@ export default function ResetPassword() {
         }, 3000);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to reset password. Please try again.");
+        toast.error(
+          error.message || "Failed to reset password. Please try again.",
+        );
         setSubmitting(false);
       },
       onSettled: () => {
@@ -82,7 +80,9 @@ export default function ResetPassword() {
         }, 3000);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to reset password. Please try again.");
+        toast.error(
+          error.message || "Failed to reset password. Please try again.",
+        );
         setSubmitting(false);
       },
       onSettled: () => {
@@ -120,7 +120,9 @@ export default function ResetPassword() {
         {isStaff ? (
           <Formik
             initialValues={staffInitialValues}
-            validationSchema={toFormikValidationSchema(staffResetPasswordSchema)}
+            validationSchema={toFormikValidationSchema(
+              staffResetPasswordSchema,
+            )}
             onSubmit={handleStaffSubmit}
             validateOnBlur={true}
             validateOnChange={false}
@@ -152,7 +154,11 @@ export default function ResetPassword() {
                   label="Confirm New Password"
                   type="password"
                   placeholder="••••••••"
-                  error={touched.password_confirmation ? errors.password_confirmation : undefined}
+                  error={
+                    touched.password_confirmation
+                      ? errors.password_confirmation
+                      : undefined
+                  }
                   disabled={isUserPending || isStaffPending || isSubmitting}
                   autoComplete="new-password"
                   {...getFieldProps("password_confirmation")}
@@ -207,7 +213,11 @@ export default function ResetPassword() {
                   label="Confirm New Password"
                   type="password"
                   placeholder="••••••••"
-                  error={touched.password_confirmation ? errors.password_confirmation : undefined}
+                  error={
+                    touched.password_confirmation
+                      ? errors.password_confirmation
+                      : undefined
+                  }
                   disabled={isUserPending || isStaffPending || isSubmitting}
                   autoComplete="new-password"
                   {...getFieldProps("password_confirmation")}
