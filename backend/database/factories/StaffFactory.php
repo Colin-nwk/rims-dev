@@ -59,6 +59,8 @@ class StaffFactory extends Factory
             'assigned_state' => null,
             'prison' => null,
             'zone_id' => null,
+            'initial_command' => null,
+            'present_command' => null,
         ];
     }
 }

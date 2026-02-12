@@ -11,6 +11,66 @@ class Staff extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
     use \App\Traits\AuthorizesScopedAccess, \App\Traits\FilterableTrait, \App\Traits\HasRolesTrait, \App\Traits\RetirementTrait, HasApiTokens, HasFactory, Notifiable;
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($staff) {
+            // Check if rank or command fields have changed
+            $changes = $staff->getDirty();
+
+            if (isset($changes['present_rank']) || isset($changes['present_command'])) {
+                // Get the user who made the change (from the request context if available)
+                $changedBy = null;
+                if (app()->bound('request')) {
+                    $request = app('request');
+                    $user = $request->user();
+                    if ($user) {
+                        $changedBy = $user->id;
+                    }
+                }
+
+                // Create career history records for the changes
+                if (isset($changes['present_rank'])) {
+                    StaffCareer::create([
+                        'service_no' => $staff->service_no,
+                        'field_changed' => 'present_rank',
+                        'old_value' => $staff->getOriginal('present_rank'),
+                        'new_value' => $changes['present_rank'],
+                        'effective_date' => now(),
+                        'reason' => 'Rank update',
+                        'changed_by' => $changedBy,
+                    ]);
+                }
+
+                if (isset($changes['present_command'])) {
+                    // Convert command IDs to state names for better readability
+                    $oldCommandName = null;
+                    $newCommandName = null;
+
+                    if ($staff->getOriginal('present_command')) {
+                        $oldState = State::find($staff->getOriginal('present_command'));
+                        $oldCommandName = $oldState ? $oldState->state : $staff->getOriginal('present_command');
+                    }
+
+                    if ($changes['present_command']) {
+                        $newState = State::find($changes['present_command']);
+                        $newCommandName = $newState ? $newState->state : $changes['present_command'];
+                    }
+
+                    StaffCareer::create([
+                        'service_no' => $staff->service_no,
+                        'field_changed' => 'present_command',
+                        'old_value' => $oldCommandName,
+                        'new_value' => $newCommandName,
+                        'effective_date' => now(),
+                        'reason' => 'Command update',
+                        'changed_by' => $changedBy,
+                    ]);
+                }
+            }
+        });
+    }
 
     protected $fillable = [
         'service_no',
@@ -119,6 +179,11 @@ class Staff extends Authenticatable
     public function documents()
     {
         return $this->hasMany(StaffDocument::class, 'service_no', 'service_no');
+    }
+
+    public function careerHistory()
+    {
+        return $this->hasMany(StaffCareer::class, 'service_no', 'service_no')->orderBy('created_at', 'desc');
     }
 
     public function assignedState()
