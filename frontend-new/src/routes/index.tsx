@@ -18,10 +18,12 @@ import PublicComplaint from "@/pages/auth/Complaint";
 // Protected pages
 import DashboardRouter from "@/pages/Dashboard/DashboardRouter";
 import QualificationsRouter from "@/pages/Qualifications/QualificationsRouter";
+import PersonnelDocumentsRouter from "@/pages/PersonnelDocuments/PersonnelDocumentsRouter";
 import Complaints from "@/pages/Complaints";
 import StaffDirectory from "@/pages/staff/StaffDirectory";
 import CreateStaffFormPage from "@/pages/staff/CreateStaffFormPage";
 import EditStaffFormPage from "@/pages/staff/EditStaffFormPage";
+import StaffViewPage from "@/pages/staff/StaffViewPage";
 import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
 import ChangeRequests from "@/pages/ChangeRequests";
@@ -91,6 +93,10 @@ export const routes = [
         element: <QualificationsRouter />,
       },
       {
+        path: ROUTES.PERSONNEL_DOCUMENTS,
+        element: <PersonnelDocumentsRouter />,
+      },
+      {
         path: ROUTES.HELP_DESK,
         element: <Complaints />,
       },
@@ -127,6 +133,10 @@ export const routes = [
           {
             path: ROUTES.STAFF_EDIT,
             element: <EditStaffFormPage />,
+          },
+          {
+            path: ROUTES.STAFF_VIEW,
+            element: <StaffViewPage />,
           },
           {
             path: ROUTES.ADMIN_USERS_DIRECTORY,

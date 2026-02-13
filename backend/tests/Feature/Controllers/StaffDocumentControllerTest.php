@@ -59,7 +59,6 @@ class StaffDocumentControllerTest extends TestCase
         ]);
     }
 
-
     public function test_bulk_store_creates_multiple_change_requests(): void
     {
         $user = User::factory()->create();
@@ -85,8 +84,8 @@ class StaffDocumentControllerTest extends TestCase
                     'document_name' => 'Passport',
                     'file' => $file2,
                     'notes' => 'Doc 2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->postJson('/api/v1/staff-documents/bulk', $data);
@@ -104,7 +103,7 @@ class StaffDocumentControllerTest extends TestCase
             'type' => 'CREATE',
             'status' => 'PENDING',
         ]);
-        
+
         $this->assertEquals(2, \App\Models\ChangeRequest::where('service_no', 'DOC_BULK_01')->count());
     }
 
@@ -139,7 +138,7 @@ class StaffDocumentControllerTest extends TestCase
         $user = User::factory()->create();
         $admin = User::factory()->create();
         $staff = Staff::factory()->create(['service_no' => 'DOC_VERIFY_01']);
-        
+
         // Create an existing document
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_VERIFY_01',
@@ -167,7 +166,7 @@ class StaffDocumentControllerTest extends TestCase
         // Simulate a staff member with approval rights
         $approverStaff = Staff::factory()->create(['service_no' => 'APPROVER_01']);
         $staff = Staff::factory()->create(['service_no' => 'DOC_VERIFY_02']);
-        
+
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_VERIFY_02',
             'verification_status' => 'pending',
@@ -182,7 +181,7 @@ class StaffDocumentControllerTest extends TestCase
             ->assertJsonPath('data.verification_status', 'verified')
             ->assertJsonPath('data.verifier_id', $approverStaff->id)
             ->assertJsonPath('data.verifier_type', Staff::class);
-            
+
         $document->refresh();
         $this->assertEquals('verified', $document->verification_status);
         $this->assertEquals($approverStaff->id, $document->verifier_id);
@@ -194,7 +193,7 @@ class StaffDocumentControllerTest extends TestCase
         $user = User::factory()->create();
         $admin = User::factory()->create();
         $staff = Staff::factory()->create(['service_no' => 'DOC_REJECT_01']);
-        
+
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_REJECT_01',
             'verification_status' => 'pending',
@@ -204,7 +203,7 @@ class StaffDocumentControllerTest extends TestCase
         Gate::define('staff-document.verify', fn () => true);
 
         $response = $this->postJson("/api/v1/staff-documents/{$document->id}/reject", [
-            'reason' => 'Photo too blurry'
+            'reason' => 'Photo too blurry',
         ]);
 
         $response->assertStatus(200)
@@ -320,11 +319,11 @@ class StaffDocumentControllerTest extends TestCase
     {
         $admin = User::factory()->create();
         $staff = Staff::factory()->create(['service_no' => 'DOC_DEL_01']);
-        
+
         Storage::fake('public');
         $file = UploadedFile::fake()->create('todelete.jpg', 100);
         $path = $file->store('staff/documents', 'public');
-        
+
         $document = StaffDocument::factory()->create([
             'service_no' => 'DOC_DEL_01',
             'file_path' => $path,
@@ -339,6 +338,40 @@ class StaffDocumentControllerTest extends TestCase
 
         $this->assertDatabaseMissing('staff_documents', ['id' => $document->id]);
         Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_delete_clears_change_request_file_path(): void
+    {
+        $admin = User::factory()->create();
+        $staff = Staff::factory()->create(['service_no' => 'DOC_CLR_01']);
+
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('clear.pdf', 100);
+        $path = $file->store('staff/documents', 'public');
+
+        $document = StaffDocument::factory()->create([
+            'service_no' => 'DOC_CLR_01',
+            'file_path' => $path,
+        ]);
+
+        $changeRequest = $this->changeRequestService->submit(
+            StaffDocument::class,
+            'UPDATE',
+            ['file_path' => $path],
+            $admin,
+            $document->service_no,
+            $document->id
+        );
+
+        $this->actingAs($admin);
+        Gate::define('staff-document.delete', fn () => true);
+
+        $response = $this->deleteJson("/api/v1/staff-documents/{$document->id}");
+
+        $response->assertStatus(200);
+
+        $changeRequest->refresh();
+        $this->assertNull($changeRequest->data['file_path'] ?? null);
     }
 
     public function test_index_returns_documents(): void

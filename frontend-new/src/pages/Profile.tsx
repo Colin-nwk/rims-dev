@@ -231,12 +231,12 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={Building2}
               label="Present Command"
-              value={user.present_command}
+              value={getStateName(user.present_command, genericData?.states)}
             />
             <InfoItem
               icon={Building2}
               label="Initial Command"
-              value={user.initial_command}
+              value={getStateName(user.initial_command, genericData?.states)}
             />
           </div>
         </ProfileCard>

@@ -47,6 +47,17 @@ export interface StaffEducation {
   url?: string; // Certificate URL
 }
 
+export interface StaffCommandState {
+  id: number;
+  state: string;
+  capital?: string;
+  zone?: string;
+  zone_id?: number;
+  status?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // Main Staff Model
 export interface Staff {
   id: number;
@@ -79,8 +90,8 @@ export interface Staff {
   // Location
   state_of_origin?: string;
   lga?: string;
-  initial_command?: string;
-  present_command?: string;
+  initial_command?: string | number | StaffCommandState | null;
+  present_command?: string | number | StaffCommandState | null;
 
   // Administrative
   file_no?: string;
@@ -234,6 +245,7 @@ export interface StaffFilters {
   level?: number;
   department?: string;
   zone_id?: number;
+  age_range?: string;
 }
 
 // Change Request Response (returned when creating/updating staff)

@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
+import { changeRequestQueryKeys } from "../change-requests/changeRequestService";
+import { dashboardQueryKeys } from "../dashboard/dashboardService";
 import type { ApiResponse, PaginatedResponse, QueryOptions } from "../types";
 import type {
   AssignRoleDTO,
@@ -330,6 +332,16 @@ export const useUpdateStaff = () => {
       await queryClient.refetchQueries({
         queryKey: staffQueryKeys.detail(variables.serviceNo),
         type: "active",
+      });
+
+      // Invalidate change requests to update pending count badge
+      await queryClient.invalidateQueries({
+        queryKey: changeRequestQueryKeys.all,
+      });
+
+      // Invalidate dashboard stats to update pending count
+      await queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.all,
       });
     },
   });

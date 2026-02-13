@@ -56,6 +56,12 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       newErrors.password = "New password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one uppercase letter";
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one lowercase letter";
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one number";
     }
 
     if (!formData.password_confirmation) {
@@ -140,15 +146,27 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           <Key className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
           <div className="text-sm text-amber-800">
             {isOwnPassword ? (
-              <p>
-                Choose a strong password with at least 8 characters. Avoid using
-                easily guessable information.
-              </p>
+              <div>
+                <p className="mb-2">Password requirements:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs">
+                  <li>At least 8 characters</li>
+                  <li>At least one uppercase letter (A-Z)</li>
+                  <li>At least one lowercase letter (a-z)</li>
+                  <li>At least one number (0-9)</li>
+                </ul>
+              </div>
             ) : (
-              <p>
-                You are resetting the password for this staff member. They will
-                need to use the new password to log in.
-              </p>
+              <div>
+                <p className="mb-2">
+                  You are resetting the password for this staff member. Password requirements:
+                </p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs">
+                  <li>At least 8 characters</li>
+                  <li>At least one uppercase letter (A-Z)</li>
+                  <li>At least one lowercase letter (a-z)</li>
+                  <li>At least one number (0-9)</li>
+                </ul>
+              </div>
             )}
           </div>
         </div>

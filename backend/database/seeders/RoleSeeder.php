@@ -35,14 +35,22 @@ class RoleSeeder extends Seeder
         );
 
         $staffPermissions = \App\Models\Permission::whereIn('name', [
+            // Complaint self-service permissions
             'complaint.create',
             'complaint.view',
+            // Staff self-service permissions
             'staff.view',
+            'staff.edit',
             // Staff education self-service permissions
             'staff-education.view',
             'staff-education.create',
             'staff-education.edit',
             'staff-education.delete',
+            // Staff document self-service permissions
+            'staff-document.view',
+            'staff-document.create',
+            'staff-document.edit',
+            'staff-document.delete',
         ])->get();
 
         $staffRole->permissions()->sync($staffPermissions);

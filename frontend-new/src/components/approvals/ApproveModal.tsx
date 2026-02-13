@@ -8,6 +8,7 @@ import {
   getTypeColor,
   getIdentifier,
 } from "@/lib/api/change-requests";
+import { FilePreviewLink } from "@/components/file-preview-link/FilePreviewLink";
 
 interface ApproveModalProps {
   isOpen: boolean;
@@ -60,6 +61,45 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
     if (typeof value === "boolean") return value ? "Yes" : "No";
     if (typeof value === "object") return JSON.stringify(value);
     return String(value);
+  };
+
+  const isFileLinkKey = (key: string): boolean => {
+    const normalizedKey = key.toLowerCase();
+    return (
+      normalizedKey === "file_path" ||
+      normalizedKey.endsWith(".file_path") ||
+      normalizedKey === "url" ||
+      normalizedKey.endsWith(".url") ||
+      normalizedKey === "certificate_url" ||
+      normalizedKey.endsWith(".certificate_url") ||
+      normalizedKey === "photo" ||
+      normalizedKey.endsWith(".photo")
+    );
+  };
+
+  const getFileLinkValue = (value: unknown): string | null => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  };
+
+  const isFileMetaKey = (key: string): boolean => {
+    const normalizedKey = key.toLowerCase();
+    return (
+      normalizedKey.endsWith("file_size") ||
+      normalizedKey.endsWith("mime_type") ||
+      normalizedKey.endsWith("file_type") ||
+      normalizedKey.endsWith("file_name") ||
+      normalizedKey.endsWith("filename") ||
+      normalizedKey.endsWith("content_type") ||
+      normalizedKey.endsWith("content_length")
+    );
+  };
+
+  const getKeyPrefix = (key: string): string => {
+    const parts = key.split(".");
+    parts.pop();
+    return parts.join(".");
   };
 
   // Flatten nested objects (e.g., details.ippis)
@@ -125,6 +165,19 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
   };
 
   const flattenedData = flattenData(request.data);
+  const fileLinkAvailability = Object.entries(flattenedData).reduce(
+    (acc, [key, value]) => {
+      if (isFileLinkKey(key) && getFileLinkValue(value)) {
+        acc.add(getKeyPrefix(key));
+      }
+      return acc;
+    },
+    new Set<string>(),
+  );
+  const shouldHideFileMetaKey = (key: string): boolean => {
+    if (!isFileMetaKey(key)) return false;
+    return !fileLinkAvailability.has(getKeyPrefix(key));
+  };
   const changesCount = Object.keys(flattenedData).length;
 
   return (
@@ -213,6 +266,8 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
           <div className="max-h-64 overflow-y-auto border rounded-lg bg-white border-slate-200">
             <div className="divide-y divide-slate-100">
               {Object.entries(flattenedData).map(([key, proposedValue]) => {
+                if (shouldHideFileMetaKey(key)) return null;
+
                 const currentValue = getCurrentValue(key);
                 const hasChanged = valuesAreDifferent(
                   currentValue,
@@ -261,13 +316,25 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                             >
                               {formatValue(currentValue)}
                             </div>
+                            {isFileLinkKey(key) &&
+                              getFileLinkValue(currentValue) && (
+                                <div className="mt-2">
+                                  <FilePreviewLink
+                                    value={
+                                      getFileLinkValue(currentValue) as string
+                                    }
+                                  />
+                                </div>
+                              )}
                           </div>
                         )}
 
                         {hasChanged && (
                           <>
                             {!isNewField && (
-                              <div className="text-emerald-600 shrink-0 hidden sm:block">→</div>
+                              <div className="text-emerald-600 shrink-0 hidden sm:block">
+                                →
+                              </div>
                             )}
                             <div className="flex-1 min-w-0">
                               <div
@@ -288,6 +355,18 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                               >
                                 {formatValue(proposedValue)}
                               </div>
+                              {isFileLinkKey(key) &&
+                                getFileLinkValue(proposedValue) && (
+                                  <div className="mt-2">
+                                    <FilePreviewLink
+                                      value={
+                                        getFileLinkValue(
+                                          proposedValue,
+                                        ) as string
+                                      }
+                                    />
+                                  </div>
+                                )}
                             </div>
                           </>
                         )}
@@ -295,6 +374,16 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                     ) : (
                       <div className="text-sm font-medium text-slate-900 wrap-break-word">
                         {formatValue(proposedValue)}
+                        {isFileLinkKey(key) &&
+                          getFileLinkValue(proposedValue) && (
+                            <div className="mt-2">
+                              <FilePreviewLink
+                                value={
+                                  getFileLinkValue(proposedValue) as string
+                                }
+                              />
+                            </div>
+                          )}
                       </div>
                     )}
                   </div>

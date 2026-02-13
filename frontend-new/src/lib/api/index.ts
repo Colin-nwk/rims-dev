@@ -16,6 +16,7 @@ export * from "./change-requests";
 export * from "./roles";
 export * from "./complaints";
 export * from "./users";
+export * from "./staff-documents";
 
 export {
   statisticsService,

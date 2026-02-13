@@ -32,6 +32,7 @@ import {
   sexOptions,
 } from "@/lib/api/staff";
 import { getFileUrl, useGenericData } from "@/lib/api";
+import { getStateId, getStateName } from "@/lib/helpers/genericDataHelpers";
 
 // Form values type that allows photo to be File or string (for edit mode)
 type StaffFormValues = Omit<CreateStaffFormData, "photo"> & {
@@ -852,7 +853,10 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         initial_rank: staff.initial_rank || "",
         level: staff.level,
         step: staff.step || "",
-        assigned_state: staff.assigned_state || "",
+        assigned_state:
+          getStateId(staff.assigned_state, genericData?.states) ||
+          staff.assigned_state ||
+          "",
         prison: staff.prison || "",
         dob: staff.dob || "",
         date_of_first_appointment: staff.date_of_first_appointment || "",
@@ -860,8 +864,10 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         command_post_date: staff.command_post_date || "",
         state_of_origin: staff.state_of_origin || "",
         lga: staff.lga || "",
-        initial_command: staff.initial_command || "",
-        present_command: staff.present_command || "",
+        initial_command:
+          getStateName(staff.initial_command, genericData?.states) || "",
+        present_command:
+          getStateName(staff.present_command, genericData?.states) || "",
         file_no: staff.file_no || "",
         ippis: staff.ippis || "",
         description: staff.description || "",

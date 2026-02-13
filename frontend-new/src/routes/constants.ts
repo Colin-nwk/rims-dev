@@ -10,10 +10,12 @@ export const ROUTES = {
   // Protected
   DASHBOARD: "/dashboard",
   QUALIFICATIONS: "/qualifications",
+  PERSONNEL_DOCUMENTS: "/personnel_documents",
   HELP_DESK: "/help-desk",
   STAFF_DIRECTORY: "/staff",
   STAFF_ADD: "/staff/add",
   STAFF_EDIT: "/staff/edit/:serviceNo",
+  STAFF_VIEW: "/staff/view/:serviceNo",
   ADMIN_USERS_DIRECTORY: "/admin-users",
   APPROVALS: "/approvals",
   CHANGE_REQUESTS: "/change-requests",

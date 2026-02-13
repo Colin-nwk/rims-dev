@@ -8,6 +8,7 @@ import {
   getTypeColor,
   getIdentifier,
 } from "@/lib/api/change-requests";
+import { FilePreviewLink } from "@/components/file-preview-link/FilePreviewLink";
 import { User, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 
 interface RequestDetailModalProps {
@@ -109,23 +110,43 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     return String(value);
   };
 
-  // Helper to get current value from model data (handles nested paths like details.ippis)
-  const getCurrentValue = (key: string): unknown => {
-    if (!request.model) return undefined;
+  const isFileLinkKey = (key: string): boolean => {
+    const normalizedKey = key.toLowerCase();
+    return (
+      normalizedKey === "file_path" ||
+      normalizedKey.endsWith(".file_path") ||
+      normalizedKey === "url" ||
+      normalizedKey.endsWith(".url") ||
+      normalizedKey === "certificate_url" ||
+      normalizedKey.endsWith(".certificate_url") ||
+      normalizedKey === "photo" ||
+      normalizedKey.endsWith(".photo")
+    );
+  };
 
-    // Handle nested keys (e.g., "details.ippis")
-    const keys = key.split(".");
-    let value: unknown = request.model;
+  const getFileLinkValue = (value: unknown): string | null => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  };
 
-    for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
-        value = (value as Record<string, unknown>)[k];
-      } else {
-        return undefined;
-      }
-    }
+  const isFileMetaKey = (key: string): boolean => {
+    const normalizedKey = key.toLowerCase();
+    return (
+      normalizedKey.endsWith("file_size") ||
+      normalizedKey.endsWith("mime_type") ||
+      normalizedKey.endsWith("file_type") ||
+      normalizedKey.endsWith("file_name") ||
+      normalizedKey.endsWith("filename") ||
+      normalizedKey.endsWith("content_type") ||
+      normalizedKey.endsWith("content_length")
+    );
+  };
 
-    return value;
+  const getKeyPrefix = (key: string): string => {
+    const parts = key.split(".");
+    parts.pop();
+    return parts.join(".");
   };
 
   // Helper to flatten nested data for comparison (e.g., {details: {ippis: "123"}} -> {"details.ippis": "123"})
@@ -155,6 +176,41 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     }
 
     return result;
+  };
+
+  const flattenedData = flattenData(request.data);
+  const fileLinkAvailability = Object.entries(flattenedData).reduce(
+    (acc, [key, value]) => {
+      if (isFileLinkKey(key) && getFileLinkValue(value)) {
+        acc.add(getKeyPrefix(key));
+      }
+      return acc;
+    },
+    new Set<string>(),
+  );
+
+  const shouldHideFileMetaKey = (key: string): boolean => {
+    if (!isFileMetaKey(key)) return false;
+    return !fileLinkAvailability.has(getKeyPrefix(key));
+  };
+
+  // Helper to get current value from model data (handles nested paths like details.ippis)
+  const getCurrentValue = (key: string): unknown => {
+    if (!request.model) return undefined;
+
+    // Handle nested keys (e.g., "details.ippis")
+    const keys = key.split(".");
+    let value: unknown = request.model;
+
+    for (const k of keys) {
+      if (value && typeof value === "object" && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return undefined;
+      }
+    }
+
+    return value;
   };
 
   // Check if values are different (handles null/undefined/empty string equality)
@@ -332,28 +388,44 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
               {request.type === "CREATE" ? (
                 // For CREATE requests, show simple grid
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  {Object.entries(request.data).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="p-3 bg-white border rounded-md border-slate-100 hover:shadow-sm transition-shadow"
-                    >
-                      <span className="block text-xs font-medium uppercase tracking-wider text-slate-400">
-                        {formatKey(key)}
-                      </span>
-                      <span className="block mt-1 text-sm text-slate-900 wrap-break-word">
-                        {formatValue(value)}
-                      </span>
-                    </div>
-                  ))}
+                  {Object.entries(request.data).map(([key, value]) => {
+                    const filePath = isFileLinkKey(key)
+                      ? getFileLinkValue(value)
+                      : null;
+
+                    if (shouldHideFileMetaKey(key)) return null;
+
+                    return (
+                      <div
+                        key={key}
+                        className="p-3 bg-white border rounded-md border-slate-100 hover:shadow-sm transition-shadow"
+                      >
+                        <span className="block text-xs font-medium uppercase tracking-wider text-slate-400">
+                          {formatKey(key)}
+                        </span>
+                        <span className="block mt-1 text-sm text-slate-900 wrap-break-word">
+                          {isFileLinkKey(key) && !filePath
+                            ? "File has been removed"
+                            : formatValue(value)}
+                        </span>
+                        {filePath && (
+                          <div className="mt-2">
+                            <FilePreviewLink value={filePath} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 // For UPDATE/SENSITIVE requests, show before/after comparison
                 <div className="space-y-2">
                   {(() => {
-                    const flattenedData = flattenData(request.data);
                     const entries = Object.entries(flattenedData);
 
                     return entries.map(([key, proposedValue]) => {
+                      if (shouldHideFileMetaKey(key)) return null;
+
                       const currentValue = getCurrentValue(key);
                       const hasChanged = valuesAreDifferent(
                         currentValue,
@@ -400,6 +472,18 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                                       >
                                         {formatValue(currentValue)}
                                       </div>
+                                      {isFileLinkKey(key) &&
+                                        getFileLinkValue(currentValue) && (
+                                          <div className="mt-2">
+                                            <FilePreviewLink
+                                              value={
+                                                getFileLinkValue(
+                                                  currentValue,
+                                                ) as string
+                                              }
+                                            />
+                                          </div>
+                                        )}
                                     </div>
                                   )}
 
@@ -461,6 +545,18 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                                         >
                                           {formatValue(proposedValue)}
                                         </div>
+                                        {isFileLinkKey(key) &&
+                                          getFileLinkValue(proposedValue) && (
+                                            <div className="mt-2">
+                                              <FilePreviewLink
+                                                value={
+                                                  getFileLinkValue(
+                                                    proposedValue,
+                                                  ) as string
+                                                }
+                                              />
+                                            </div>
+                                          )}
                                       </div>
                                     </>
                                   )}
@@ -469,6 +565,18 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                                 // No current data available, just show proposed
                                 <div className="text-sm font-medium text-slate-900 wrap-break-word">
                                   {formatValue(proposedValue)}
+                                  {isFileLinkKey(key) &&
+                                    getFileLinkValue(proposedValue) && (
+                                      <div className="mt-2">
+                                        <FilePreviewLink
+                                          value={
+                                            getFileLinkValue(
+                                              proposedValue,
+                                            ) as string
+                                          }
+                                        />
+                                      </div>
+                                    )}
                                 </div>
                               )}
                             </div>

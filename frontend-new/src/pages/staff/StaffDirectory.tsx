@@ -3,7 +3,6 @@ import { RoleManageModal } from "@/components/staff/RoleManageModal";
 import { StaffFilters } from "@/components/staff/StaffFilters";
 import { StaffIDCard } from "@/components/staff/StaffIDCard";
 import { StaffTable } from "@/components/staff/StaffTable";
-import { StaffViewModal } from "@/components/staff/StaffViewModal";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import {
@@ -33,7 +32,6 @@ const StaffDirectory = () => {
   // Modal states
   const [showIDCard, setShowIDCard] = useState(false);
   const [idCardServiceNo, setIdCardServiceNo] = useState<string>("");
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
@@ -51,6 +49,7 @@ const StaffDirectory = () => {
       assigned_state: filters.assigned_state,
       prison: filters.prison,
       zone_id: filters.zone_id,
+      age_range: filters.age_range,
     },
   );
 
@@ -96,8 +95,7 @@ const StaffDirectory = () => {
 
   // View handler
   const handleView = (staff: Staff) => {
-    setSelectedStaff(staff);
-    setIsViewModalOpen(true);
+    navigate(ROUTES.STAFF_VIEW.replace(":serviceNo", staff.service_no));
   };
 
   // Edit handler - navigate to edit page
@@ -149,24 +147,6 @@ const StaffDirectory = () => {
   // Export handler
   const handleExport = () => {
     toast.info("Export functionality coming soon");
-  };
-
-  // View modal close handler
-  const handleViewModalClose = () => {
-    setIsViewModalOpen(false);
-    setSelectedStaff(null);
-  };
-
-  // Edit from view modal - navigate to edit page
-  const handleEditFromView = (staff: Staff) => {
-    setIsViewModalOpen(false);
-    navigate(ROUTES.STAFF_EDIT.replace(":serviceNo", staff.service_no));
-  };
-
-  // View ID card from view modal
-  const handleViewIDCardFromView = (staff: Staff) => {
-    setIsViewModalOpen(false);
-    handleViewIDCard(staff);
   };
 
   // Delete modal close handler
@@ -336,15 +316,6 @@ const StaffDirectory = () => {
             staffData={idCardData?.data || null}
           />
         )}
-
-        {/* Staff View Modal */}
-        <StaffViewModal
-          isOpen={isViewModalOpen}
-          onClose={handleViewModalClose}
-          staff={selectedStaff}
-          onEdit={handleEditFromView}
-          onViewIDCard={handleViewIDCardFromView}
-        />
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmModal

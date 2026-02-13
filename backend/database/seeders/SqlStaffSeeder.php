@@ -111,6 +111,9 @@ class SqlStaffSeeder extends Seeder
                 continue;
             }
 
+            // Fix empty strings that should be NULL for integer columns
+            $statement = $this->fixEmptyStringsForIntegerColumns($statement);
+
             try {
                 DB::unprepared($statement);
             } catch (\Exception $e) {
@@ -137,6 +140,64 @@ class SqlStaffSeeder extends Seeder
             }
             $this->command->newLine();
         }
+    }
+
+    /**
+     * Fix invalid values that should be NULL for integer columns in INSERT statements.
+     *
+     * This handles legacy SQL data where integer columns may contain empty strings
+     * or invalid placeholder strings instead of NULL values.
+     */
+    protected function fixEmptyStringsForIntegerColumns(string $statement): string
+    {
+        // Only process INSERT statements for staff-related tables
+        if (! preg_match('/INSERT\s+INTO\s+`?(staff|staff_details|staff_education)`?/i', $statement)) {
+            return $statement;
+        }
+
+        // Replace invalid placeholder tokens like '? string:37 ?' or '? object:null ?' with NULL
+        $statement = preg_replace(
+            "/'\?\s*(?:string|object|undefine|undefined)[^']*'/i",
+            'NULL',
+            $statement
+        );
+        $statement = preg_replace(
+            "/\?\s*(?:string|object|undefine|undefined)[^,)]*(?=,|\))/i",
+            'NULL',
+            $statement
+        );
+
+        // Run replacements multiple times to handle consecutive empty strings
+        // and overlapping patterns
+        $maxIterations = 10;
+        $iteration = 0;
+        $previousStatement = '';
+
+        while ($previousStatement !== $statement && $iteration < $maxIterations) {
+            $previousStatement = $statement;
+            $iteration++;
+
+            // Replace empty strings in various positions with NULL
+            // Pattern: , '', (empty string between commas)
+            $statement = preg_replace("/,\s*''\s*,/", ', NULL,', $statement);
+
+            // Pattern: ('', (empty string at start of values)
+            $statement = preg_replace("/\(\s*''\s*,/", '(NULL,', $statement);
+
+            // Pattern: , '') (empty string at end of values)
+            $statement = preg_replace("/,\s*''\s*\)/", ', NULL)', $statement);
+
+            // Pattern: ('') (single empty string value - rare but possible)
+            $statement = preg_replace("/\(\s*''\s*\)/", '(NULL)', $statement);
+
+            // Handle cases where empty string follows NULL: NULL, '',
+            $statement = preg_replace("/NULL,\s*''\s*,/", 'NULL, NULL,', $statement);
+
+            // Handle cases where empty string precedes NULL: '', NULL
+            $statement = preg_replace("/,\s*''\s*,\s*NULL/", ', NULL, NULL', $statement);
+        }
+
+        return $statement;
     }
 
     /**

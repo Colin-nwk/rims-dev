@@ -29,6 +29,7 @@ import {
 } from "@/lib/api/auth/types";
 import { getFileUrl } from "@/lib/api/apiClient";
 import { useChangeRequests } from "@/lib/api/change-requests";
+import { getPrisonName, getStateName } from "@/lib/helpers/genericDataHelpers";
 import {
   type CreateComplaintFormData,
   useCreateComplaint,
@@ -137,6 +138,9 @@ const StaffDashboard = () => {
   const initials = getUserInitials(staffUser);
   const photoUrl = staffUser.photo ? getFileUrl(staffUser.photo, staffUser.updated_at) : null;
   const retirementInfo = staffUser.retirement_time_remaining;
+  const presentCommandName = getStateName(staffUser.present_command);
+  const assignedStateName = getStateName(staffUser.assigned_state);
+  const prisonName = getPrisonName(staffUser.prison);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -435,7 +439,7 @@ const StaffDashboard = () => {
                   Present Command
                 </p>
                 <p className="text-base sm:text-lg font-bold text-slate-800 mt-1 truncate">
-                  {staffUser.present_command || "Not assigned"}
+                  {presentCommandName || "Not assigned"}
                 </p>
               </div>
             </div>
@@ -452,11 +456,11 @@ const StaffDashboard = () => {
                   Assigned Location
                 </p>
                 <p className="text-base sm:text-lg font-bold text-slate-800 mt-1 truncate">
-                  {staffUser.assigned_state || "Not assigned"}
+                  {assignedStateName || "Not assigned"}
                 </p>
-                {staffUser.prison && (
+                {prisonName && (
                   <p className="text-sm text-slate-600 truncate">
-                    {staffUser.prison}
+                    {prisonName}
                   </p>
                 )}
               </div>

@@ -335,6 +335,26 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             ))}
           </select>
         </div>
+
+        {/* Age Range */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Age Range
+          </label>
+          <select
+            value={filters.age_range || ""}
+            onChange={(e) => handleFilterChange("age_range", e.target.value)}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
+          >
+            <option value="">All Ages</option>
+            <option value="18-25">18 - 25 years</option>
+            <option value="26-35">26 - 35 years</option>
+            <option value="36-45">36 - 45 years</option>
+            <option value="46-55">46 - 55 years</option>
+            <option value="56-60">56 - 60 years</option>
+            <option value="60+">60+ years</option>
+          </select>
+        </div>
       </div>
     </div>
   );
