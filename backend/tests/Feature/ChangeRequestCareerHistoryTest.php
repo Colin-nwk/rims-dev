@@ -16,15 +16,18 @@ class ChangeRequestCareerHistoryTest extends TestCase
     public function test_change_request_approval_creates_career_history()
     {
         $admin = User::factory()->create();
+        $corporal = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
+        $sergeant = \App\Models\Ranking::factory()->create(['title' => 'Sergeant']);
+        
         $staff = Staff::factory()->create([
-            'present_rank' => 'Corporal',
+            'present_rank' => $corporal->id,
         ]);
 
         // Grant permission
         \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
 
         $data = [
-            'present_rank' => 'Sergeant',
+            'present_rank' => $sergeant->id,
         ];
 
         // Submit the change request
@@ -58,7 +61,7 @@ class ChangeRequestCareerHistoryTest extends TestCase
 
         // Check that the staff rank was updated
         $staff->refresh();
-        $this->assertEquals('Sergeant', $staff->present_rank);
+        $this->assertEquals($sergeant->id, $staff->present_rank);
 
         // Check that a career history record was created
         $this->assertDatabaseHas('staff_careers', [
