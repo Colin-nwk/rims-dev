@@ -3,11 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -18,7 +18,9 @@ class User extends Authenticatable
      * Status constants mapping integers to string labels
      */
     public const STATUS_ACTIVE = 1;
+
     public const STATUS_INACTIVE = 0;
+
     public const STATUS_SUSPENDED = 2;
 
     public const STATUS_MAP = [

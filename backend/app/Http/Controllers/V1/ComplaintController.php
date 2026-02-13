@@ -240,12 +240,12 @@ class ComplaintController extends Controller
     {
         // Sanitize all inputs to prevent XSS
         $sanitizedData = array_map('htmlspecialchars', $data);
-        
+
         $fullName = trim("{$sanitizedData['first_name']} {$sanitizedData['other_names']} {$sanitizedData['last_name']}");
 
-        $message = "<div style=\"margin-bottom: 16px;\">";
-        $message .= "<p><strong>Contact Information:</strong></p>";
-        $message .= "<ul style=\"margin: 8px 0; padding-left: 20px;\">";
+        $message = '<div style="margin-bottom: 16px;">';
+        $message .= '<p><strong>Contact Information:</strong></p>';
+        $message .= '<ul style="margin: 8px 0; padding-left: 20px;">';
         $message .= "<li><strong>Name:</strong> {$fullName}</li>";
         $message .= "<li><strong>Service Number:</strong> {$sanitizedData['service_no']}</li>";
         $message .= "<li><strong>IPPIS:</strong> {$sanitizedData['ippis']}</li>";
@@ -257,13 +257,13 @@ class ComplaintController extends Controller
             $message .= "<li><strong>Email:</strong> {$sanitizedData['email']}</li>";
         }
 
-        $message .= "</ul>";
+        $message .= '</ul>';
         $message .= "<p><strong>Related To:</strong> {$sanitizedData['related_to']}</p>";
-        $message .= "</div>";
-        $message .= "<div style=\"border-top: 1px solid #e5e7eb; padding-top: 16px;\">";
-        $message .= "<p><strong>Message:</strong></p>";
+        $message .= '</div>';
+        $message .= '<div style="border-top: 1px solid #e5e7eb; padding-top: 16px;">';
+        $message .= '<p><strong>Message:</strong></p>';
         $message .= $sanitizedData['message'];
-        $message .= "</div>";
+        $message .= '</div>';
 
         return $message;
     }

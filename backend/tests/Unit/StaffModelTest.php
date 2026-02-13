@@ -3,8 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\Staff;
-use App\Models\StaffCareer;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +13,7 @@ class StaffModelTest extends TestCase
     public function test_creating_staff_with_rank_creates_initial_career_history()
     {
         $rank = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
-        
+
         $staff = Staff::factory()->create([
             'present_rank' => $rank->id,
         ]);

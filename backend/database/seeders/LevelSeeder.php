@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class LevelSeeder extends Seeder
@@ -18,7 +17,7 @@ class LevelSeeder extends Seeder
                 ['level_number' => $i],
                 [
                     'level' => "GL $i",
-                    'status' => 1
+                    'status' => 1,
                 ]
             );
         }

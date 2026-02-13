@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('reason')->nullable(); // Reason for the change
             $table->unsignedBigInteger('changed_by')->nullable(); // ID of user who made the change
             $table->timestamps();
-            
+
             // Foreign key constraint for staff
             $table->foreign('service_no')->references('service_no')->on('staff')->onDelete('cascade');
         });

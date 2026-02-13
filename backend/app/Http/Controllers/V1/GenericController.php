@@ -87,7 +87,6 @@ class GenericController extends Controller
         return response()->noContent();
     }
 
-    
     /**
      * Get all filter options data in one call.
      */

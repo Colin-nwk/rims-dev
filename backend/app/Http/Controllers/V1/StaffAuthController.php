@@ -29,7 +29,7 @@ class StaffAuthController extends Controller
         if (! $staff || ! Hash::check($request->password, $staff->password)) {
             // Add a small delay to prevent timing attacks
             usleep(random_int(100000, 300000)); // 100-300ms delay
-            
+
             return $this->errorResponse('Invalid login details', 422);
         }
 
@@ -163,7 +163,7 @@ class StaffAuthController extends Controller
 
         if ($staff) {
             $token = Password::broker('staff')->createToken($staff);
-            $resetUrl = config('app.frontend_url') . '/staff/reset-password';
+            $resetUrl = config('app.frontend_url').'/staff/reset-password';
             $staff->notify(new PasswordResetNotification($token, $resetUrl, 'staff'));
         }
 
@@ -220,4 +220,3 @@ class StaffAuthController extends Controller
         return $this->successResponse(null, 'Password changed successfully');
     }
 }
-

@@ -97,7 +97,7 @@ class StatisticsService
 
         return $this->getPresentRankDistribution($filters, $total);
     }
-    
+
     public function getInitialRankStats(array $filters = []): array
     {
         $query = $this->buildStaffQuery($filters);
@@ -105,7 +105,7 @@ class StatisticsService
 
         return $this->getInitialRankDistribution($filters, $total);
     }
-    
+
     public function getInitialCommandStats(array $filters = []): array
     {
         $query = $this->buildStaffQuery($filters);
@@ -113,7 +113,7 @@ class StatisticsService
 
         return $this->getInitialCommandDistribution($filters, $total);
     }
-    
+
     public function getPresentCommandStats(array $filters = []): array
     {
         $query = $this->buildStaffQuery($filters);
@@ -324,7 +324,7 @@ class StatisticsService
             ])
             ->toArray();
     }
-    
+
     private function getInitialCommandDistribution(array $filters, int $total): array
     {
         return $this->buildStaffQuery($filters)
@@ -341,7 +341,7 @@ class StatisticsService
             ])
             ->toArray();
     }
-    
+
     private function getPresentCommandDistribution(array $filters, int $total): array
     {
         return $this->buildStaffQuery($filters)
@@ -358,7 +358,7 @@ class StatisticsService
             ])
             ->toArray();
     }
-    
+
     private function getInitialRankDistribution(array $filters, int $total): array
     {
         return $this->buildStaffQuery($filters)

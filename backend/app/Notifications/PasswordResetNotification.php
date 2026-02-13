@@ -7,10 +7,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-
 class PasswordResetNotification extends Notification
 
-// class PasswordResetNotification extends Notification implements ShouldQueue
+    // class PasswordResetNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -31,7 +30,7 @@ class PasswordResetNotification extends Notification
             ? $notifiable->service_no
             : $notifiable->email;
 
-        $url = "{$this->resetUrl}?token={$this->token}&" . ($this->userType === 'staff' ? "service_no={$identifier}" : "email={$identifier}");
+        $url = "{$this->resetUrl}?token={$this->token}&".($this->userType === 'staff' ? "service_no={$identifier}" : "email={$identifier}");
 
         $typeLabel = $this->userType === 'staff' ? 'Staff' : 'User';
         $name = $notifiable->name ?? $notifiable->first_name ?? $typeLabel;

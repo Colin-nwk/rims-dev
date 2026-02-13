@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StaffEducationService extends BaseService
 {
-
-     /**
+    /**
      * List document records with filters and relationships
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -18,7 +17,7 @@ class StaffEducationService extends BaseService
     public function allWithRelationships(array $filters = [])
     {
         return StaffEducation::with(['staff'])->filter($filters)
-            ->paginate($filters['per_page'] ?? 15);;
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

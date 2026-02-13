@@ -4,7 +4,6 @@ namespace Tests\Feature\Staff;
 
 use App\Models\Staff;
 use App\Models\State;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +33,7 @@ class CommandRelationshipTest extends TestCase
 
         $this->assertInstanceOf(State::class, $staff->presentCommand);
         $this->assertEquals('Abuja', $staff->presentCommand->state);
-        
+
         $this->assertInstanceOf(State::class, $staff->assignedState);
         $this->assertEquals('Lagos', $staff->assignedState->state);
     }

@@ -15,12 +15,12 @@ class StaffCareerController extends Controller
     public function index(Request $request, string $serviceNo)
     {
         $staff = Staff::where('service_no', $serviceNo)->firstOrFail();
-        
+
         // Allow staff to view their own career history without permission
         $user = $request->user();
         $isSelf = ($user instanceof Staff && $user->id === $staff->id) || ($user->service_no ?? null) === $staff->service_no;
 
-        if (!$isSelf) {
+        if (! $isSelf) {
             $this->authorize('staff.view');
         }
 
@@ -32,12 +32,12 @@ class StaffCareerController extends Controller
     public function show(Request $request, string $serviceNo, int $id)
     {
         $staff = Staff::where('service_no', $serviceNo)->firstOrFail();
-        
+
         // Allow staff to view their own career history without permission
         $user = $request->user();
         $isSelf = ($user instanceof Staff && $user->id === $staff->id) || ($user->service_no ?? null) === $staff->service_no;
 
-        if (!$isSelf) {
+        if (! $isSelf) {
             $this->authorize('staff.view');
         }
 
@@ -49,7 +49,7 @@ class StaffCareerController extends Controller
     public function store(Request $request, string $serviceNo)
     {
         $staff = Staff::where('service_no', $serviceNo)->firstOrFail();
-        
+
         // Only authorized users can manually add career records
         $this->authorize('staff.edit');
 

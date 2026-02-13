@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StaffCareer extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'service_no',
         'field_changed',

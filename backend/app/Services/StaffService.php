@@ -118,13 +118,13 @@ class StaffService extends BaseService
     public function find($id)
     {
         return Staff::with([
-            'details', 
-            'education', 
+            'details',
+            'education',
             'roles',
             'assignedState',
             'initialCommand',
             'presentCommand',
-            'documents'
+            'documents',
         ])->findOrFail($id);
     }
 
@@ -134,20 +134,20 @@ class StaffService extends BaseService
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
-    
+
     public function allWithRelationships(array $filters = [])
     {
         return Staff::with([
-            'details', 
-            'education', 
+            'details',
+            'education',
             'roles',
             'assignedState',
             'initialCommand',
             'presentCommand',
-            'documents'
+            'documents',
         ])
-        ->filter($filters)
-        ->paginate($filters['per_page'] ?? 15);
+            ->filter($filters)
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

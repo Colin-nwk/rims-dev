@@ -120,7 +120,7 @@ class StaffDocumentService extends BaseService
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
-    
+
     /**
      * List document records with filters and relationships
      *

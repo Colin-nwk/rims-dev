@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('other_names')->nullable();
             $table->string('sex')->nullable();
-             $table->unsignedBigInteger('initial_rank')->nullable();
+            $table->unsignedBigInteger('initial_rank')->nullable();
             $table->unsignedBigInteger('present_rank')->nullable();
             // $table->string('initial_rank')->nullable();
             // $table->string('present_rank')->nullable();

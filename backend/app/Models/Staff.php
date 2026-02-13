@@ -60,7 +60,7 @@ class Staff extends Authenticatable
             }
 
             // Bulk insert for better performance
-            if (!empty($careerRecords)) {
+            if (! empty($careerRecords)) {
                 StaffCareer::insert($careerRecords);
             }
         });
@@ -70,7 +70,7 @@ class Staff extends Authenticatable
             $changes = $staff->getDirty();
 
             // Check if rank or command fields have changed
-            if (!isset($changes['present_rank']) && !isset($changes['present_command'])) {
+            if (! isset($changes['present_rank']) && ! isset($changes['present_command'])) {
                 return;
             }
 
@@ -137,7 +137,7 @@ class Staff extends Authenticatable
             }
 
             // Bulk insert for better performance when both rank and command change
-            if (!empty($careerRecords)) {
+            if (! empty($careerRecords)) {
                 StaffCareer::insert($careerRecords);
             }
         });

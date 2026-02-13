@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use App\Models\Prison;
 use App\Models\State;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PrisonSeeder extends Seeder
 {

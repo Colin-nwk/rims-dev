@@ -187,11 +187,11 @@ class StaffCareerControllerTest extends TestCase
             'model_type' => 'App\Models\Staff',
             'model_id' => $staff->id,
         ])->first();
-        
+
         // Approve the change request - need appropriate permissions
         $approver = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
-        
+
         $this->actingAs($approver, 'sanctum')
             ->postJson("/api/v1/change-requests/{$changeRequest->id}/approve");
 
@@ -232,11 +232,11 @@ class StaffCareerControllerTest extends TestCase
             'model_type' => 'App\Models\Staff',
             'model_id' => $staff->id,
         ])->first();
-        
+
         // Approve the change request - need appropriate permissions
         $approver = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
-        
+
         $this->actingAs($approver, 'sanctum')
             ->postJson("/api/v1/change-requests/{$changeRequest->id}/approve");
 
@@ -252,7 +252,7 @@ class StaffCareerControllerTest extends TestCase
         // Create states for testing
         $state1 = \App\Models\State::factory()->create(['state' => 'Lagos State']);
         $state2 = \App\Models\State::factory()->create(['state' => 'Abuja FCT']);
-        
+
         $rank1 = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
         $rank2 = \App\Models\Ranking::factory()->create(['title' => 'Sergeant']);
 
@@ -280,11 +280,11 @@ class StaffCareerControllerTest extends TestCase
             'model_type' => 'App\Models\Staff',
             'model_id' => $staff->id,
         ])->first();
-        
+
         // Approve the change request - need appropriate permissions
         $approver = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
-        
+
         $this->actingAs($approver, 'sanctum')
             ->postJson("/api/v1/change-requests/{$changeRequest->id}/approve");
 

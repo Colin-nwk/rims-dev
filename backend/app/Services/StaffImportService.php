@@ -298,7 +298,7 @@ class StaffImportService
         }
 
         // Use anonymous class to handle import with headers
-        $import = new class implements \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow, \Maatwebsite\Excel\Concerns\SkipsEmptyRows
+        $import = new class implements \Maatwebsite\Excel\Concerns\SkipsEmptyRows, \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow
         {
             public function array(array $array)
             {

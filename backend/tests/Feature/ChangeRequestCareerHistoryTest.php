@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ChangeRequest;
 use App\Models\Staff;
-use App\Models\StaffCareer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,7 +17,7 @@ class ChangeRequestCareerHistoryTest extends TestCase
         $admin = User::factory()->create();
         $corporal = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
         $sergeant = \App\Models\Ranking::factory()->create(['title' => 'Sergeant']);
-        
+
         $staff = Staff::factory()->create([
             'present_rank' => $corporal->id,
         ]);
@@ -54,7 +53,7 @@ class ChangeRequestCareerHistoryTest extends TestCase
         $approver = User::factory()->create();
         // Grant permission to approve change requests
         \Illuminate\Support\Facades\Gate::define('change_request.approve', fn () => true);
-        
+
         $this->actingAs($approver, 'sanctum')
             ->postJson("/api/v1/change-requests/{$changeRequest->id}/approve")
             ->assertStatus(200);
