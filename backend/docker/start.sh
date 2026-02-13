@@ -23,6 +23,9 @@ php artisan view:cache
 echo "Setting storage permissions..."
 chmod -R 775 storage bootstrap/cache
 
+echo "Starting queue worker in background..."
+php artisan queue:work --sleep=3 --tries=3 --max-time=3600 &
+
 echo "Starting Nginx..."
 # Start Nginx in the foreground
 nginx -g "daemon off;"

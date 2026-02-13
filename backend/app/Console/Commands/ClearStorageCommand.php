@@ -67,8 +67,17 @@ class ClearStorageCommand extends Command
         $this->newLine();
         $this->info("Total files deleted: {$totalDeleted}");
 
-        // Ensure storage link exists
+        // Recreate storage link (unlink first, then link)
         if ($clearPublic) {
+            $publicStorageLink = public_path('storage');
+            if (File::exists($publicStorageLink) || is_link($publicStorageLink)) {
+                if (PHP_OS_FAMILY === 'Windows') {
+                    @rmdir($publicStorageLink);
+                } else {
+                    File::delete($publicStorageLink);
+                }
+                $this->info('Storage link removed.');
+            }
             $this->call('storage:link');
         }
 
