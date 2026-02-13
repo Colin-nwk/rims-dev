@@ -22,7 +22,11 @@ class StaffCareerControllerTest extends TestCase
 
     public function test_staff_can_view_their_own_career_history()
     {
-        $staff = Staff::factory()->create();
+        // Create staff without rank to avoid automatic career record creation
+        $staff = Staff::factory()->create([
+            'present_rank' => null,
+            'present_command' => null,
+        ]);
         $staffCareer = StaffCareer::factory()->create([
             'service_no' => $staff->service_no,
             'field_changed' => 'present_rank',
@@ -41,7 +45,11 @@ class StaffCareerControllerTest extends TestCase
     public function test_authenticated_user_with_permission_can_view_any_career_history()
     {
         $user = User::factory()->create();
-        $staff = Staff::factory()->create();
+        // Create staff without rank to avoid automatic career record creation
+        $staff = Staff::factory()->create([
+            'present_rank' => null,
+            'present_command' => null,
+        ]);
         $staffCareer = StaffCareer::factory()->create([
             'service_no' => $staff->service_no,
             'field_changed' => 'present_rank',
@@ -154,16 +162,19 @@ class StaffCareerControllerTest extends TestCase
 
     public function test_automatic_career_history_created_when_rank_changes()
     {
+        $rank1 = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
+        $rank2 = \App\Models\Ranking::factory()->create(['title' => 'Sergeant']);
+
         $admin = User::factory()->create();
         $staff = Staff::factory()->create([
-            'present_rank' => 'Corporal',
+            'present_rank' => $rank1->id,
         ]);
 
         // Grant permission
         \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
 
         $data = [
-            'present_rank' => 'Sergeant',
+            'present_rank' => $rank2->id,
         ];
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -241,10 +252,13 @@ class StaffCareerControllerTest extends TestCase
         // Create states for testing
         $state1 = \App\Models\State::factory()->create(['state' => 'Lagos State']);
         $state2 = \App\Models\State::factory()->create(['state' => 'Abuja FCT']);
+        
+        $rank1 = \App\Models\Ranking::factory()->create(['title' => 'Corporal']);
+        $rank2 = \App\Models\Ranking::factory()->create(['title' => 'Sergeant']);
 
         $admin = User::factory()->create();
         $staff = Staff::factory()->create([
-            'present_rank' => 'Corporal',
+            'present_rank' => $rank1->id,
             'present_command' => $state1->id,
         ]);
 
@@ -252,7 +266,7 @@ class StaffCareerControllerTest extends TestCase
         \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
 
         $data = [
-            'present_rank' => 'Sergeant',
+            'present_rank' => $rank2->id,
             'present_command' => $state2->id,
         ];
 
@@ -287,7 +301,7 @@ class StaffCareerControllerTest extends TestCase
             'field_changed' => 'present_command',
         ]);
 
-        // Total count should be 2
-        $this->assertEquals(2, StaffCareer::where('service_no', $staff->service_no)->count());
+        // Total count should be 4: 2 from initial creation + 2 from update
+        $this->assertEquals(4, StaffCareer::where('service_no', $staff->service_no)->count());
     }
 }

@@ -17,7 +17,7 @@ class LevelSeeder extends Seeder
             \App\Models\Level::firstOrCreate(
                 ['level_number' => $i],
                 [
-                    'level' => "Level $i",
+                    'level' => "GL $i",
                     'status' => 1
                 ]
             );

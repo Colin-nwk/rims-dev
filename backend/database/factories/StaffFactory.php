@@ -44,8 +44,8 @@ class StaffFactory extends Factory
             'first_name' => $this->faker->firstName(),
             'other_names' => $this->faker->firstName(),
             'sex' => $this->faker->randomElement(['Male', 'Female']),
-            'initial_rank' => $this->faker->word(),
-            'present_rank' => $this->faker->word(),
+            'initial_rank' => \App\Models\Ranking::factory(),
+            'present_rank' => \App\Models\Ranking::factory(),
             'level' => $this->faker->numberBetween(1, 17), // Changed to integer
             'dob' => $this->faker->date(),
             'date_of_first_appointment' => $this->faker->date(),
