@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ChangeRequest;
 use App\Models\StaffEducation;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -9,8 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StaffEducationService extends BaseService
 {
-
-     /**
+    /**
      * List document records with filters and relationships
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -18,7 +18,7 @@ class StaffEducationService extends BaseService
     public function allWithRelationships(array $filters = [])
     {
         return StaffEducation::with(['staff'])->filter($filters)
-            ->paginate($filters['per_page'] ?? 15);;
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**
@@ -61,6 +61,8 @@ class StaffEducationService extends BaseService
     {
         return DB::transaction(function () use ($id) {
             $education = $this->find($id);
+
+            $this->clearRelatedChangeRequestFileFields($education);
 
             // Delete associated file if exists
             if ($education->url) {
@@ -137,5 +139,49 @@ class StaffEducationService extends BaseService
         }
 
         return false;
+    }
+
+    /**
+     * Clear file references from related change requests when an education record is deleted.
+     */
+    protected function clearRelatedChangeRequestFileFields(StaffEducation $education): void
+    {
+        if (! $education->url) {
+            return;
+        }
+
+        $filePath = $education->url;
+        $fileKeys = ['url', 'certificate_url', 'file_path', 'photo'];
+
+        $requests = ChangeRequest::query()
+            ->where('model_type', StaffEducation::class)
+            ->where(function ($query) use ($education, $filePath) {
+                $query->where('model_id', $education->id)
+                    ->orWhere('data->url', $filePath)
+                    ->orWhere('data->certificate_url', $filePath)
+                    ->orWhere('data->file_path', $filePath)
+                    ->orWhere('data->photo', $filePath);
+            })
+            ->get();
+
+        foreach ($requests as $request) {
+            $data = $request->data ?? [];
+            if (! is_array($data)) {
+                continue;
+            }
+
+            $hasChanges = false;
+            foreach ($fileKeys as $key) {
+                if (isset($data[$key]) && $data[$key] === $filePath) {
+                    $data[$key] = null;
+                    $hasChanges = true;
+                }
+            }
+
+            if ($hasChanges) {
+                $request->data = $data;
+                $request->save();
+            }
+        }
     }
 }

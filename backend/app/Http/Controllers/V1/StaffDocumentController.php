@@ -126,7 +126,7 @@ class StaffDocumentController extends Controller
 
         $validated = $request->validated();
         $serviceNo = $validated['service_no'];
-        
+
         // Staff validation
         if ($this->isStaffUser()) {
             if ($serviceNo !== $this->getStaffServiceNo()) {
@@ -140,7 +140,7 @@ class StaffDocumentController extends Controller
         foreach ($validated['documents'] as $index => $docData) {
             try {
                 $docData['service_no'] = $serviceNo;
-                
+
                 // Ensure verification_status is pending for staff uploads
                 if ($this->isStaffUser()) {
                     $docData['verification_status'] = 'pending';
@@ -176,21 +176,21 @@ class StaffDocumentController extends Controller
                 $errors[] = [
                     'index' => $index,
                     'document_name' => $docData['document_name'] ?? 'Unknown',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ];
             }
         }
 
-        if (empty($createdRequests) && !empty($errors)) {
+        if (empty($createdRequests) && ! empty($errors)) {
             return $this->errorResponse('Failed to submit any documents.', 500, ['errors' => $errors]);
         }
 
         return $this->successResponse(
             [
                 'created' => $createdRequests,
-                'errors' => $errors
-            ], 
-            count($createdRequests) . ' document(s) submitted for approval.' . (count($errors) > 0 ? ' Some documents failed.' : ''),
+                'errors' => $errors,
+            ],
+            count($createdRequests).' document(s) submitted for approval.'.(count($errors) > 0 ? ' Some documents failed.' : ''),
             201
         );
     }
@@ -383,6 +383,9 @@ class StaffDocumentController extends Controller
             abort(404, 'Document file not found');
         }
 
-        return Storage::disk('public')->download($staffDocument->file_path, $staffDocument->document_name);
+        return response()->download(
+            Storage::disk('public')->path($staffDocument->file_path),
+            $staffDocument->document_name
+        );
     }
 }

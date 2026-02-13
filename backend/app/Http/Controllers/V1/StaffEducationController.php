@@ -7,6 +7,7 @@ use App\Http\Requests\StoreStaffEducationRequest;
 use App\Http\Requests\UpdateStaffEducationRequest;
 use App\Models\StaffEducation;
 use App\Services\ChangeRequestService;
+use App\Services\StaffEducationService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,10 @@ class StaffEducationController extends Controller
 {
     use ApiResponseTrait, FileUploadTrait;
 
-    public function __construct(protected ChangeRequestService $changeRequestService) {}
+    public function __construct(
+        protected ChangeRequestService $changeRequestService,
+        protected StaffEducationService $staffEducationService
+    ) {}
 
     /**
      * Check if the current user is a staff member (not admin)
@@ -240,12 +244,7 @@ class StaffEducationController extends Controller
         }
 
         try {
-            // Delete associated file if it exists
-            if ($staffEducation->url) {
-                $this->deleteFile($staffEducation->url);
-            }
-
-            $staffEducation->delete();
+            $this->staffEducationService->delete($staffEducation->id);
 
             return $this->successResponse(null, 'Education record deleted successfully');
         } catch (\Exception $e) {

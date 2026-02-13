@@ -6,15 +6,7 @@ import {
   ChevronLeft,
   Save,
   AlertCircle,
-  User,
-  MapPin,
-  FileText,
-  Heart,
-  Home,
-  Users,
-  CreditCard,
   GraduationCap,
-  Eye,
   Upload,
   X,
   Plus,
@@ -37,8 +29,13 @@ import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
-import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
+import {
+  getStateId,
+  getStateName,
+  getPrisonName,
+} from "@/lib/helpers/genericDataHelpers";
 import { ChangePasswordModal } from "@/components/staff/ChangePasswordModal";
+import { TabNav } from "@/components/staff/StaffFormTabs";
 
 // Combined form values type for Edit (All tables)
 type EditStaffFormValues = Omit<CreateStaffDTO, "photo"> & {
@@ -75,24 +72,6 @@ type EditStaffFormValues = Omit<CreateStaffDTO, "photo"> & {
   };
   education?: Partial<StaffEducation>[];
 };
-
-interface TabConfig {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-}
-
-const tabs: TabConfig[] = [
-  { id: "basic", title: "Basic Info", icon: User },
-  { id: "posting", title: "Posting & Origin", icon: MapPin },
-  { id: "identity", title: "Identity & Docs", icon: FileText },
-  { id: "physical", title: "Physical & Medical", icon: Heart },
-  { id: "addresses", title: "Addresses", icon: Home },
-  { id: "family", title: "Family & NOK", icon: Users },
-  { id: "banking", title: "Banking", icon: CreditCard },
-  { id: "education", title: "Education", icon: GraduationCap },
-  { id: "review", title: "Review", icon: Eye },
-];
 
 // Helper to convert various boolean representations to actual boolean
 const formatBooleanForInput = (
@@ -447,66 +426,6 @@ const PhotoUpload: React.FC<{
           {error}
         </p>
       )}
-    </div>
-  );
-};
-
-// Tab Navigation Component
-const TabNav: React.FC<{
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
-}> = ({ activeTab, onTabChange }) => {
-  const tabContainerRef = useRef<HTMLDivElement>(null);
-
-  // Scroll active tab into view on mobile
-  useEffect(() => {
-    if (tabContainerRef.current) {
-      const activeElement = tabContainerRef.current.querySelector(
-        `[data-tab="${activeTab}"]`,
-      );
-      if (activeElement) {
-        activeElement.scrollIntoView({
-          behavior: "smooth",
-          inline: "center",
-          block: "nearest",
-        });
-      }
-    }
-  }, [activeTab]);
-
-  return (
-    <div className="bg-white sticky top-0 z-10">
-      <div
-        ref={tabContainerRef}
-        className="flex overflow-x-auto px-4 pb-2"
-        style={{
-          scrollbarWidth: "thin",
-        }}
-      >
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              data-tab={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                isActive
-                  ? "border-emerald-600 text-emerald-700 bg-emerald-50/50"
-                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{tab.title}</span>
-            </button>
-          );
-        })}
-      </div>
-      {/* Scroll indicator line */}
-      <div className="h-px bg-slate-200" />
     </div>
   );
 };
@@ -1736,7 +1655,10 @@ const EditStaffFormPage: React.FC = () => {
         initial_rank: staffData.data.initial_rank || "",
         level: staffData.data.level,
         step: staffData.data.step || "",
-        assigned_state: staffData.data.assigned_state || "",
+        assigned_state:
+          getStateId(staffData.data.assigned_state, genericData?.states) ||
+          staffData.data.assigned_state ||
+          "",
         prison: staffData.data.prison || "",
         dob: formatDateForInput(staffData.data.dob),
         date_of_first_appointment: formatDateForInput(
@@ -1748,8 +1670,12 @@ const EditStaffFormPage: React.FC = () => {
         command_post_date: formatDateForInput(staffData.data.command_post_date),
         state_of_origin: staffData.data.state_of_origin || "",
         lga: staffData.data.lga || "",
-        initial_command: staffData.data.initial_command || "",
-        present_command: staffData.data.present_command || "",
+        initial_command:
+          getStateName(staffData.data.initial_command, genericData?.states) ||
+          "",
+        present_command:
+          getStateName(staffData.data.present_command, genericData?.states) ||
+          "",
         file_no: staffData.data.file_no || "",
         ippis: staffData.data.ippis || "",
         description: staffData.data.description || "",

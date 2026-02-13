@@ -7,6 +7,7 @@ import {
   ChartArea,
   CheckSquare,
   FolderOpen,
+  FolderOpenDot,
   HelpCircle,
   LayoutDashboard,
   Shield,
@@ -27,6 +28,11 @@ export const mainNavItems: NavItem[] = [
     name: "Qualifications",
     icon: <FolderOpen className="w-5 h-5" />,
     path: ROUTES.QUALIFICATIONS,
+  },
+  {
+    name: "Personnel Documents",
+    icon: <FolderOpenDot className="w-5 h-5" />,
+    path: ROUTES.PERSONNEL_DOCUMENTS,
   },
   {
     name: "Help Desk",

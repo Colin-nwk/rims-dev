@@ -132,7 +132,7 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
     },
     {
       id: "model",
-      header: "Account Type",
+      header: "Model",
       accessorFn: (row) => getModelName(row.model_type),
       cell: ({ row }) => (
         <div className="flex items-center gap-2">

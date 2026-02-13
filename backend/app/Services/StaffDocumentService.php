@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ChangeRequest;
 use App\Models\StaffDocument;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +50,8 @@ class StaffDocumentService extends BaseService
     {
         return DB::transaction(function () use ($id) {
             $document = $this->find($id);
+
+            $this->clearRelatedChangeRequestFileFields($document);
 
             // Delete associated file if exists
             if ($document->file_path) {
@@ -120,7 +123,7 @@ class StaffDocumentService extends BaseService
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
-    
+
     /**
      * List document records with filters and relationships
      *
@@ -161,5 +164,49 @@ class StaffDocumentService extends BaseService
         }
 
         return false;
+    }
+
+    /**
+     * Clear file references from related change requests when a document is deleted.
+     */
+    protected function clearRelatedChangeRequestFileFields(StaffDocument $document): void
+    {
+        if (! $document->file_path) {
+            return;
+        }
+
+        $filePath = $document->file_path;
+        $fileKeys = ['file_path', 'url', 'certificate_url', 'photo'];
+
+        $requests = ChangeRequest::query()
+            ->where('model_type', StaffDocument::class)
+            ->where(function ($query) use ($document, $filePath) {
+                $query->where('model_id', $document->id)
+                    ->orWhere('data->file_path', $filePath)
+                    ->orWhere('data->url', $filePath)
+                    ->orWhere('data->certificate_url', $filePath)
+                    ->orWhere('data->photo', $filePath);
+            })
+            ->get();
+
+        foreach ($requests as $request) {
+            $data = $request->data ?? [];
+            if (! is_array($data)) {
+                continue;
+            }
+
+            $hasChanges = false;
+            foreach ($fileKeys as $key) {
+                if (isset($data[$key]) && $data[$key] === $filePath) {
+                    $data[$key] = null;
+                    $hasChanges = true;
+                }
+            }
+
+            if ($hasChanges) {
+                $request->data = $data;
+                $request->save();
+            }
+        }
     }
 }

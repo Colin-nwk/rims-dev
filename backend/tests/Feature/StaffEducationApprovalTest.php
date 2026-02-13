@@ -7,7 +7,9 @@ use App\Models\StaffEducation;
 use App\Models\User;
 use App\Services\ChangeRequestService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StaffEducationApprovalTest extends TestCase
@@ -124,6 +126,40 @@ class StaffEducationApprovalTest extends TestCase
             'model_type' => 'App\Models\StaffEducation',
             'type' => 'DELETE',
         ]);
+    }
+
+    public function test_delete_clears_change_request_file_path(): void
+    {
+        $user = User::factory()->create();
+        $staff = Staff::factory()->create(['service_no' => 'EDU_CLR_01']);
+
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('certificate.pdf', 100);
+        $path = $file->store('staff/education', 'public');
+
+        $education = StaffEducation::factory()->create([
+            'service_no' => 'EDU_CLR_01',
+            'url' => $path,
+        ]);
+
+        $changeRequest = $this->changeRequestService->submit(
+            StaffEducation::class,
+            'UPDATE',
+            ['url' => $path],
+            $user,
+            $education->service_no,
+            $education->id
+        );
+
+        $this->actingAs($user);
+        Gate::define('staff-education.delete', fn () => true);
+
+        $response = $this->deleteJson("/api/v1/staff-education/{$education->id}");
+
+        $response->assertStatus(200);
+
+        $changeRequest->refresh();
+        $this->assertNull($changeRequest->data['url'] ?? null);
     }
 
     public function test_approve_create_request_creates_education_record(): void

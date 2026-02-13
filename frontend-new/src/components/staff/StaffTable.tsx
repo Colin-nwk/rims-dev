@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { Staff } from "@/lib/api/staff";
 import { getFileUrl } from "@/lib/api";
+import { getStateName } from "@/lib/helpers/genericDataHelpers";
 import {
   ChevronUp,
   ChevronDown,
@@ -156,11 +157,12 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       ),
     },
     {
-      accessorKey: "present_command",
+      id: "present_command",
       header: "Present Command",
-      cell: ({ row }) => (
+      accessorFn: (row) => getStateName(row.present_command) || "",
+      cell: ({ getValue }) => (
         <span className="text-sm text-slate-600">
-          {row.original.present_command || "N/A"}
+          {(getValue() as string) || "N/A"}
         </span>
       ),
     },
