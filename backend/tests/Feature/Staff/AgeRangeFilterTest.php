@@ -13,11 +13,11 @@ class AgeRangeFilterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Setup staff with different ages
         // Using fixed current date reference for stability if needed, but Carbon::setTestNow() is better.
         // For simplicity in this test, we assume relative dates work fine.
-        
+
         // Mock authorization for staff.view
         \Illuminate\Support\Facades\Gate::define('staff.view', function () {
             return true;
@@ -28,28 +28,28 @@ class AgeRangeFilterTest extends TestCase
             'dob' => now()->subYears(17)->subDay(), // 17 years + 1 day old
             'service_no' => 'SVC-17',
         ]);
-        
+
         // 19 years old (Range 18-20)
         Staff::factory()->create([
-            'dob' => now()->subYears(19), 
+            'dob' => now()->subYears(19),
             'service_no' => 'SVC-19',
         ]);
 
         // 20 years old (Range 18-20)
         Staff::factory()->create([
-            'dob' => now()->subYears(20)->subDays(10), 
+            'dob' => now()->subYears(20)->subDays(10),
             'service_no' => 'SVC-20',
         ]);
 
         // 25 years old (Range 21-25)
         Staff::factory()->create([
-            'dob' => now()->subYears(25)->subDays(10), 
+            'dob' => now()->subYears(25)->subDays(10),
             'service_no' => 'SVC-25',
         ]);
-        
+
         // 65 years old (Range 60+)
         Staff::factory()->create([
-            'dob' => now()->subYears(65), 
+            'dob' => now()->subYears(65),
             'service_no' => 'SVC-65',
         ]);
     }
@@ -57,7 +57,7 @@ class AgeRangeFilterTest extends TestCase
     public function test_filter_exact_range()
     {
         $response = $this->actingAsAdmin()->getJson('/api/v1/staff?age_range=18-20');
-        
+
         $response->assertStatus(200);
         $this->assertEquals(2, $response->json('data.total'));
         $ids = collect($response->json('data.data'))->pluck('service_no')->toArray();
@@ -101,12 +101,12 @@ class AgeRangeFilterTest extends TestCase
     private function actingAsAdmin()
     {
         $user = \App\Models\User::factory()->create(['status' => 'active']);
+
         return $this->actingAs($user);
     }
 
-
-//     GET /api/v1/staff?age_range=18-25
-// GET /api/v1/staff?age_range=less 30
-// GET /api/v1/staff?age_range=60%2B  (Note: + must be encoded as %2B in URLs)
+    //     GET /api/v1/staff?age_range=18-25
+    // GET /api/v1/staff?age_range=less 30
+    // GET /api/v1/staff?age_range=60%2B  (Note: + must be encoded as %2B in URLs)
 
 }

@@ -60,6 +60,7 @@ class GenericController extends Controller
 
     public function store(Request $request, string $model)
     {
+        $this->authorize('generic.create');
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::create($request->all());
 
@@ -68,6 +69,7 @@ class GenericController extends Controller
 
     public function update(Request $request, string $model, $id)
     {
+        $this->authorize('generic.edit');
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::findOrFail($id);
         $item->update($request->all());
@@ -77,6 +79,7 @@ class GenericController extends Controller
 
     public function destroy(string $model, $id)
     {
+        $this->authorize('generic.delete');
         $modelClass = $this->resolveModel($model);
         $item = $modelClass::findOrFail($id);
         $item->delete();
@@ -84,7 +87,6 @@ class GenericController extends Controller
         return response()->noContent();
     }
 
-    
     /**
      * Get all filter options data in one call.
      */

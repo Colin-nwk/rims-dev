@@ -38,9 +38,10 @@ trait FilterableTrait
         $filterable = $this->filterable ?? [];
         foreach ($filters as $key => $value) {
             // Check for custom filter method: filterKeyName($query, $value)
-            $method = 'filter' . \Illuminate\Support\Str::studly($key);
+            $method = 'filter'.\Illuminate\Support\Str::studly($key);
             if (method_exists($this, $method)) {
                 $this->{$method}($query, $value);
+
                 continue;
             }
 

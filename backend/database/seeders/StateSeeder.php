@@ -388,4 +388,3 @@ class StateSeeder extends Seeder
         DB::statement('ALTER TABLE states AUTO_INCREMENT = 38;');
     }
 }
-

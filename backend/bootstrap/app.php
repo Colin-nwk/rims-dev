@@ -53,12 +53,24 @@ return Application::configure(basePath: dirname(__DIR__))
                     $response['errors'] = $e->errors(); // Laravel test helper compatibility
                 }
 
+                // if (config('app.debug')) {
+                //     $response['debug'] = [
+                //         'exception' => get_class($e),
+                //         'file' => $e->getFile(),
+                //         'line' => $e->getLine(),
+                //         'trace' => collect($e->getTrace())->take(10)->toArray(),
+                //     ];
+                // }
                 if (config('app.debug')) {
                     $response['debug'] = [
                         'exception' => get_class($e),
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                        'trace' => collect($e->getTrace())->take(10)->toArray(),
+                        'trace' => array_slice(array_map(fn ($t) => [
+                            'file' => $t['file'] ?? 'unknown',
+                            'line' => $t['line'] ?? 0,
+                            'function' => $t['function'] ?? 'unknown',
+                        ], $e->getTrace()), 0, 10),
                     ];
                 }
 

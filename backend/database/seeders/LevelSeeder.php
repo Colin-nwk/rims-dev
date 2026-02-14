@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class LevelSeeder extends Seeder
@@ -17,8 +16,8 @@ class LevelSeeder extends Seeder
             \App\Models\Level::firstOrCreate(
                 ['level_number' => $i],
                 [
-                    'level' => "Level $i",
-                    'status' => 1
+                    'level' => "GL $i",
+                    'status' => 1,
                 ]
             );
         }

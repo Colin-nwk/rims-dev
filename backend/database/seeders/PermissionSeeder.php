@@ -58,6 +58,13 @@ class PermissionSeeder extends Seeder
 
             // Reports
             ['name' => 'report.view', 'description' => 'View system reports', 'group' => 'report'],
+
+            // GENERIC CRUD like states, zones, ranks, etc
+            ['name' => 'generic.create', 'description' => 'Create generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+            ['name' => 'generic.edit', 'description' => 'Edit generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+            ['name' => 'generic.delete', 'description' => 'Delete generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+
+            // Rep
         ];
 
         foreach ($permissions as $permission) {

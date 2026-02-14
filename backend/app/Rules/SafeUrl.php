@@ -30,7 +30,7 @@ class SafeUrl implements ValidationRule
 
         // Parse URL components
         $parsed = parse_url($value);
-        
+
         if (! $parsed || ! isset($parsed['host'])) {
             $fail('The :attribute must have a valid host.');
 
@@ -99,7 +99,7 @@ class SafeUrl implements ValidationRule
 
         // Check if it's an IP address and if it's private
         if (filter_var($host, FILTER_VALIDATE_IP)) {
-            return !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+            return ! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
         }
 
         return false;
@@ -112,7 +112,7 @@ class SafeUrl implements ValidationRule
     {
         // Use dns_get_record as a safer alternative to gethostbynamel
         $result = @dns_get_record($host, DNS_A);
-        
+
         if ($result === false || empty($result)) {
             return false;
         }

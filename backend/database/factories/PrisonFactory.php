@@ -17,7 +17,7 @@ class PrisonFactory extends Factory
     public function definition(): array
     {
         return [
-            'prison_name' => $this->faker->word . ' Prison',
+            'prison_name' => $this->faker->word.' Prison',
             'state_id' => \App\Models\State::factory(), // Creates a related state
             'address' => $this->faker->address,
             'capacity' => $this->faker->numberBetween(100, 1000),

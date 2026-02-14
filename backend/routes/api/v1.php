@@ -8,6 +8,7 @@ use App\Http\Controllers\V1\GenericController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use App\Http\Controllers\V1\StaffAuthController;
+use App\Http\Controllers\V1\StaffCareerController;
 use App\Http\Controllers\V1\StaffController;
 use App\Http\Controllers\V1\StaffDocumentController;
 use App\Http\Controllers\V1\StaffEducationController;
@@ -117,6 +118,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('staff-documents/{staffDocument}/reject', [StaffDocumentController::class, 'reject']);
     Route::get('staff-documents/{staffDocument}/view', [StaffDocumentController::class, 'viewDocument']);
     Route::get('staff-documents/{staffDocument}/download', [StaffDocumentController::class, 'download']);
+
+    // --- Staff Career History ---
+    Route::get('staff/{staff}/career-history', [StaffCareerController::class, 'index']);
+    Route::get('staff/{staff}/career-history/{id}', [StaffCareerController::class, 'show']);
+    Route::post('staff/{staff}/career-history', [StaffCareerController::class, 'store']);
 
     // --- User Management ---
     Route::prefix('user')->group(function () {

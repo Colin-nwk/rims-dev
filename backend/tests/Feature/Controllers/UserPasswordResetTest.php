@@ -34,7 +34,7 @@ class UserPasswordResetTest extends TestCase
             [$user],
             PasswordResetNotification::class,
             function ($notification) {
-                return $notification->toMail(new User())->subject === 'Reset Your Password';
+                return $notification->toMail(new User)->subject === 'Reset Your Password';
             }
         );
     }

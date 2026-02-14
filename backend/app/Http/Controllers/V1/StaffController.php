@@ -95,13 +95,13 @@ class StaffController extends Controller
         }
 
         return $this->successResponse($staff->load([
-            'details', 
-            'education', 
+            'details',
+            'education',
             'roles',
             'assignedState',
             'initialCommand',
             'presentCommand',
-            'documents'
+            'documents',
         ]));
     }
 
@@ -210,8 +210,8 @@ class StaffController extends Controller
     {
         $staff = Staff::with([
             'assignedState',
-            // 'details', 
-            // 'education', 
+            // 'details',
+            // 'education',
             // 'roles',
             // 'initialCommand',
             // 'presentCommand',

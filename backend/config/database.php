@@ -113,21 +113,19 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-
-
         'rims_old' => [
-        'driver' => 'mysql',
-        'host' => env('RIMS_OLD_DB_HOST', '127.0.0.1'),
-        'port' => env('RIMS_OLD_DB_PORT', '3306'),
-        'database' => env('RIMS_OLD_DB_DATABASE', 'rims_old'),
-        'username' => env('RIMS_OLD_DB_USERNAME', 'root'),
-        'password' => env('RIMS_OLD_DB_PASSWORD', ''),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-    ],
+            'driver' => 'mysql',
+            'host' => env('RIMS_OLD_DB_HOST', '127.0.0.1'),
+            'port' => env('RIMS_OLD_DB_PORT', '3306'),
+            'database' => env('RIMS_OLD_DB_DATABASE', 'rims_old'),
+            'username' => env('RIMS_OLD_DB_USERNAME', 'root'),
+            'password' => env('RIMS_OLD_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
 
     ],
 

@@ -17,17 +17,17 @@ trait FileUploadTrait
     {
         try {
             // Validate file type
-            if (!$this->isValidFileType($file)) {
+            if (! $this->isValidFileType($file)) {
                 throw new \Exception('Invalid file type');
             }
-            
+
             // Validate file size
-            if (!$this->isValidFileSize($file)) {
+            if (! $this->isValidFileSize($file)) {
                 throw new \Exception('File size exceeds limit');
             }
-            
+
             // Validate file content (basic check)
-            if (!$this->isValidFileContent($file)) {
+            if (! $this->isValidFileContent($file)) {
                 throw new \Exception('File content validation failed');
             }
 
@@ -44,7 +44,8 @@ trait FileUploadTrait
             // For now, storing storage path. URL generation can happen in accessor.
             return $path;
         } catch (\Exception $e) {
-            \Log::error('File upload error: ' . $e->getMessage());
+            \Log::error('File upload error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -61,11 +62,12 @@ trait FileUploadTrait
             'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'rtf',
             // Others as needed
         ];
-        
+
         $extension = strtolower($file->getClientOriginalExtension());
+
         return in_array($extension, $allowedExtensions);
     }
-    
+
     /**
      * Validate file size (default 10MB)
      */
@@ -73,7 +75,7 @@ trait FileUploadTrait
     {
         return $file->getSize() <= $maxSize;
     }
-    
+
     /**
      * Basic file content validation
      */
@@ -81,7 +83,7 @@ trait FileUploadTrait
     {
         // Get the mime type of the uploaded file
         $mimeType = $file->getMimeType();
-        
+
         // Define allowed mime types
         $allowedMimes = [
             // Images
@@ -91,10 +93,10 @@ trait FileUploadTrait
             'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'text/plain', 'application/rtf',
         ];
-        
+
         return in_array($mimeType, $allowedMimes);
     }
-    
+
     /**
      * Sanitize filename to prevent path traversal
      */
@@ -104,6 +106,7 @@ trait FileUploadTrait
         $filename = str_replace(['../', './', '..\\', '.\\'], '', $filename);
         // Remove any non-alphanumeric characters except hyphens and underscores
         $filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename);
+
         return $filename;
     }
 
