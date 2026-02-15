@@ -597,7 +597,7 @@ const BasicInfoTab: React.FC<{
             >
               <option value="">Select Present Rank</option>
               {genericData?.rankings?.map((rank) => (
-                <option key={rank.id} value={rank.title}>
+                <option key={rank.id} value={rank.id}>
                   {rank.title}
                 </option>
               ))}
@@ -613,7 +613,7 @@ const BasicInfoTab: React.FC<{
             >
               <option value="">Select Initial Rank</option>
               {genericData?.rankings?.map((rank) => (
-                <option key={rank.id} value={rank.title}>
+                <option key={rank.id} value={rank.id}>
                   {rank.title}
                 </option>
               ))}

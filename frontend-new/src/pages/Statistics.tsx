@@ -352,7 +352,7 @@ const Statistics: React.FC = () => {
                     >
                       <option value="">All Ranks</option>
                       {genericData?.rankings.map((rank) => (
-                        <option key={rank.id} value={rank.title}>
+                        <option key={rank.id} value={rank.id}>
                           {rank.title}
                         </option>
                       ))}

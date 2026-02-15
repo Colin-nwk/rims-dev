@@ -98,6 +98,13 @@ const StaffDirectory = () => {
     navigate(ROUTES.STAFF_VIEW.replace(":serviceNo", staff.service_no));
   };
 
+  // Career history handler
+  const handleViewCareer = (staff: Staff) => {
+    navigate(
+      ROUTES.CAREER_HISTORY_VIEW.replace(":serviceNo", staff.service_no),
+    );
+  };
+
   // Edit handler - navigate to edit page
   const handleEdit = (staff: Staff) => {
     navigate(ROUTES.STAFF_EDIT.replace(":serviceNo", staff.service_no));
@@ -293,6 +300,7 @@ const StaffDirectory = () => {
             onDelete={handleDelete}
             onViewIDCard={handleViewIDCard}
             onManageRoles={handleManageRoles}
+            onViewCareer={handleViewCareer}
             selectedRows={selectedRows}
             onSelectRows={setSelectedRows}
           />

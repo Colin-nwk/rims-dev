@@ -16,6 +16,8 @@ export const ROUTES = {
   STAFF_ADD: "/staff/add",
   STAFF_EDIT: "/staff/edit/:serviceNo",
   STAFF_VIEW: "/staff/view/:serviceNo",
+  CAREER_HISTORY_VIEW: "/career-history/view/:serviceNo",
+  CAREER_HISTORY_CREATE: "/career-history/create/:serviceNo",
   ADMIN_USERS_DIRECTORY: "/admin-users",
   APPROVALS: "/approvals",
   CHANGE_REQUESTS: "/change-requests",
