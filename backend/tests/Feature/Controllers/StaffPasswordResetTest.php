@@ -50,7 +50,7 @@ class StaffPasswordResetTest extends TestCase
             'service_no' => 'SVC001',
             'email' => 'wrong@test.com',
         ]);
-        
+
         // Controller returns success to prevent enumeration, but sends nothing
         $response->assertStatus(200);
 

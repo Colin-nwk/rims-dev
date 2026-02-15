@@ -45,7 +45,6 @@ class RoleControllerTest extends TestCase
         $user = User::factory()->create(); // User created
         $user->roles()->detach(); // Remove super-admin role assigned by factory callback
 
-
         $response = $this->actingAs($user)->getJson('/api/v1/roles');
         $response->assertStatus(403);
 

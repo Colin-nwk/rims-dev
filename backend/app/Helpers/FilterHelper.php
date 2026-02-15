@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
-
 class FilterHelper
 {
     /**
@@ -27,8 +25,8 @@ class FilterHelper
      * - "> 50"    -> ?age_range=%3E%2050
      * - "above 70"-> ?age_range=above%2070
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $value
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $value
      * @return void
      */
     public static function applyAgeRangeFilter($query, $value)
@@ -43,22 +41,24 @@ class FilterHelper
         if (preg_match('/^(\d+)-(\d+)$/', $param, $matches)) {
             $min = (int) $matches[1];
             $max = (int) $matches[2];
-            
+
             // Logic: Age >= Min AND Age <= Max
             // dob <= now - min (born before or on min years ago)
             // dob > now - (max + 1) (born after max+1 years ago)
             $query->where('dob', '<=', now()->subYears($min)->format('Y-m-d'))
-                  ->where('dob', '>', now()->subYears($max + 1)->format('Y-m-d'));
+                ->where('dob', '>', now()->subYears($max + 1)->format('Y-m-d'));
+
             return;
         }
 
         // Format: "less 18", "under 18", "< 18"
         if (preg_match('/^(less|under|<)\s*(\d+)$/', $param, $matches)) {
             $maxAge = (int) $matches[2];
-            
+
             // Logic: Age < MaxAge
             // dob > now - MaxAge
             $query->where('dob', '>', now()->subYears($maxAge)->format('Y-m-d'));
+
             return;
         }
 
@@ -71,6 +71,7 @@ class FilterHelper
             // Logic: Age >= MinAge
             // dob <= now - MinAge
             $query->where('dob', '<=', now()->subYears($minAge)->format('Y-m-d'));
+
             return;
         }
     }

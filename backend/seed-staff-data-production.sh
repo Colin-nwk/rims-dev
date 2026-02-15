@@ -3,7 +3,7 @@
 # ============================================
 # Seed Staff Data - PRODUCTION Database
 # ============================================
-# Seeds staff data from rims-staff.sql into PRODUCTION database
+# Seeds staff data from rims_2.sql into PRODUCTION database
 # Uses .env.production file for database credentials
 # ============================================
 
@@ -28,8 +28,8 @@ if [ ! -f "artisan" ]; then
     exit 1
 fi
 
-if [ ! -f "rims-staff.sql" ]; then
-    echo -e "${RED}❌ Error: rims-staff.sql not found.${NC}"
+if [ ! -f "rims_2.sql" ]; then
+    echo -e "${RED}❌ Error: rims_2.sql not found.${NC}"
     exit 1
 fi
 

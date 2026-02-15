@@ -23,6 +23,7 @@ import {
   IdCard,
   UserCog,
   GraduationCap,
+  History,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -56,6 +57,7 @@ interface StaffTableProps {
   onDelete?: (staff: Staff) => void;
   onViewIDCard?: (staff: Staff) => void;
   onManageRoles?: (staff: Staff) => void;
+  onViewCareer?: (staff: Staff) => void;
   selectedRows?: string[];
   onSelectRows?: (serviceNos: string[]) => void;
 }
@@ -68,6 +70,7 @@ export const StaffTable: React.FC<StaffTableProps> = ({
   onDelete,
   onViewIDCard,
   onManageRoles,
+  onViewCareer,
   // selectedRows = [],
   onSelectRows,
 }) => {
@@ -207,6 +210,20 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       ),
     },
     {
+      id: "career",
+      header: "Career",
+      cell: ({ row }) => (
+        <button
+          onClick={() => onViewCareer?.(row.original)}
+          className="flex items-center gap-1 text-sm font-medium p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-ncos-green-700 transition-colors"
+          title="View Career History"
+        >
+          <History className="w-4 h-4" /> View
+        </button>
+      ),
+      enableSorting: false,
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
@@ -307,6 +324,9 @@ export const StaffTable: React.FC<StaffTableProps> = ({
                   <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
+                  <div className="w-16 h-3 rounded bg-slate-300 animate-pulse" />
+                </th>
+                <th className="px-4 py-3 text-left">
                   <div className="h-3 rounded w-14 bg-slate-300 animate-pulse" />
                 </th>
                 <th className="px-4 py-3 text-left">
@@ -361,6 +381,10 @@ export const StaffTable: React.FC<StaffTableProps> = ({
                     <div
                       className={`h-6 rounded-full w-16 ${rowIndex % 3 === 0 ? "bg-red-100/70" : "bg-green-100/70"}`}
                     />
+                  </td>
+                  {/* Career */}
+                  <td className="px-4 py-4">
+                    <div className="rounded-lg w-7 h-7 bg-slate-100" />
                   </td>
                   {/* Actions */}
                   <td className="px-4 py-4">

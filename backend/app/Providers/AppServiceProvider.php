@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
                         ], 429);
                     });
             });
-            
+
             // Enhanced rate limiter for sensitive endpoints
             \Illuminate\Support\Facades\RateLimiter::for('sensitive', function (\Illuminate\Http\Request $request) {
                 return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)
@@ -88,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
 
                         if (! $currentPermission) {
                             \Log::warning('Permission not found in cache', ['permission_id' => $permission->id]);
+
                             return false;
                         }
 
@@ -117,19 +118,21 @@ class AppServiceProvider extends ServiceProvider
                             if ($target) {
                                 // Helper to get ID safely
                                 $getScopeId = function ($obj, $method) {
-                                    if (!method_exists($obj, $method)) {
+                                    if (! method_exists($obj, $method)) {
                                         return null;
                                     }
-                                    
+
                                     try {
                                         $result = $obj->$method();
-                                        return is_numeric($result) ? (int)$result : $result;
+
+                                        return is_numeric($result) ? (int) $result : $result;
                                     } catch (\Exception $e) {
                                         \Log::error('Error getting scope ID', [
                                             'object' => get_class($obj),
                                             'method' => $method,
-                                            'error' => $e->getMessage()
+                                            'error' => $e->getMessage(),
                                         ]);
+
                                         return null;
                                     }
                                 };
@@ -173,9 +176,9 @@ class AppServiceProvider extends ServiceProvider
                             'user_id' => $user->id ?? 'unknown',
                             'permission' => $permission->name ?? 'unknown',
                             'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString()
+                            'trace' => $e->getTraceAsString(),
                         ]);
-                        
+
                         // Fail securely - deny access on error
                         return false;
                     }

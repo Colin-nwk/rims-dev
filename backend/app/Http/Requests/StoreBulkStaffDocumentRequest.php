@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreBulkStaffDocumentRequest extends FormRequest
 {
@@ -39,7 +38,7 @@ class StoreBulkStaffDocumentRequest extends FormRequest
             'documents.required' => 'Documents are required',
             'documents.min' => 'At least one document is required',
             'documents.max' => 'You can upload a maximum of 10 documents at once',
-            
+
             'documents.*.document_type.required' => 'Document type is required for all documents',
             'documents.*.document_type.in' => 'Invalid document type selected',
             'documents.*.document_name.required' => 'Document name is required for all documents',

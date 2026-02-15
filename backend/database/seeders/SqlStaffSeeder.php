@@ -11,13 +11,13 @@ class SqlStaffSeeder extends Seeder
     /**
      * The SQL file containing staff data.
      */
-    protected string $sqlFile = 'rims-staff.sql';
+    protected string $sqlFile = 'rims_2.sql';
 
     /**
      * Run the database seeds.
      *
      * Seeds staff, staff_details, and staff_education tables
-     * from the rims-staff.sql file.
+     * from the rims_2.sql file.
      */
     public function run(): void
     {
@@ -25,7 +25,7 @@ class SqlStaffSeeder extends Seeder
 
         if (! File::exists($sqlPath)) {
             $this->command->error("❌ SQL file not found: {$sqlPath}");
-            $this->command->info('   Make sure rims-staff.sql exists in the backend directory.');
+            $this->command->info('   Make sure rims_2.sql exists in the backend directory.');
 
             return;
         }
@@ -276,6 +276,18 @@ class SqlStaffSeeder extends Seeder
             if (str_starts_with($upperStatement, $pattern)) {
                 return true;
             }
+        }
+
+        // Only allow INSERT statements for staff-related tables
+        if (str_starts_with($upperStatement, 'INSERT')) {
+            // Check if this is a staff-related table
+            $allowedTables = ['staff', 'staff_details', 'staff_education'];
+            foreach ($allowedTables as $table) {
+                if (preg_match('/INSERT\s+INTO\s+`?' . $table . '`?/i', $statement)) {
+                    return false; // Don't skip - this is a staff table
+                }
+            }
+            return true; // Skip all other INSERT statements
         }
 
         return false;

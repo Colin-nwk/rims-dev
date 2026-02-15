@@ -2,7 +2,7 @@
 REM ============================================
 REM Seed Staff Data - PRODUCTION Database
 REM ============================================
-REM Seeds staff data from rims-staff.sql into PRODUCTION database
+REM Seeds staff data from rims_2.sql into PRODUCTION database
 REM Uses .env.production file for database credentials
 REM ============================================
 
@@ -20,8 +20,8 @@ if not exist "artisan" (
     exit /b 1
 )
 
-if not exist "rims-staff.sql" (
-    echo [ERROR] rims-staff.sql not found.
+if not exist "rims_2.sql" (
+    echo [ERROR] rims_2.sql not found.
     exit /b 1
 )
 

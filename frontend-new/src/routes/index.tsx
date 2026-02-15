@@ -24,6 +24,8 @@ import StaffDirectory from "@/pages/staff/StaffDirectory";
 import CreateStaffFormPage from "@/pages/staff/CreateStaffFormPage";
 import EditStaffFormPage from "@/pages/staff/EditStaffFormPage";
 import StaffViewPage from "@/pages/staff/StaffViewPage";
+import CareerHistoryView from "@/pages/staff/CareerHistoryView";
+import CareerHistoryCreate from "@/pages/staff/CareerHistoryCreate";
 import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
 import ChangeRequests from "@/pages/ChangeRequests";
@@ -137,6 +139,14 @@ export const routes = [
           {
             path: ROUTES.STAFF_VIEW,
             element: <StaffViewPage />,
+          },
+          {
+            path: ROUTES.CAREER_HISTORY_VIEW,
+            element: <CareerHistoryView />,
+          },
+          {
+            path: ROUTES.CAREER_HISTORY_CREATE,
+            element: <CareerHistoryCreate />,
           },
           {
             path: ROUTES.ADMIN_USERS_DIRECTORY,

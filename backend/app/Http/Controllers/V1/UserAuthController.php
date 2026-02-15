@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
-
 class UserAuthController extends Controller
 {
     use ApiResponseTrait;
@@ -30,7 +29,7 @@ class UserAuthController extends Controller
         if (! $user || ! Hash::check($request->password, $user->password)) {
             // Add a small delay to prevent timing attacks
             usleep(random_int(100000, 300000)); // 100-300ms delay
-            
+
             return $this->errorResponse('Invalid login details', 422);
         }
 
@@ -61,18 +60,16 @@ class UserAuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $user = User::where('email', $request->email)->first();
-        
 
         if ($user) {
             $token = Password::broker('users')->createToken($user);
-            $resetUrl = config('app.frontend_url') . '/reset-password';
+            $resetUrl = config('app.frontend_url').'/reset-password';
             $user->notify(new PasswordResetNotification($token, $resetUrl, 'user'));
         }
 
         // Always return success to prevent email enumeration
         return $this->successResponse(null, 'If an account with that email exists, a password reset link has been sent.');
     }
-
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
@@ -92,4 +89,3 @@ class UserAuthController extends Controller
         return $this->errorResponse(__($status), 422);
     }
 }
-

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class StaffDocument extends Model
 {
     /** @use HasFactory<\Database\Factories\StaffDocumentFactory> */
-    use HasFactory, \App\Traits\FilterableTrait;
+    use \App\Traits\FilterableTrait, HasFactory;
 
     public $searchable = [
         'document_name',

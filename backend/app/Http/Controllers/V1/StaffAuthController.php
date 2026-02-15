@@ -30,6 +30,7 @@ class StaffAuthController extends Controller
             // Add a small delay to prevent timing attacks
             usleep(random_int(100000, 300000)); // 100-300ms delay
 
+
             return $this->errorResponse('Invalid login details', 422);
         }
 
