@@ -40,10 +40,13 @@ import {
   useVerifyStaffDocument,
   useViewStaffDocument,
 } from "@/lib/api/staff-documents";
+import { formatNumberWithCommas } from "@/lib/utils";
 
 function createBlobUrl(blob: Blob, mimeType?: string): string {
   const fileBlob =
-    mimeType && blob.type !== mimeType ? new Blob([blob], { type: mimeType }) : blob;
+    mimeType && blob.type !== mimeType
+      ? new Blob([blob], { type: mimeType })
+      : blob;
   return window.URL.createObjectURL(fileBlob);
 }
 
@@ -92,9 +95,8 @@ const PersonnelDocuments = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(
-    null,
-  );
+  const [selectedDocument, setSelectedDocument] =
+    useState<StaffDocument | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   const baseFilters = useMemo(() => {
@@ -430,7 +432,9 @@ const PersonnelDocuments = () => {
                 <FileText className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{totalCount}</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {totalCount}
+                </p>
                 <p className="text-xs text-slate-500">Total Documents</p>
               </div>
             </div>
@@ -471,45 +475,47 @@ const PersonnelDocuments = () => {
 
           <div className="mb-4">
             <div className="flex flex-wrap gap-1 p-1 bg-white border rounded-lg shadow-sm border-slate-200">
-              {(["pending", "verified", "rejected"] as StaffDocumentStatus[]).map(
-                (status) => {
-                  const isActive = activeTab === status;
-                  const count =
-                    status === "pending"
-                      ? pendingTotal
-                      : status === "verified"
-                        ? verifiedTotal
-                        : rejectedTotal;
+              {(
+                ["pending", "verified", "rejected"] as StaffDocumentStatus[]
+              ).map((status) => {
+                const isActive = activeTab === status;
+                const count =
+                  status === "pending"
+                    ? pendingTotal
+                    : status === "verified"
+                      ? verifiedTotal
+                      : rejectedTotal;
 
-                  return (
-                    <button
-                      key={status}
-                      onClick={() => handleTabChange(status)}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                        isActive
-                          ? "bg-ncos-green-900 text-white shadow-sm"
-                          : "text-slate-600 hover:bg-slate-100"
-                      }`}
-                    >
-                      {status === "pending" && <Clock className="w-4 h-4" />}
-                      {status === "verified" && <CheckCircle className="w-4 h-4" />}
-                      {status === "rejected" && <XCircle className="w-4 h-4" />}
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                      {count > 0 && (
-                        <span
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            isActive
-                              ? "bg-white/20 text-white"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {count}
-                        </span>
-                      )}
-                    </button>
-                  );
-                },
-              )}
+                return (
+                  <button
+                    key={status}
+                    onClick={() => handleTabChange(status)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                      isActive
+                        ? "bg-ncos-green-900 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {status === "pending" && <Clock className="w-4 h-4" />}
+                    {status === "verified" && (
+                      <CheckCircle className="w-4 h-4" />
+                    )}
+                    {status === "rejected" && <XCircle className="w-4 h-4" />}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                    {count > 0 && (
+                      <span
+                        className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -517,7 +523,7 @@ const PersonnelDocuments = () => {
             <div>
               Total:{" "}
               <span className="font-semibold text-slate-900">
-                {data?.total || 0}
+                {formatNumberWithCommas(data?.total as number)}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -569,9 +575,7 @@ const PersonnelDocuments = () => {
               <Button
                 variant="danger"
                 size="sm"
-                onClick={() =>
-                  toast.info("Bulk delete is not implemented yet")
-                }
+                onClick={() => toast.info("Bulk delete is not implemented yet")}
                 className="flex-1 sm:flex-none"
               >
                 Delete Selected

@@ -102,6 +102,8 @@ class StaffController extends Controller
             'initialCommand',
             'presentCommand',
             'documents',
+            'presentRank',
+            'initialRank',
         ]));
     }
 
@@ -210,6 +212,8 @@ class StaffController extends Controller
     {
         $staff = Staff::with([
             'assignedState',
+            'presentRank',
+            'initialRank',
             // 'details',
             // 'education',
             // 'roles',
@@ -229,11 +233,15 @@ class StaffController extends Controller
             'first_name' => $staff->first_name,
             'other_names' => $staff->other_names,
             'present_rank' => $staff->present_rank,
+            'present_rank_name' => $staff->present_rank_name,
+            'initial_rank' => $staff->initial_rank,
+            'initial_rank_name' => $staff->initial_rank_name,
             'dob' => $staff->dob?->format('Y-m-d'),
             'photo' => $staff->photo,
             'status' => $staff->status,
             'sex' => $staff->sex,
             'assigned_state_name' => $staff->assignedState?->state,
+            'updated_at' => $staff->updated_at,
         ]);
     }
 

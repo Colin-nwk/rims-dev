@@ -58,7 +58,7 @@ export default function StaffLogin() {
             Staff Login
           </h1>
           <p className="text-xs font-medium tracking-wide uppercase sm:text-sm text-slate-500">
-            Registry Management System
+            Corrections Registry Information Management System
           </p>
         </div>
 
@@ -133,16 +133,19 @@ export default function StaffLogin() {
               >
                 {isPending || isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
-              
+
               {/* Public Complaint Link */}
               <div className="mt-4 text-center">
+                <p className="text-xs text-slate-600 sm:text-sm">
+                  Need to submit a complaint?
+                </p>
                 <button
                   type="button"
                   onClick={() => navigate("/complaint")}
-                  className="text-xs font-medium transition-colors sm:text-sm text-ncos-green-900 hover:text-gold-600"
+                  className="text-xs font-semibold transition-colors sm:text-sm text-ncos-green-900 hover:text-gold-600 hover:underline"
                   disabled={isPending || isSubmitting}
                 >
-                  Need to submit a complaint? Go to Public Complaint Portal
+                  Go to Public Complaint Portal
                 </button>
               </div>
             </Form>

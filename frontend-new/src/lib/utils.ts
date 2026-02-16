@@ -119,3 +119,28 @@ export function formatFieldName(key: string): string {
     .replace(/^./, (str) => str.toUpperCase())
     .trim();
 }
+
+export function formatNumberWithCommas(
+  number: number | string,
+  places: number = 0,
+): string {
+  // Handle string input
+  if (typeof number === "string") {
+    number = number.trim();
+    if (number === "") return "0";
+  }
+
+  // Convert to number
+  const num = Number(number);
+
+  // Handle invalid numbers
+  if (isNaN(num)) return "0";
+
+  // Format with fixed decimal places
+  const formatted = num.toLocaleString(undefined, {
+    minimumFractionDigits: places,
+    maximumFractionDigits: places,
+  });
+
+  return formatted;
+}

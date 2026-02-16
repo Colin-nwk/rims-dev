@@ -20,6 +20,7 @@ import {
   useBulkReject,
 } from "@/lib/api/change-requests";
 import { RefreshCw, CheckCircle, ClipboardList, Trash2 } from "lucide-react";
+import { formatNumberWithCommas } from "@/lib/utils";
 
 type TabType = "pending" | "history";
 
@@ -298,7 +299,9 @@ const Approvals = () => {
             <div className="flex items-center gap-4">
               <div>
                 Total:{" "}
-                <span className="font-semibold text-slate-900">{total}</span>
+                <span className="font-semibold text-slate-900">
+                  {formatNumberWithCommas(total)}
+                </span>
               </div>
             </div>
 

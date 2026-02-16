@@ -211,9 +211,9 @@ export default function StaffProfile() {
             </h2>
 
             {/* Rank Badge */}
-            {staff.present_rank && (
+            {staff.present_rank_name && (
               <span className="inline-block px-4 py-1.5 mb-4 text-sm font-semibold rounded-full bg-slate-800 text-white">
-                {staff.present_rank}
+                {staff.present_rank_name}
               </span>
             )}
 
@@ -258,13 +258,13 @@ export default function StaffProfile() {
         </div>
 
         {/* Work Information Section */}
-        {staff.present_rank && (
+        {staff.present_rank_name && (
           <div className="p-6 mb-6 bg-white border shadow-sm rounded-2xl border-slate-200 sm:p-8">
             <SectionHeader title="Work Information" icon={Briefcase} />
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoItem
                 label="Present Rank"
-                value={staff.present_rank}
+                value={staff.present_rank_name}
                 icon={Briefcase}
               />
               {staff.assigned_state_name && (

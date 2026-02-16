@@ -78,8 +78,8 @@ echo ""
 echo -e "${YELLOW}🚀 Running seeder on PRODUCTION...${NC}"
 echo ""
 
-APP_ENV=production php artisan db:seed --class=SqlStaffSeeder --env=production --force
-# APP_ENV=production php artisan migrate:fresh --seed --env=production --force
+# APP_ENV=production php artisan db:seed --class=SqlStaffSeeder --env=production --force
+APP_ENV=production php artisan migrate:fresh --seed --env=production --force
 
 if [ $? -eq 0 ]; then
     echo ""

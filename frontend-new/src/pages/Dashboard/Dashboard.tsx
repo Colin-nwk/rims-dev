@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { useDashboardStats } from "../../lib/api/dashboard";
+import { formatNumberWithCommas } from "@/lib/utils";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ const Dashboard = () => {
     {
       title: "Total Staff",
       value: stats?.staff.total || 0,
-      subtitle: `${stats?.staff.active || 0} active`,
+      subtitle: `${formatNumberWithCommas(stats?.staff?.active as number)} active`,
       icon: Users,
       gradient: "from-blue-500 to-blue-600",
       bgGradient: "from-blue-50 to-blue-100",

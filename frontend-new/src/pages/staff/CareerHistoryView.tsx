@@ -12,6 +12,7 @@ import {
   useStaffCareerHistory,
   type StaffCareerHistory,
 } from "@/lib/api/staff-career-history";
+import { useStaff } from "@/lib/api/staff/staffService";
 import { ROUTES } from "@/routes/constants";
 
 function formatDate(value?: string | null): string {
@@ -40,6 +41,13 @@ export default function CareerHistoryView() {
     isLoading,
     error,
   } = useStaffCareerHistory(staffServiceNo, !!staffServiceNo);
+
+  // Fetch staff data to get the name
+  const { data: staffData } = useStaff(staffServiceNo);
+  const staff = staffData?.data;
+  const staffFullName = staff
+    ? `${staff.surname} ${staff.first_name}${staff.other_names ? ` ${staff.other_names}` : ""}`
+    : "";
 
   if (!staffServiceNo) {
     return (
@@ -78,7 +86,9 @@ export default function CareerHistoryView() {
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
               <CardTitle>Career History</CardTitle>
-              <CardDescription>Staff: {staffServiceNo}</CardDescription>
+              <CardDescription>
+                {staffFullName ? `${staffFullName} (${staffServiceNo})` : `Staff: ${staffServiceNo}`}
+              </CardDescription>
             </div>
             <Button
               onClick={() =>

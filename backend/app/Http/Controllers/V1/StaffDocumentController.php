@@ -206,7 +206,7 @@ class StaffDocumentController extends Controller
             $this->authorize('staff-document.view');
         }
 
-        return $this->successResponse($staffDocument->load(['staff', 'verifier']));
+        return $this->successResponse($staffDocument->load(['staff.presentRank', 'staff.initialRank', 'verifier']));
     }
 
     public function update(UpdateStaffDocumentRequest $request, StaffDocument $staffDocument): JsonResponse

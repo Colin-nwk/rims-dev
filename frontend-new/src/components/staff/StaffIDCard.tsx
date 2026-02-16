@@ -345,7 +345,7 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                     fontWeight: "600",
                   }}
                 >
-                  {staffData.present_rank || "Staff"}
+                  {staffData.present_rank_name || "Staff"}
                 </p>
               </div>
 

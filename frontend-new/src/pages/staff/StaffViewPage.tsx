@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { TabNav } from "@/components/staff/StaffFormTabs";
 import { getFileUrl, useGenericData } from "@/lib/api";
 import { useStaff, type Staff, type StaffEducation } from "@/lib/api/staff";
-import { getPrisonName, getStateName } from "@/lib/helpers/genericDataHelpers";
+import { getPrisonName, getRankName, getStateName } from "@/lib/helpers/genericDataHelpers";
 import { ROUTES } from "@/routes/constants";
 
 export default function StaffViewPage() {
@@ -95,7 +95,7 @@ export default function StaffViewPage() {
                   )}
                   {statusLabel}
                 </span>
-                {staff.is_verified && (
+                {Boolean(staff.is_verified) && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     <Shield className="w-3 h-3" />
                     Verified
@@ -186,8 +186,8 @@ function BasicInfoTabView({ staff }: StaffViewTabProps) {
             <InfoField label="Duty / Role" value={staff.duty} />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <InfoField label="Present Rank" value={staff.present_rank} />
-            <InfoField label="Initial Rank" value={staff.initial_rank} />
+            <InfoField label="Present Rank" value={staff.present_rank_name} />
+            <InfoField label="Initial Rank" value={staff.initial_rank_name} />
             <InfoField
               label="Grade Level"
               value={
@@ -291,7 +291,7 @@ function PhysicalMedicalTabView({ staff }: StaffViewTabProps) {
         <InfoField label="Hair Colour" value={staff.details?.hair_colour} />
         <InfoField
           label="Has Physical Deformity"
-          value={staff.details?.is_deformed}
+          value={Boolean(staff.details?.is_deformed)}
         />
       </div>
       <InfoTextArea
@@ -301,7 +301,7 @@ function PhysicalMedicalTabView({ staff }: StaffViewTabProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <InfoField
           label="Has Previous Convictions"
-          value={staff.details?.is_convicted}
+          value={Boolean(staff.details?.is_convicted)}
         />
       </div>
       <InfoTextArea
@@ -446,7 +446,7 @@ function ReviewTabView({ staff, genericData }: StaffViewTabProps) {
             <SummaryItem label="Department" value={staff.department} />
           </div>
           <div className="space-y-3">
-            <SummaryItem label="Present Rank" value={staff.present_rank} />
+            <SummaryItem label="Present Rank" value={getRankName(staff.present_rank, genericData?.rankings)} />
             <SummaryItem
               label="Assigned State"
               value={getStateName(staff.assigned_state, genericData?.states)}
@@ -464,7 +464,7 @@ function ReviewTabView({ staff, genericData }: StaffViewTabProps) {
           label="Status"
           value={staff.status === 1 ? "Active" : "Inactive"}
         />
-        <InfoField label="Verified Staff" value={staff.is_verified ?? false} />
+        <InfoField label="Verified Staff" value={Boolean(staff.is_verified)} />
       </div>
 
       {staff.roles && staff.roles.length > 0 && (

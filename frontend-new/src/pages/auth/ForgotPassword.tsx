@@ -1,19 +1,19 @@
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useForgotPassword, useStaffForgotPassword } from "@/hooks/useAuth";
+import AuthLayout from "@/layouts/AuthLayout";
+import {
+    forgotPasswordSchema,
+    staffForgotPasswordSchema,
+    type ForgotPasswordFormData,
+    type StaffForgotPasswordFormData,
+} from "@/lib/api/auth/schemas";
+import { Form, Formik, type FormikHelpers } from "formik";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Formik, Form, type FormikHelpers } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { useForgotPassword, useStaffForgotPassword } from "@/hooks/useAuth";
-import {
-  forgotPasswordSchema,
-  staffForgotPasswordSchema,
-  type ForgotPasswordFormData,
-  type StaffForgotPasswordFormData,
-} from "@/lib/api/auth/schemas";
-import AuthLayout from "@/layouts/AuthLayout";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export default function ForgotPassword() {
             Forgot Password
           </h1>
           <p className="text-xs font-medium tracking-wide uppercase sm:text-sm text-slate-500">
-            Registry Management System
+            Corrections Registry Information Management System
           </p>
         </div>
 

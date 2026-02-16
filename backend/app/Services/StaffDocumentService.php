@@ -109,7 +109,7 @@ class StaffDocumentService extends BaseService
      */
     public function find($id): StaffDocument
     {
-        return StaffDocument::with(['staff', 'verifier'])->findOrFail($id);
+        return StaffDocument::with(['staff.presentRank', 'staff.initialRank', 'verifier'])->findOrFail($id);
     }
 
     /**
@@ -119,7 +119,7 @@ class StaffDocumentService extends BaseService
      */
     public function all(array $filters = [])
     {
-        return StaffDocument::with(['staff', 'verifier'])
+        return StaffDocument::with(['staff.presentRank', 'staff.initialRank', 'verifier'])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
@@ -131,7 +131,7 @@ class StaffDocumentService extends BaseService
      */
     public function allWithRelationships(array $filters = [])
     {
-        return StaffDocument::with(['staff', 'verifier'])
+        return StaffDocument::with(['staff.presentRank', 'staff.initialRank', 'verifier'])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }

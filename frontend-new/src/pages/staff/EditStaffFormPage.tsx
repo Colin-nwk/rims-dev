@@ -33,6 +33,7 @@ import {
   getStateId,
   getStateName,
   getPrisonName,
+  getRankName,
 } from "@/lib/helpers/genericDataHelpers";
 import { ChangePasswordModal } from "@/components/staff/ChangePasswordModal";
 import { TabNav } from "@/components/staff/StaffFormTabs";
@@ -106,6 +107,15 @@ const formatDateForInput = (dateValue: string | null | undefined): string => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+// Helper to extract rank ID from a value that could be number, string, or object
+const extractRankId = (value: unknown): string => {
+  if (!value) return "";
+  if (typeof value === "object" && value !== null && "id" in value) {
+    return String((value as { id: number | string }).id);
+  }
+  return String(value);
 };
 
 // Helper to check if two values are equal (handles different data types)
@@ -1549,7 +1559,7 @@ const ReviewTab: React.FC<{
                 Present Rank
               </p>
               <p className="text-slate-900 font-medium">
-                {values.present_rank || "N/A"}
+                {getRankName(values.present_rank, genericData?.rankings) || "N/A"}
               </p>
             </div>
             <div>
@@ -1651,8 +1661,8 @@ const EditStaffFormPage: React.FC = () => {
         status: staffData.data.status,
         department: staffData.data.department || "",
         duty: staffData.data.duty || "",
-        present_rank: staffData.data.present_rank || "",
-        initial_rank: staffData.data.initial_rank || "",
+        present_rank: extractRankId(staffData.data.present_rank),
+        initial_rank: extractRankId(staffData.data.initial_rank),
         level: staffData.data.level,
         step: staffData.data.step || "",
         assigned_state:

@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "react-toastify";
@@ -15,6 +15,8 @@ import {
   useCreateCareerRecord,
   type CareerFieldChanged,
 } from "@/lib/api/staff-career-history";
+import { useStaff } from "@/lib/api/staff/staffService";
+import { useGenericData } from "@/lib/api/statistics";
 import { ROUTES } from "@/routes/constants";
 
 const SelectField: React.FC<
@@ -81,11 +83,74 @@ export default function CareerHistoryCreate() {
   const staffServiceNo = serviceNo || "";
   const createCareerRecord = useCreateCareerRecord();
 
+  // Fetch staff data and generic data for dropdowns
+  const { data: staffData, isLoading: isLoadingStaff } =
+    useStaff(staffServiceNo);
+  const { data: genericData, isLoading: isLoadingGeneric } = useGenericData();
+
   const [fieldChanged, setFieldChanged] = useState<CareerFieldChanged | "">("");
-  const [oldValue, setOldValue] = useState("");
   const [newValue, setNewValue] = useState("");
   const [effectiveDate, setEffectiveDate] = useState("");
   const [reason, setReason] = useState("");
+
+  // Get the current staff's present rank and command
+  const staff = staffData?.data;
+
+  // Get staff full name for display
+  const staffFullName = staff
+    ? `${staff.surname} ${staff.first_name}${staff.other_names ? ` ${staff.other_names}` : ""}`
+    : "";
+
+  // Helper to extract ID from a value that could be number, string, or object
+  const extractId = (value: unknown): string => {
+    if (!value) return "";
+    if (typeof value === "object" && value !== null && "id" in value) {
+      return String((value as { id: number | string }).id);
+    }
+    return String(value);
+  };
+
+  // Get the current old value ID (used for filtering dropdowns)
+  const currentOldValueId = useMemo(() => {
+    if (!staff || !fieldChanged) return "";
+
+    if (fieldChanged === "present_rank") {
+      return extractId(staff.present_rank);
+    } else if (fieldChanged === "present_command") {
+      return extractId(staff.present_command);
+    }
+    return "";
+  }, [fieldChanged, staff]);
+
+  // Get the current old value as a name/title (used for display and payload)
+  const currentOldValueName = useMemo(() => {
+    if (!currentOldValueId || !fieldChanged) return "";
+
+    if (fieldChanged === "present_rank" && genericData?.rankings) {
+      const rank = genericData.rankings.find(
+        (r) => String(r.id) === currentOldValueId,
+      );
+      return rank?.title || "";
+    }
+
+    if (fieldChanged === "present_command" && genericData?.states) {
+      const state = genericData.states.find(
+        (s) => String(s.id) === currentOldValueId,
+      );
+      return state?.state || "";
+    }
+
+    return "";
+  }, [currentOldValueId, fieldChanged, genericData]);
+
+  // Check if data is loading
+  const isLoading = isLoadingStaff || isLoadingGeneric;
+
+  // Handle field type change - reset new value
+  const handleFieldChange = (value: string) => {
+    setFieldChanged(value as CareerFieldChanged | "");
+    setNewValue(""); // Reset new value when field type changes
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -101,7 +166,7 @@ export default function CareerHistoryCreate() {
         data: {
           field_changed: fieldChanged,
           new_value: newValue.trim(),
-          old_value: oldValue.trim() ? oldValue.trim() : undefined,
+          old_value: currentOldValueName || undefined,
           effective_date: effectiveDate ? effectiveDate : undefined,
           reason: reason.trim() ? reason.trim() : undefined,
         },
@@ -160,37 +225,97 @@ export default function CareerHistoryCreate() {
         <Card>
           <CardHeader>
             <CardTitle>Add Career Record</CardTitle>
-            <CardDescription>Staff: {staffServiceNo}</CardDescription>
+            <CardDescription>
+              {staffFullName ? `${staffFullName} (${staffServiceNo})` : `Staff: ${staffServiceNo}`}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="mt-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <SelectField
                 label="Type of Change"
                 required
                 value={fieldChanged}
-                onChange={(event) =>
-                  setFieldChanged(event.target.value as CareerFieldChanged)
-                }
+                onChange={(event) => handleFieldChange(event.target.value)}
+                disabled={isLoading}
               >
                 <option value="">Select type</option>
                 <option value="present_rank">Rank Change</option>
                 <option value="present_command">Command Change</option>
               </SelectField>
 
-              <Input
-                label="Previous Value"
-                value={oldValue}
-                onChange={(event) => setOldValue(event.target.value)}
-                placeholder="e.g. Corporal"
-              />
+              {/* Current Value - shows current value based on field type (read-only) */}
+              {fieldChanged === "present_rank" && (
+                <div className="w-full space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Current Rank
+                  </label>
+                  <div className="flex h-10 w-full items-center rounded-md border bg-slate-50 px-3 py-2 text-sm text-slate-700 border-slate-300">
+                    {currentOldValueName || "No current rank"}
+                  </div>
+                </div>
+              )}
 
-              <Input
-                label="New Value"
-                required
-                value={newValue}
-                onChange={(event) => setNewValue(event.target.value)}
-                placeholder="e.g. Sergeant"
-              />
+              {fieldChanged === "present_command" && (
+                <div className="w-full space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Current Command (State)
+                  </label>
+                  <div className="flex h-10 w-full items-center rounded-md border bg-slate-50 px-3 py-2 text-sm text-slate-700 border-slate-300">
+                    {currentOldValueName || "No current command"}
+                  </div>
+                </div>
+              )}
+
+              {!fieldChanged && (
+                <div className="text-sm text-slate-500 italic py-2">
+                  Select type of change first to see current value
+                </div>
+              )}
+
+              {/* New Value - dropdown based on field type */}
+              {fieldChanged === "present_rank" && (
+                <SelectField
+                  label="New Rank"
+                  required
+                  value={newValue}
+                  onChange={(event) => setNewValue(event.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="">Select new rank</option>
+                  {genericData?.rankings
+                    ?.filter((rank) => String(rank.id) !== currentOldValueId)
+                    .map((rank) => (
+                      <option key={rank.id} value={rank.title}>
+                        {rank.title}
+                      </option>
+                    ))}
+                </SelectField>
+              )}
+
+              {fieldChanged === "present_command" && (
+                <SelectField
+                  label="New Command (State)"
+                  required
+                  value={newValue}
+                  onChange={(event) => setNewValue(event.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="">Select new command</option>
+                  {genericData?.states
+                    ?.filter((state) => String(state.id) !== currentOldValueId)
+                    .map((state) => (
+                      <option key={state.id} value={state.state}>
+                        {state.state}
+                      </option>
+                    ))}
+                </SelectField>
+              )}
+
+              {!fieldChanged && (
+                <div className="text-sm text-slate-500 italic py-2">
+                  Select type of change first to see new value options
+                </div>
+              )}
 
               <Input
                 label="Effective Date"
