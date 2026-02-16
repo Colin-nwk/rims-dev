@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ROUTES } from "@/routes/constants";
+import { formatNumberWithCommas } from "@/lib/utils";
 
 const StaffDirectory = () => {
   const navigate = useNavigate();
@@ -224,7 +225,9 @@ const StaffDirectory = () => {
             <div className="flex items-center gap-4">
               <div>
                 Total:{" "}
-                <span className="font-semibold text-slate-900">{total}</span>
+                <span className="font-semibold text-slate-900">
+                  {formatNumberWithCommas(total)}
+                </span>
               </div>
             </div>
 

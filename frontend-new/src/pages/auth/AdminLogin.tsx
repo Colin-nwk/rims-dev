@@ -1,16 +1,16 @@
-import { useNavigate } from "react-router-dom";
-import { Formik, Form, type FormikHelpers } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useAdminLogin } from "@/hooks/useAuth";
+import AuthLayout from "@/layouts/AuthLayout";
 import {
   adminLoginSchema,
   type AdminLoginFormData,
 } from "@/lib/api/auth/schemas";
-import AuthLayout from "@/layouts/AuthLayout";
+import { Form, Formik, type FormikHelpers } from "formik";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ export default function AdminLogin() {
             Administrator Login
           </h1>
           <p className="text-xs font-medium tracking-wide uppercase sm:text-sm text-slate-500">
-            Registry Management System
+            Corrections Registry Information Management System
           </p>
         </div>
 

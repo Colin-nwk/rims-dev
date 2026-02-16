@@ -99,7 +99,7 @@ export function StaffDocumentViewModal({
                     {document.staff.service_no}
                   </span>
                   <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-ncos-green-600 text-white text-xs font-medium">
-                    {document.staff.present_rank}
+                    {document.staff.present_rank_name}
                   </span>
                 </div>
               </div>

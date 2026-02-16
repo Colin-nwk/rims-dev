@@ -20,7 +20,10 @@ export interface StaffDocumentStaff {
   first_name: string;
   other_names: string | null;
   photo: string | null;
-  present_rank: string;
+  present_rank: number | string | null;
+  initial_rank: number | string | null;
+  present_rank_name: string | null;
+  initial_rank_name: string | null;
 }
 
 export interface StaffDocumentVerifier {

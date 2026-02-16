@@ -129,7 +129,7 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <p className="text-lg font-bold text-slate-900 truncate">
-            {user.present_rank ?? "-"}
+            {user.present_rank_name ?? "-"}
           </p>
           <p className="text-xs text-slate-500 mt-1">Current Rank</p>
         </div>
@@ -203,12 +203,12 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
             <InfoItem
               icon={Shield}
               label="Initial Rank"
-              value={user.initial_rank}
+              value={user.initial_rank_name}
             />
             <InfoItem
               icon={Shield}
               label="Present Rank"
-              value={user.present_rank}
+              value={user.present_rank_name}
             />
             <InfoItem icon={GraduationCap} label="Level" value={user.level} />
             <InfoItem icon={GraduationCap} label="Step" value={user.step} />
@@ -580,7 +580,7 @@ const Profile = () => {
                 {isStaff && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white/90 backdrop-blur-sm">
                     <Sparkles className="w-3.5 h-3.5" />
-                    {user.present_rank}
+                    {user.present_rank_name}
                   </span>
                 )}
               </div>

@@ -260,13 +260,20 @@ export function StaffDocumentFormModal({
                           src={getFileUrl(staff.photo)}
                           alt={`${staff.surname} ${staff.first_name}`}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback)
+                              (fallback as HTMLElement).style.display = "flex";
+                          }}
                         />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold border-2 border-ncos-green-200">
-                          {staff.surname[0]}
-                          {staff.first_name[0]}
-                        </div>
-                      )}
+                      ) : null}
+                      <div
+                        className={`w-12 h-12 rounded-full bg-ncos-green-100 text-ncos-green-700 flex items-center justify-center font-semibold border-2 border-ncos-green-200 ${staff.photo ? "hidden" : ""}`}
+                      >
+                        {staff.surname[0]}
+                        {staff.first_name[0]}
+                      </div>
                       <div className="flex-1">
                         <p className="font-medium text-slate-900">
                           {staff.surname} {staff.first_name}{" "}
@@ -275,7 +282,7 @@ export function StaffDocumentFormModal({
                         <div className="flex items-center gap-2 text-sm text-slate-500">
                           <span>{staff.service_no}</span>
                           <span>•</span>
-                          <span>{staff.present_rank}</span>
+                          <span>{staff.present_rank_name}</span>
                         </div>
                       </div>
                     </div>

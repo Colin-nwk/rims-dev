@@ -215,6 +215,8 @@ class Staff extends Authenticatable
         'retirement_date_formatted',
         'is_retired',
         'retirement_time_remaining',
+        'present_rank_name',
+        'initial_rank_name',
     ];
 
     /**
@@ -299,5 +301,21 @@ class Staff extends Authenticatable
     public function presentRank()
     {
         return $this->belongsTo(Ranking::class, 'present_rank');
+    }
+
+    /**
+     * Get the present rank name from the relationship
+     */
+    public function getPresentRankNameAttribute(): ?string
+    {
+        return $this->presentRank?->title;
+    }
+
+    /**
+     * Get the initial rank name from the relationship
+     */
+    public function getInitialRankNameAttribute(): ?string
+    {
+        return $this->initialRank?->title;
     }
 }

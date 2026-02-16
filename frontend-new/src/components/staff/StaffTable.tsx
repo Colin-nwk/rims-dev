@@ -142,11 +142,11 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       ),
     },
     {
-      accessorKey: "present_rank",
+      accessorKey: "present_rank_name",
       header: "Rank",
       cell: ({ row }) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          {row.original.present_rank || "N/A"}
+          {row.original.present_rank_name || "N/A"}
         </span>
       ),
     },

@@ -36,6 +36,7 @@ import {
 } from "@/lib/api/staff-documents";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
+import { formatNumberWithCommas } from "@/lib/utils";
 
 function createBlobUrl(blob: Blob, mimeType?: string): string {
   const fileBlob =
@@ -448,7 +449,7 @@ const StaffPersonnelDocuments = () => {
             <div>
               Total:{" "}
               <span className="font-semibold text-slate-900">
-                {data?.total || 0}
+                {formatNumberWithCommas(data?.total as number)}
               </span>
             </div>
             <div className="flex items-center gap-2">

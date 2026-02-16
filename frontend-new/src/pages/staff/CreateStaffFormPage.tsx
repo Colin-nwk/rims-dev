@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useCreateStaff, CreateStaffDTO, sexOptions } from "@/lib/api/staff";
 import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
-import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
+import { getStateName, getPrisonName, getRankName } from "@/lib/helpers/genericDataHelpers";
 
 // Form values type for Create (Staff table only - no details or education)
 interface CreateStaffFormValues {
@@ -876,7 +876,7 @@ const ReviewStep: React.FC<{
                 Present Rank
               </p>
               <p className="text-slate-900 font-medium">
-                {values.present_rank || "Not provided"}
+                {getRankName(values.present_rank, genericData?.rankings) || "Not provided"}
               </p>
             </div>
             <div>

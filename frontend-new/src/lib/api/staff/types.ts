@@ -73,8 +73,10 @@ export interface Staff {
   // Work Information
   department?: string;
   duty?: string;
-  present_rank?: string;
-  initial_rank?: string;
+  present_rank?: string | number;
+  initial_rank?: string | number;
+  present_rank_name?: string;
+  initial_rank_name?: string;
   level?: number;
   step?: string;
   assigned_state?: string;
@@ -211,7 +213,10 @@ export interface StaffIDCardData {
   surname: string;
   first_name: string;
   other_names?: string;
-  present_rank?: string;
+  present_rank?: string | number;
+  present_rank_name?: string;
+  initial_rank?: string | number;
+  initial_rank_name?: string;
   dob?: string;
   photo?: string;
   status: number;

@@ -81,7 +81,7 @@ export const QualificationViewModal: React.FC<QualificationViewModalProps> = ({
                     </span>
                   </span>
                   <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-ncos-green-600 text-white text-xs font-medium">
-                    {education.staff.present_rank}
+                    {education.staff.present_rank_name}
                   </span>
                 </div>
               </div>

@@ -53,7 +53,7 @@ class StaffEducationController extends Controller
             $this->authorize('staff-education.view');
         }
 
-        $query = StaffEducation::with('staff');
+        $query = StaffEducation::with(['staff.presentRank', 'staff.initialRank']);
 
         // Staff users can only view their own records
         if ($this->isStaffUser()) {
@@ -183,7 +183,7 @@ class StaffEducationController extends Controller
             $this->authorize('staff-education.view');
         }
 
-        return $this->successResponse($staffEducation->load('staff'));
+        return $this->successResponse($staffEducation->load(['staff.presentRank', 'staff.initialRank']));
     }
 
     public function update(UpdateStaffEducationRequest $request, StaffEducation $staffEducation): JsonResponse

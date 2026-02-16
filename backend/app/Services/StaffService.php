@@ -145,6 +145,8 @@ class StaffService extends BaseService
             'initialCommand',
             'presentCommand',
             'documents',
+            'presentRank',
+            'initialRank',
         ])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);

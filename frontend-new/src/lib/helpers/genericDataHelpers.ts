@@ -24,6 +24,17 @@ interface PrisonLike {
   name?: string;
 }
 
+interface Rank {
+  id: number;
+  title: string;
+}
+
+interface RankLike {
+  id?: number;
+  title?: string;
+  name?: string;
+}
+
 /**
  * Get state name by ID
  * @param stateValue - State ID, state name, or state object
@@ -84,7 +95,11 @@ export function getStateId(
     ) {
       return stateValue.id.toString();
     }
-    if ("state" in stateValue && typeof stateValue.state === "string" && states) {
+    if (
+      "state" in stateValue &&
+      typeof stateValue.state === "string" &&
+      states
+    ) {
       const match = states.find((state) => state.state === stateValue.state);
       return match?.id?.toString();
     }
@@ -148,4 +163,45 @@ export function getPrisonName(
 
   // Otherwise, it's already a prison name
   return prisonValueStr;
+}
+
+/**
+ * Get rank name by ID
+ * @param rankValue - Rank ID, rank name, or rank object
+ * @param ranks - Array of ranks
+ * @returns Rank title or the original value if not found, or undefined if no value provided
+ */
+export function getRankName(
+  rankValue?: string | number | RankLike | null,
+  ranks?: Rank[] | null,
+): string | undefined {
+  if (!rankValue) return undefined;
+
+  if (typeof rankValue === "object") {
+    if ("title" in rankValue && typeof rankValue.title === "string") {
+      return rankValue.title;
+    }
+    if ("name" in rankValue && typeof rankValue.name === "string") {
+      return rankValue.name;
+    }
+    if (
+      "id" in rankValue &&
+      (typeof rankValue.id === "number" || typeof rankValue.id === "string")
+    ) {
+      return getRankName(rankValue.id, ranks);
+    }
+    return undefined;
+  }
+
+  if (!ranks) return rankValue.toString();
+
+  // Check if the value is numeric (ID)
+  const rankValueStr = rankValue.toString();
+  if (/^\d+$/.test(rankValueStr)) {
+    const rank = ranks.find((r) => r.id === Number(rankValueStr));
+    return rank?.title;
+  }
+
+  // Otherwise, it's already a rank name
+  return rankValueStr;
 }

@@ -200,7 +200,7 @@ export function StaffDocumentsTable({
                   {staff.service_no}
                 </p>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  {staff.present_rank}
+                  {staff.present_rank_name}
                 </span>
               </div>
             </div>
@@ -310,8 +310,13 @@ export function StaffDocumentsTable({
               {onEdit && (
                 <button
                   onClick={() => onEdit(row.original)}
-                  className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Edit"
+                  className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:text-slate-300 disabled:cursor-not-allowed"
+                  title={
+                    row.original.verification_status === "rejected"
+                      ? "Rejected documents can't be edited"
+                      : "Edit"
+                  }
+                  disabled={row.original.verification_status === "rejected"}
                 >
                   <Edit className="w-4 h-4" />
                 </button>
@@ -319,7 +324,7 @@ export function StaffDocumentsTable({
               {onDelete && (
                 <button
                   onClick={() => onDelete(row.original)}
-                  className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-color"
                   title="Delete"
                 >
                   <Trash2 className="w-4 h-4" />

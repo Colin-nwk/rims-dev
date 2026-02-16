@@ -24,7 +24,9 @@ export interface StaffUser extends BaseUser {
   other_names?: string | null;
   sex?: string | null;
   initial_rank?: string | null;
+  initial_rank_name?: string | null;
   present_rank?: string | null;
+  present_rank_name?: string | null;
   level?: number | null;
   step?: number | null;
   dob?: string | null;

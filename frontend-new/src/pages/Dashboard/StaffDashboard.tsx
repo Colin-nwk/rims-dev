@@ -204,7 +204,7 @@ const StaffDashboard = () => {
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-white/15 backdrop-blur-sm text-white border border-white/20 shadow-lg">
                 <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                {staffUser.present_rank || "Staff"}
+                {staffUser.present_rank_name || "Staff"}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-white/15 backdrop-blur-sm text-white border border-white/20 shadow-lg">
                 <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -481,7 +481,7 @@ const StaffDashboard = () => {
                   Level {staffUser.level ?? "-"}, Step {staffUser.step ?? "-"}
                 </p>
                 <p className="text-sm text-slate-600 truncate">
-                  {staffUser.present_rank || "No rank assigned"}
+                  {staffUser.present_rank_name || "No rank assigned"}
                 </p>
               </div>
             </div>

@@ -32,7 +32,7 @@ import {
   sexOptions,
 } from "@/lib/api/staff";
 import { getFileUrl, useGenericData } from "@/lib/api";
-import { getStateId, getStateName } from "@/lib/helpers/genericDataHelpers";
+import { getStateId, getStateName, getRankName } from "@/lib/helpers/genericDataHelpers";
 
 // Form values type that allows photo to be File or string (for edit mode)
 type StaffFormValues = Omit<CreateStaffFormData, "photo"> & {
@@ -738,7 +738,8 @@ const PostingOriginStep: React.FC<{
 // Step 4: Documents & Status
 const DocumentsStep: React.FC<{
   formik: FormikProps<StaffFormValues>;
-}> = ({ formik }) => {
+  genericData: ReturnType<typeof useGenericData>["data"];
+}> = ({ formik, genericData }) => {
   const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
     formik;
 
@@ -816,7 +817,7 @@ const DocumentsStep: React.FC<{
           {values.first_name} {values.surname} ({values.service_no})
         </p>
         <p className="text-sm text-ncos-green-800">
-          {values.present_rank || "No rank"} -{" "}
+          {getRankName(values.present_rank, genericData?.rankings) || "No rank"} -{" "}
           {values.department || "No department"}
         </p>
       </div>
@@ -849,8 +850,14 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
         status: staff.status,
         department: staff.department || "",
         duty: staff.duty || "",
-        present_rank: staff.present_rank || "",
-        initial_rank: staff.initial_rank || "",
+        present_rank:
+          staff.present_rank !== undefined && staff.present_rank !== null
+            ? staff.present_rank.toString()
+            : "",
+        initial_rank:
+          staff.initial_rank !== undefined && staff.initial_rank !== null
+            ? staff.initial_rank.toString()
+            : "",
         level: staff.level,
         step: staff.step || "",
         assigned_state:
@@ -1082,7 +1089,7 @@ export const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   isLoadingGeneric={isLoadingGeneric}
                 />
               )}
-              {currentStep === 3 && <DocumentsStep formik={formik} />}
+              {currentStep === 3 && <DocumentsStep formik={formik} genericData={genericData} />}
             </div>
 
             <ModalFooter>
