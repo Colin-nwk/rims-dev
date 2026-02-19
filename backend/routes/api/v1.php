@@ -12,6 +12,7 @@ use App\Http\Controllers\V1\StaffCareerController;
 use App\Http\Controllers\V1\StaffController;
 use App\Http\Controllers\V1\StaffDocumentController;
 use App\Http\Controllers\V1\StaffEducationController;
+use App\Http\Controllers\V1\StaffPostingController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
@@ -123,6 +124,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('staff/{staff}/career-history', [StaffCareerController::class, 'index']);
     Route::get('staff/{staff}/career-history/{id}', [StaffCareerController::class, 'show']);
     Route::post('staff/{staff}/career-history', [StaffCareerController::class, 'store']);
+
+    // --- Staff Posting Management ---
+    // Route::get('staff-postings/statistics', [StaffPostingController::class, 'statistics']);
+    Route::get('staff/{staff}/postings', [StaffPostingController::class, 'indexByStaff']);
+    Route::get('staff/{staff}/postings/active', [StaffPostingController::class, 'showActive']);
+    Route::apiResource('staff-postings', StaffPostingController::class);
+    Route::post('staff-postings/{staffPosting}/complete', [StaffPostingController::class, 'complete']);
 
     // --- User Management ---
     Route::prefix('user')->group(function () {

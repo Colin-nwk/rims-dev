@@ -125,6 +125,8 @@ class StaffService extends BaseService
             'initialCommand',
             'presentCommand',
             'documents',
+            'postings',
+            'activePosting',
         ])->findOrFail($id);
     }
 
@@ -147,6 +149,8 @@ class StaffService extends BaseService
             'documents',
             'presentRank',
             'initialRank',
+            'postings',
+            'activePosting',
         ])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);

@@ -183,6 +183,7 @@ class Staff extends Authenticatable
         'command_post_date',
         'initial_command',
         'present_command',
+        'station',
         'state_of_origin',
         'lga',
         'department',
@@ -237,6 +238,7 @@ class Staff extends Authenticatable
         'level',
         'department',
         'zone_id',
+        'station',
     ];
 
     /**
@@ -278,6 +280,16 @@ class Staff extends Authenticatable
         return $this->hasMany(StaffCareer::class, 'service_no', 'service_no')->orderBy('created_at', 'desc');
     }
 
+    public function postings()
+    {
+        return $this->hasMany(StaffPosting::class, 'service_no', 'service_no');
+    }
+
+    public function activePosting()
+    {
+        return $this->hasOne(StaffPosting::class, 'service_no', 'service_no')->where('status', 'active');
+    }
+
     public function assignedState()
     {
         return $this->belongsTo(State::class, 'assigned_state');
@@ -301,6 +313,14 @@ class Staff extends Authenticatable
     public function presentRank()
     {
         return $this->belongsTo(Ranking::class, 'present_rank');
+    }
+
+    /**
+     * Get all postings created by this staff member.
+     */
+    public function createdPostings()
+    {
+        return $this->morphMany(StaffPosting::class, 'creator');
     }
 
     /**
