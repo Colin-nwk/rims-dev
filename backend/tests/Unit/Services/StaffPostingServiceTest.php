@@ -128,7 +128,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_update_changing_to_active_updates_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'Old Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'Old Station',
@@ -149,7 +149,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_update_changing_station_name_updates_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'Old Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'Old Station',
@@ -169,7 +169,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_update_changing_to_non_active_clears_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'Current Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'Current Station',
@@ -215,7 +215,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_delete_active_posting_clears_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'To Delete']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'To Delete',
@@ -231,7 +231,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_delete_non_active_posting_does_not_affect_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'Another Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'To Delete',
@@ -325,9 +325,9 @@ class StaffPostingServiceTest extends TestCase
 
     public function test_all_filters_by_date_range()
     {
-        $unique1 = 'Unique Date Test 1 ' . uniqid();
-        $unique2 = 'Unique Date Test 2 ' . uniqid();
-        $unique3 = 'Unique Date Test 3 ' . uniqid();
+        $unique1 = 'Unique Date Test 1 '.uniqid();
+        $unique2 = 'Unique Date Test 2 '.uniqid();
+        $unique3 = 'Unique Date Test 3 '.uniqid();
 
         StaffPosting::factory()->create(['start_date' => '2024-01-15', 'station_name' => $unique1]);
         StaffPosting::factory()->create(['start_date' => '2024-06-15', 'station_name' => $unique2]);
@@ -382,7 +382,7 @@ class StaffPostingServiceTest extends TestCase
     public function test_complete_posting_clears_staff_station()
     {
         $staff = Staff::factory()->create(['station' => 'Current Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'Current Station',

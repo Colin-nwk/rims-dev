@@ -17,6 +17,7 @@ class StaffPostingController extends Controller
     use ApiResponseTrait;
 
     protected $staffPostingService;
+
     protected $changeRequestService;
 
     public function __construct(

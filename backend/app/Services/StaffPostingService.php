@@ -19,7 +19,7 @@ class StaffPostingService extends BaseService
             if (isset($data['created_by'])) {
                 // If created_by is already an object with morph relation
                 if (is_object($data['created_by'])) {
-                    $posting = new StaffPosting();
+                    $posting = new StaffPosting;
                     $posting->fill($data);
                     $posting->creator()->associate($data['created_by']);
                     $posting->save();
@@ -144,7 +144,7 @@ class StaffPostingService extends BaseService
      */
     public function allWithRelationships(array $filters = [])
     {
-         return StaffPosting::with(['staff', 'creator'])->filter($filters)
+        return StaffPosting::with(['staff', 'creator'])->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }
 

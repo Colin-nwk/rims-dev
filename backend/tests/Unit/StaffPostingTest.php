@@ -180,7 +180,7 @@ class StaffPostingTest extends TestCase
 
     public function test_fillable_attributes()
     {
-        $posting = new StaffPosting();
+        $posting = new StaffPosting;
 
         $expected = [
             'service_no',

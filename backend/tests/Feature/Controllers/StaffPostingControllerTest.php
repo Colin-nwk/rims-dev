@@ -38,12 +38,12 @@ class StaffPostingControllerTest extends TestCase
         $user = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('staff-posting.view', fn () => true);
 
-        $uniquePrefix = 'TEST_ALL_' . uniqid();
-        StaffPosting::factory()->count(2)->create(['station_name' => $uniquePrefix . ' Farm A']);
+        $uniquePrefix = 'TEST_ALL_'.uniqid();
+        StaffPosting::factory()->count(2)->create(['station_name' => $uniquePrefix.' Farm A']);
         StaffPosting::factory()->create([
             'service_no' => Staff::factory()->create()->service_no,
             'type' => 'farm_center',
-            'station_name' => $uniquePrefix . ' Lagos Farm Center',
+            'station_name' => $uniquePrefix.' Lagos Farm Center',
             'status' => 'active',
         ]);
 
@@ -58,12 +58,12 @@ class StaffPostingControllerTest extends TestCase
     {
         $staff = Staff::factory()->create();
 
-        $uniquePrefix = 'TEST_STAFF_' . uniqid();
-        StaffPosting::factory()->count(2)->create(['station_name' => $uniquePrefix . ' Farm A']);
+        $uniquePrefix = 'TEST_STAFF_'.uniqid();
+        StaffPosting::factory()->count(2)->create(['station_name' => $uniquePrefix.' Farm A']);
         StaffPosting::factory()->create([
             'service_no' => Staff::factory()->create()->service_no,
             'type' => 'training_school',
-            'station_name' => $uniquePrefix . ' Abuja Training School',
+            'station_name' => $uniquePrefix.' Abuja Training School',
             'status' => 'active',
         ]);
 
@@ -79,10 +79,10 @@ class StaffPostingControllerTest extends TestCase
         $user = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('staff-posting.view', fn () => true);
 
-        $uniquePrefix = 'TEST_TYPE_' . uniqid();
-        $farmPosting1 = StaffPosting::factory()->farmCenter()->create(['station_name' => $uniquePrefix . ' Unique Farm A']);
-        $farmPosting2 = StaffPosting::factory()->farmCenter()->create(['station_name' => $uniquePrefix . ' Unique Farm B']);
-        StaffPosting::factory()->trainingSchool()->create(['station_name' => $uniquePrefix . ' Unique School']);
+        $uniquePrefix = 'TEST_TYPE_'.uniqid();
+        $farmPosting1 = StaffPosting::factory()->farmCenter()->create(['station_name' => $uniquePrefix.' Unique Farm A']);
+        $farmPosting2 = StaffPosting::factory()->farmCenter()->create(['station_name' => $uniquePrefix.' Unique Farm B']);
+        StaffPosting::factory()->trainingSchool()->create(['station_name' => $uniquePrefix.' Unique School']);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/staff-postings?type=farm_center');
@@ -96,9 +96,9 @@ class StaffPostingControllerTest extends TestCase
 
         // Verify our specific postings are included
         $stationNames = collect($response->json('data.data'))->pluck('station_name');
-        $this->assertTrue($stationNames->contains($uniquePrefix . ' Unique Farm A'));
-        $this->assertTrue($stationNames->contains($uniquePrefix . ' Unique Farm B'));
-        $this->assertFalse($stationNames->contains($uniquePrefix . ' Unique School'));
+        $this->assertTrue($stationNames->contains($uniquePrefix.' Unique Farm A'));
+        $this->assertTrue($stationNames->contains($uniquePrefix.' Unique Farm B'));
+        $this->assertFalse($stationNames->contains($uniquePrefix.' Unique School'));
     }
 
     public function test_can_filter_postings_by_status()
@@ -106,10 +106,10 @@ class StaffPostingControllerTest extends TestCase
         $user = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('staff-posting.view', fn () => true);
 
-        $uniquePrefix = 'TEST_STATUS_' . uniqid();
-        StaffPosting::factory()->active()->create(['station_name' => $uniquePrefix . ' Unique Active Posting']);
-        StaffPosting::factory()->completed()->create(['station_name' => $uniquePrefix . ' Unique Completed Posting']);
-        StaffPosting::factory()->terminated()->create(['station_name' => $uniquePrefix . ' Unique Terminated Posting']);
+        $uniquePrefix = 'TEST_STATUS_'.uniqid();
+        StaffPosting::factory()->active()->create(['station_name' => $uniquePrefix.' Unique Active Posting']);
+        StaffPosting::factory()->completed()->create(['station_name' => $uniquePrefix.' Unique Completed Posting']);
+        StaffPosting::factory()->terminated()->create(['station_name' => $uniquePrefix.' Unique Terminated Posting']);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/staff-postings?status=active');
@@ -123,8 +123,8 @@ class StaffPostingControllerTest extends TestCase
 
         // Verify our specific posting is included
         $stationNames = collect($response->json('data.data'))->pluck('station_name');
-        $this->assertTrue($stationNames->contains($uniquePrefix . ' Unique Active Posting'));
-        $this->assertFalse($stationNames->contains($uniquePrefix . ' Unique Completed Posting'));
+        $this->assertTrue($stationNames->contains($uniquePrefix.' Unique Active Posting'));
+        $this->assertFalse($stationNames->contains($uniquePrefix.' Unique Completed Posting'));
     }
 
     public function test_can_filter_postings_by_station_name()
@@ -132,10 +132,10 @@ class StaffPostingControllerTest extends TestCase
         $user = User::factory()->create();
         \Illuminate\Support\Facades\Gate::define('staff-posting.view', fn () => true);
 
-        $uniqueName = 'UNIQUE_STATION_' . uniqid() . '_Lagos';
+        $uniqueName = 'UNIQUE_STATION_'.uniqid().'_Lagos';
         StaffPosting::factory()->create(['station_name' => $uniqueName]);
-        StaffPosting::factory()->create(['station_name' => 'Different Station Abuja ' . uniqid()]);
-        StaffPosting::factory()->create(['station_name' => 'Another Station Kano ' . uniqid()]);
+        StaffPosting::factory()->create(['station_name' => 'Different Station Abuja '.uniqid()]);
+        StaffPosting::factory()->create(['station_name' => 'Another Station Kano '.uniqid()]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/staff-postings?station_name={$uniqueName}");
@@ -152,7 +152,7 @@ class StaffPostingControllerTest extends TestCase
     public function test_staff_can_view_their_own_postings()
     {
         $staff = Staff::factory()->create();
-        
+
         StaffPosting::factory()->count(3)->create([
             'service_no' => $staff->service_no,
             'status' => 'active',
@@ -169,7 +169,7 @@ class StaffPostingControllerTest extends TestCase
     {
         $staff1 = Staff::factory()->create();
         $staff2 = Staff::factory()->create();
-        
+
         StaffPosting::factory()->create([
             'service_no' => $staff2->service_no,
             'station_name' => 'Secret Location',
@@ -203,7 +203,7 @@ class StaffPostingControllerTest extends TestCase
     public function test_postings_are_ordered_by_start_date_descending()
     {
         $staff = Staff::factory()->create();
-        
+
         $oldest = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'start_date' => '2024-01-01',
@@ -230,7 +230,7 @@ class StaffPostingControllerTest extends TestCase
     public function test_can_retrieve_active_posting_for_staff()
     {
         $staff = Staff::factory()->create();
-        
+
         $activePosting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'status' => 'active',
@@ -252,7 +252,7 @@ class StaffPostingControllerTest extends TestCase
     public function test_returns_null_when_no_active_posting()
     {
         $staff = Staff::factory()->create();
-        
+
         StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'status' => 'completed',
@@ -481,7 +481,7 @@ class StaffPostingControllerTest extends TestCase
     public function test_staff_can_view_own_posting()
     {
         $staff = Staff::factory()->create();
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'My Station',
@@ -498,7 +498,7 @@ class StaffPostingControllerTest extends TestCase
     {
         $staff1 = Staff::factory()->create();
         $staff2 = Staff::factory()->create();
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff2->service_no,
             'station_name' => 'Secret Station',
@@ -624,7 +624,7 @@ class StaffPostingControllerTest extends TestCase
         \Illuminate\Support\Facades\Gate::define('staff-posting.edit', fn () => true);
 
         $staff = Staff::factory()->create(['station' => 'Current Station']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'Current Station',
@@ -683,7 +683,7 @@ class StaffPostingControllerTest extends TestCase
         \Illuminate\Support\Facades\Gate::define('staff-posting.delete', fn () => true);
 
         $staff = Staff::factory()->create(['station' => 'To Be Deleted']);
-        
+
         $posting = StaffPosting::factory()->create([
             'service_no' => $staff->service_no,
             'station_name' => 'To Be Deleted',
