@@ -17,7 +17,7 @@ class StatisticsController extends Controller
     /**
      * Get all statistics with optional filters.
      *
-     * Query params: state_of_origin, assigned_state, sex, present_rank, level, department, status, zone_id, zone, year_from, year_to, marital_status
+     * Query params: state_of_origin, assigned_state, sex, present_rank, initial_rank, present_command, initial_command, level, department, status, prison, lga, zone_id, zone, age_range, year_from, year_to, marital_status
      */
     public function index(Request $request): JsonResponse
     {
@@ -26,11 +26,17 @@ class StatisticsController extends Controller
             'assigned_state',
             'sex',
             'present_rank',
+            'initial_rank',
+            'present_command',
+            'initial_command',
             'level',
             'department',
             'status',
+            'prison',
+            'lga',
             'zone_id',
             'zone',
+            'age_range',
             'year_from',
             'year_to',
             'marital_status',
@@ -200,11 +206,17 @@ class StatisticsController extends Controller
             'assigned_state',
             'sex',
             'present_rank',
+            'initial_rank',
+            'present_command',
+            'initial_command',
             'level',
             'department',
             'status',
+            'prison',
+            'lga',
             'zone_id',
             'zone',
+            'age_range',
             'year_from',
             'year_to',
             'marital_status',

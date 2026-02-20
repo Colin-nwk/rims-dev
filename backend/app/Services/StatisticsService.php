@@ -221,6 +221,18 @@ class StatisticsService
             $query->where('staff.present_rank', $filters['present_rank']);
         }
 
+        if (isset($filters['initial_rank'])) {
+            $query->where('staff.initial_rank', $filters['initial_rank']);
+        }
+
+        if (isset($filters['present_command'])) {
+            $query->where('staff.present_command', $filters['present_command']);
+        }
+
+        if (isset($filters['initial_command'])) {
+            $query->where('staff.initial_command', $filters['initial_command']);
+        }
+
         if (isset($filters['level'])) {
             $query->where('staff.level', $filters['level']);
         }
@@ -231,6 +243,14 @@ class StatisticsService
 
         if (isset($filters['status'])) {
             $query->where('staff.status', $filters['status']);
+        }
+
+        if (isset($filters['prison'])) {
+            $query->where('staff.prison', $filters['prison']);
+        }
+
+        if (isset($filters['lga'])) {
+            $query->whereRaw('UPPER(lga) = ?', [strtoupper($filters['lga'])]);
         }
 
         if (isset($filters['zone_id'])) {
@@ -245,6 +265,11 @@ class StatisticsService
             $query->whereHas('assignedState', function ($q) use ($filters) {
                 $q->where('zone', $filters['zone']);
             });
+        }
+
+        if (isset($filters['age_range'])) {
+            // Apply age range filter using FilterHelper
+            \App\Helpers\FilterHelper::applyAgeRangeFilter($query, $filters['age_range']);
         }
 
         if (isset($filters['year_from'])) {
@@ -304,6 +329,24 @@ class StatisticsService
                         $zoneQ->where('zone', $filters['zone']);
                     });
                 }
+                if (isset($filters['present_command'])) {
+                    $q->where('present_command', $filters['present_command']);
+                }
+                if (isset($filters['initial_command'])) {
+                    $q->where('initial_command', $filters['initial_command']);
+                }
+                if (isset($filters['present_rank'])) {
+                    $q->where('present_rank', $filters['present_rank']);
+                }
+                if (isset($filters['initial_rank'])) {
+                    $q->where('initial_rank', $filters['initial_rank']);
+                }
+                if (isset($filters['prison'])) {
+                    $q->where('prison', $filters['prison']);
+                }
+                if (isset($filters['lga'])) {
+                    $q->whereRaw('UPPER(lga) = ?', [strtoupper($filters['lga'])]);
+                }
             });
         }
 
@@ -317,7 +360,13 @@ class StatisticsService
             || isset($filters['sex'])
             || isset($filters['status'])
             || isset($filters['zone_id'])
-            || isset($filters['zone']);
+            || isset($filters['zone'])
+            || isset($filters['present_command'])
+            || isset($filters['initial_command'])
+            || isset($filters['present_rank'])
+            || isset($filters['initial_rank'])
+            || isset($filters['prison'])
+            || isset($filters['lga']);
     }
 
     private function getGenderDistribution(array $filters, int $total): array
