@@ -104,6 +104,8 @@ class StaffController extends Controller
             'documents',
             'presentRank',
             'initialRank',
+            'postings',
+            'activePosting',
         ]));
     }
 

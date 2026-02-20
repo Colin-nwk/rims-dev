@@ -29,6 +29,7 @@ class StoreStaffRequest extends FormRequest
             'status' => 'required|integer',
             'email' => 'nullable|email',
             'phone_number' => 'nullable|string',
+            'station' => 'nullable|string',
             'sex' => 'nullable|string',
             'initial_rank' => 'nullable|integer|exists:rankings,id',
             'present_rank' => 'nullable|integer|exists:rankings,id',

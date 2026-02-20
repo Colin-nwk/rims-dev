@@ -283,10 +283,11 @@ class SqlStaffSeeder extends Seeder
             // Check if this is a staff-related table
             $allowedTables = ['staff', 'staff_details', 'staff_education'];
             foreach ($allowedTables as $table) {
-                if (preg_match('/INSERT\s+INTO\s+`?' . $table . '`?/i', $statement)) {
+                if (preg_match('/INSERT\s+INTO\s+`?'.$table.'`?/i', $statement)) {
                     return false; // Don't skip - this is a staff table
                 }
             }
+
             return true; // Skip all other INSERT statements
         }
 
