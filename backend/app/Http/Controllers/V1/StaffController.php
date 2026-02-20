@@ -266,6 +266,65 @@ class StaffController extends Controller
     }
 
     /**
+     * Export staff data with minimal relationships for performance
+     * Only loads essential data needed for Excel export
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('staff.view');
+
+        $query = Staff::select([
+            'id',
+            'service_no',
+            'surname',
+            'first_name',
+            'other_names',
+            'email',
+            'phone_number',
+            'sex',
+            'dob',
+            'state_of_origin',
+            'lga',
+            'present_rank',
+            'initial_rank',
+            'level',
+            'step',
+            'department',
+            'duty',
+            'assigned_state',
+            'prison',
+            'date_of_first_appointment',
+            'present_appointment_date',
+            'command_post_date',
+            'file_no',
+            'ippis',
+            'status',
+            'is_verified',
+            'created_at',
+        ])
+            ->with([
+                'details:service_no,nin,bvn,place_of_birth,contact_address,permanent_home_address,blood_group,genotype,marital_status,pfa_name,pension_pin,next_of_kin_name,next_of_kin_phone,next_of_kin_relationship,bank_name,account_number,account_name',
+                'presentRank:id,title',
+                'initialRank:id,title',
+            ])
+            ->filter($request->all());
+
+        $data = $query->paginate($request->per_page ?? 5000);
+
+        // Transform data to include rank names directly
+        $data->getCollection()->transform(function ($staff) {
+            $staff->present_rank_name = $staff->presentRank?->title;
+            $staff->initial_rank_name = $staff->initialRank?->title;
+            // Calculate retirement date if needed
+            $staff->retirement_date_formatted = $staff->retirement_date_formatted;
+
+            return $staff;
+        });
+
+        return $this->collectionResponse($data);
+    }
+
+    /**
      * Reset password for a staff member (Admin only)
      */
     public function resetPassword(Request $request, Staff $staff)

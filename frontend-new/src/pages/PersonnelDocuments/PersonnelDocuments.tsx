@@ -6,6 +6,7 @@ import {
   Clock,
   Download,
   FileText,
+  Loader2,
   Plus,
   RefreshCw,
   Upload,
@@ -41,6 +42,10 @@ import {
   useViewStaffDocument,
 } from "@/lib/api/staff-documents";
 import { formatNumberWithCommas } from "@/lib/utils";
+import {
+  fetchAllDataAndExport,
+  type ColumnMapping,
+} from "@/lib/helpers/excel-export";
 
 function createBlobUrl(blob: Blob, mimeType?: string): string {
   const fileBlob =
@@ -88,6 +93,7 @@ const PersonnelDocuments = () => {
   const [perPage, setPerPage] = useState(10);
   const [filters, setFilters] = useState<StaffDocumentFiltersType>({});
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -354,8 +360,60 @@ const PersonnelDocuments = () => {
     });
   };
 
-  const handleExport = () => {
-    toast.info("Export functionality coming soon");
+  const handleExport = async () => {
+    setIsExporting(true);
+
+    // Column mappings for better Excel headers
+    const columnMappings: ColumnMapping[] = [
+      { key: "staff.service_no", columnName: "Service Number" },
+      { key: "staff.surname", columnName: "Surname" },
+      { key: "staff.first_name", columnName: "First Name" },
+      { key: "staff.present_rank_name", columnName: "Rank" },
+      { key: "document_type", columnName: "Document Type" },
+      { key: "document_name", columnName: "Document Name" },
+      { key: "verification_status", columnName: "Status" },
+      { key: "notes", columnName: "Notes" },
+      { key: "expires_at", columnName: "Expires At" },
+      { key: "created_at", columnName: "Uploaded At" },
+    ];
+
+    // Only include these specific columns in the export
+    const includeColumns = [
+      "staff.service_no",
+      "staff.surname",
+      "staff.first_name",
+      "staff.present_rank_name",
+      "document_type",
+      "document_name",
+      "verification_status",
+      "notes",
+      "expires_at",
+      "created_at",
+    ];
+
+    try {
+      const result = await fetchAllDataAndExport(
+        "/staff-documents",
+        "Personnel_Documents",
+        effectiveFilters as Record<string, string | undefined>,
+        5000,
+        undefined,
+        undefined,
+        columnMappings,
+        undefined,
+        includeColumns,
+      );
+
+      if (result.status) {
+        toast.success("Personnel documents exported successfully");
+      } else {
+        toast.error("Failed to export personnel documents");
+      }
+    } catch {
+      toast.error("An error occurred while exporting");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const documentsData = data?.data || [];
@@ -391,9 +449,17 @@ const PersonnelDocuments = () => {
                 />
                 Refresh
               </Button>
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="w-4 h-4 mr-2" />
-                Export
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                disabled={totalCount === 0 || isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isExporting ? "Exporting..." : "Export"}
               </Button>
               <Button
                 variant="outline"

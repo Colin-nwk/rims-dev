@@ -12,12 +12,16 @@ import {
   useStaffIDCard,
   useStaffList,
 } from "@/lib/api/staff";
-import { Download, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Download, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ROUTES } from "@/routes/constants";
 import { formatNumberWithCommas } from "@/lib/utils";
+import {
+  fetchAllDataAndExport,
+  type ColumnMapping,
+} from "@/lib/helpers/excel-export";
 
 const StaffDirectory = () => {
   const navigate = useNavigate();
@@ -29,6 +33,7 @@ const StaffDirectory = () => {
     {},
   );
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal states
   const [showIDCard, setShowIDCard] = useState(false);
@@ -153,8 +158,153 @@ const StaffDirectory = () => {
   };
 
   // Export handler
-  const handleExport = () => {
-    toast.info("Export functionality coming soon");
+  const handleExport = async () => {
+    setIsExporting(true);
+
+    // Column mappings - use name variants for IDs
+    const columnMappings: ColumnMapping[] = [
+      { key: "service_no", columnName: "Service Number" },
+      { key: "surname", columnName: "Surname" },
+      { key: "first_name", columnName: "First Name" },
+      { key: "other_names", columnName: "Other Names" },
+      { key: "email", columnName: "Email" },
+      { key: "phone_number", columnName: "Phone Number" },
+      { key: "sex", columnName: "Sex" },
+      { key: "dob", columnName: "Date of Birth" },
+      { key: "state_of_origin", columnName: "State of Origin" },
+      { key: "lga", columnName: "LGA" },
+      { key: "present_rank_name", columnName: "Present Rank" },
+      { key: "initial_rank_name", columnName: "Initial Rank" },
+      { key: "level", columnName: "Level" },
+      { key: "step", columnName: "Step" },
+      { key: "department", columnName: "Department" },
+      { key: "duty", columnName: "Duty" },
+      { key: "assigned_state", columnName: "Assigned State" },
+      { key: "prison", columnName: "Prison" },
+      {
+        key: "date_of_first_appointment",
+        columnName: "Date of First Appointment",
+      },
+      {
+        key: "present_appointment_date",
+        columnName: "Present Appointment Date",
+      },
+      { key: "command_post_date", columnName: "Command Post Date" },
+      { key: "file_no", columnName: "File Number" },
+      { key: "ippis", columnName: "IPPIS" },
+      { key: "status", columnName: "Status" },
+      { key: "is_verified", columnName: "Verified" },
+      { key: "retirement_date_formatted", columnName: "Retirement Date" },
+      { key: "details.nin", columnName: "NIN" },
+      { key: "details.bvn", columnName: "BVN" },
+      { key: "details.place_of_birth", columnName: "Place of Birth" },
+      { key: "details.contact_address", columnName: "Contact Address" },
+      {
+        key: "details.permanent_home_address",
+        columnName: "Permanent Home Address",
+      },
+      { key: "details.blood_group", columnName: "Blood Group" },
+      { key: "details.genotype", columnName: "Genotype" },
+      { key: "details.marital_status", columnName: "Marital Status" },
+      { key: "details.pfa_name", columnName: "PFA Name" },
+      { key: "details.pension_pin", columnName: "Pension PIN" },
+      { key: "details.next_of_kin_name", columnName: "Next of Kin Name" },
+      { key: "details.next_of_kin_phone", columnName: "Next of Kin Phone" },
+      {
+        key: "details.next_of_kin_relationship",
+        columnName: "Next of Kin Relationship",
+      },
+      { key: "details.bank_name", columnName: "Bank Name" },
+      { key: "details.account_number", columnName: "Account Number" },
+      { key: "details.account_name", columnName: "Account Name" },
+      { key: "created_at", columnName: "Created At" },
+    ];
+
+    // Include only specific columns (use name variants instead of IDs)
+    const includeColumns = [
+      "service_no",
+      "surname",
+      "first_name",
+      "other_names",
+      "email",
+      "phone_number",
+      "sex",
+      "dob",
+      "state_of_origin",
+      "lga",
+      "present_rank_name",
+      "initial_rank_name",
+      "level",
+      "step",
+      "department",
+      "duty",
+      "assigned_state",
+      "prison",
+      "date_of_first_appointment",
+      "present_appointment_date",
+      "command_post_date",
+      "file_no",
+      "ippis",
+      "status",
+      "is_verified",
+      "retirement_date_formatted",
+      "details.nin",
+      "details.bvn",
+      "details.place_of_birth",
+      "details.contact_address",
+      "details.permanent_home_address",
+      "details.blood_group",
+      "details.genotype",
+      "details.marital_status",
+      "details.pfa_name",
+      "details.pension_pin",
+      "details.next_of_kin_name",
+      "details.next_of_kin_phone",
+      "details.next_of_kin_relationship",
+      "details.bank_name",
+      "details.account_number",
+      "details.account_name",
+      "created_at",
+    ];
+
+    // Build filters for export
+    const exportFilters: Record<string, string | undefined> = {
+      search: filters.search,
+      status: filters.status?.toString(),
+      sex: filters.sex,
+      department: filters.department,
+      present_rank: filters.present_rank,
+      initial_rank: filters.initial_rank,
+      level: filters.level?.toString(),
+      assigned_state: filters.assigned_state,
+      prison: filters.prison,
+      zone_id: filters.zone_id?.toString(),
+      age_range: filters.age_range,
+    };
+
+    try {
+      const result = await fetchAllDataAndExport(
+        "/staff/export",
+        "Staff_Directory",
+        exportFilters,
+        5000,
+        undefined,
+        undefined,
+        columnMappings,
+        undefined,
+        includeColumns,
+      );
+
+      if (result.status) {
+        toast.success("Staff directory exported successfully");
+      } else {
+        toast.error("Failed to export staff directory");
+      }
+    } catch {
+      toast.error("An error occurred while exporting");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Delete modal close handler
@@ -208,10 +358,14 @@ const StaffDirectory = () => {
               <Button
                 variant="outline"
                 onClick={handleExport}
-                disabled={total === 0}
+                disabled={total === 0 || isExporting}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isExporting ? "Exporting..." : "Export"}
               </Button>
               <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />
