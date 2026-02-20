@@ -45,6 +45,7 @@ class StatisticsService
             'marital_status' => $this->getMaritalStatusDistribution($filters, $totalDetails),
             'state_of_origin' => $this->getStateOfOriginDistribution($filters, $totalStaff),
             'assigned_state' => $this->getAssignedStateDistribution($filters, $totalStaff),
+            'zone' => $this->getZoneDistribution($filters, $totalStaff),
             'present_rank' => $this->getPresentRankDistribution($filters, $totalStaff),
             'initial_rank' => $this->getInitialRankDistribution($filters, $totalStaff),
             'initial_command' => $this->getInitialCommandDistribution($filters, $totalStaff),
@@ -55,6 +56,11 @@ class StatisticsService
             'staff_status' => $this->getStaffStatusDistribution($filters, $totalStaff),
             'appointment_by_year' => $this->getAppointmentByYear($filters, $totalStaff),
             'appointment_by_month' => $this->getAppointmentByMonth($filters, $totalStaff),
+            'age_groups' => $this->getAgeGroupsDistribution($filters, $totalStaff),
+            'prison' => $this->getPrisonDistribution($filters, $totalStaff),
+            'lga' => $this->getLgaDistribution($filters, $totalStaff),
+            'retirement_eligibility' => $this->getRetirementEligibilityDistribution($filters, $totalStaff),
+            'promotion_eligibility' => $this->getPromotionEligibilityDistribution($filters, $totalStaff),
         ];
     }
 
@@ -88,6 +94,38 @@ class StatisticsService
         $total = (clone $query)->count();
 
         return $this->getAssignedStateDistribution($filters, $total);
+    }
+
+    public function getZoneStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getZoneDistribution($filters, $total);
+    }
+
+    public function getLevelStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getLevelDistribution($filters, $total);
+    }
+
+    public function getDepartmentStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getDepartmentDistribution($filters, $total);
+    }
+
+    public function getStaffStatusStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getStaffStatusDistribution($filters, $total);
     }
 
     public function getRankStats(array $filters = []): array
@@ -158,7 +196,17 @@ class StatisticsService
         $query = Staff::query();
 
         if (isset($filters['state_of_origin'])) {
-            $query->where('staff.state_of_origin', $filters['state_of_origin']);
+            // Normalize state_of_origin filter to match stored format (uppercase)
+            $stateOrigin = strtoupper($filters['state_of_origin']);
+            // Handle F.C.T. / FCT normalization
+            if ($stateOrigin === 'F.C.T.' || $stateOrigin === 'FCT') {
+                $query->where(function ($q) {
+                    $q->whereRaw('UPPER(state_of_origin) = ?', ['FCT'])
+                        ->orWhereRaw('UPPER(REPLACE(state_of_origin, ".", "")) = ?', ['FCT']);
+                });
+            } else {
+                $query->whereRaw('UPPER(state_of_origin) = ?', [$stateOrigin]);
+            }
         }
 
         if (isset($filters['assigned_state'])) {
@@ -186,7 +234,17 @@ class StatisticsService
         }
 
         if (isset($filters['zone_id'])) {
-            $query->where('staff.zone_id', $filters['zone_id']);
+            // Filter by zone via states table
+            $query->whereHas('assignedState', function ($q) use ($filters) {
+                $q->where('zone_id', $filters['zone_id']);
+            });
+        }
+
+        if (isset($filters['zone'])) {
+            // Filter by zone letter (e.g., "A", "B", "C") via states table
+            $query->whereHas('assignedState', function ($q) use ($filters) {
+                $q->where('zone', $filters['zone']);
+            });
         }
 
         if (isset($filters['year_from'])) {
@@ -217,7 +275,15 @@ class StatisticsService
         if ($this->hasStaffFilters($filters)) {
             $query->whereHas('staff', function ($q) use ($filters) {
                 if (isset($filters['state_of_origin'])) {
-                    $q->where('state_of_origin', $filters['state_of_origin']);
+                    $stateOrigin = strtoupper($filters['state_of_origin']);
+                    if ($stateOrigin === 'F.C.T.' || $stateOrigin === 'FCT') {
+                        $q->where(function ($subQ) {
+                            $subQ->whereRaw('UPPER(state_of_origin) = ?', ['FCT'])
+                                ->orWhereRaw('UPPER(REPLACE(state_of_origin, ".", "")) = ?', ['FCT']);
+                        });
+                    } else {
+                        $q->whereRaw('UPPER(state_of_origin) = ?', [$stateOrigin]);
+                    }
                 }
                 if (isset($filters['assigned_state'])) {
                     $q->where('assigned_state', $filters['assigned_state']);
@@ -229,7 +295,14 @@ class StatisticsService
                     $q->where('status', $filters['status']);
                 }
                 if (isset($filters['zone_id'])) {
-                    $q->where('zone_id', $filters['zone_id']);
+                    $q->whereHas('assignedState', function ($zoneQ) use ($filters) {
+                        $zoneQ->where('zone_id', $filters['zone_id']);
+                    });
+                }
+                if (isset($filters['zone'])) {
+                    $q->whereHas('assignedState', function ($zoneQ) use ($filters) {
+                        $zoneQ->where('zone', $filters['zone']);
+                    });
                 }
             });
         }
@@ -243,7 +316,8 @@ class StatisticsService
             || isset($filters['assigned_state'])
             || isset($filters['sex'])
             || isset($filters['status'])
-            || isset($filters['zone_id']);
+            || isset($filters['zone_id'])
+            || isset($filters['zone']);
     }
 
     private function getGenderDistribution(array $filters, int $total): array
@@ -277,18 +351,47 @@ class StatisticsService
 
     private function getStateOfOriginDistribution(array $filters, int $total): array
     {
+        // Normalize state_of_origin: lowercase, treat F.C.T. and FCT as same
         return $this->buildStaffQuery($filters)
-            ->selectRaw('state_of_origin as label, COUNT(*) as count')
-            ->groupBy('state_of_origin')
-            ->orderByDesc('count')
+            ->selectRaw('LOWER(REPLACE(state_of_origin, ".", "")) as normalized, state_of_origin as original, COUNT(*) as count')
+            ->groupBy('normalized', 'original')
             ->orderByDesc('count')
             ->get()
             ->map(fn ($item) => [
-                'label' => $item->label ?? 'Not Specified',
+                'label' => $this->normalizeStateLabel($item->original),
                 'count' => $item->count,
                 'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
             ])
+            ->groupBy('label')
+            ->map(fn ($group) => [
+                'label' => $group->first()['label'],
+                'count' => $group->sum('count'),
+                'percentage' => $total > 0 ? round(($group->sum('count') / $total) * 100, 2) : 0,
+            ])
+            ->values()
             ->toArray();
+    }
+
+    /**
+     * Normalize state label for consistent display.
+     * - Convert to title case
+     * - Treat F.C.T. and FCT as "F.C.T."
+     */
+    private function normalizeStateLabel(?string $label): string
+    {
+        if (empty($label)) {
+            return 'Not Specified';
+        }
+
+        $normalized = strtoupper(trim($label));
+
+        // Treat FCT and F.C.T. as the same
+        if ($normalized === 'FCT' || $normalized === 'F.C.T.') {
+            return 'F.C.T.';
+        }
+
+        // Convert to title case (e.g., "ABIA" → "Abia", "CROSS RIVER" → "Cross River")
+        return ucwords(strtolower($normalized));
     }
 
     private function getAssignedStateDistribution(array $filters, int $total): array
@@ -302,6 +405,25 @@ class StatisticsService
             ->get()
             ->map(fn ($item) => [
                 'label' => $item->label ?? 'Unassigned',
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getZoneDistribution(array $filters, int $total): array
+    {
+        // Get zone from states table via assigned_state
+        // Zone is stored as a single letter in states.zone column
+        return $this->buildStaffQuery($filters)
+            ->leftJoin('states', 'staff.assigned_state', '=', 'states.id')
+            ->selectRaw('states.zone as label, COUNT(*) as count')
+            ->whereNotNull('states.zone')
+            ->groupBy('states.zone')
+            ->orderBy('states.zone')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => $item->label ? 'Zone '.$item->label : 'Unassigned',
                 'count' => $item->count,
                 'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
             ])
@@ -493,11 +615,318 @@ class StatisticsService
             ->orderBy('year')
             ->get()
             ->map(fn ($item) => [
-                'state' => $item->state_of_origin,
+                'state' => $this->normalizeStateLabel($item->state_of_origin),
                 'year' => $item->year,
                 'count' => $item->count,
             ])
             ->toArray();
+    }
+
+    // ========================================================================
+    // NEW STATISTICS METHODS
+    // ========================================================================
+
+    /**
+     * Get age groups distribution.
+     * Age groups: 18-24, 25-34, 35-44, 45-54, 55-59, 60+
+     */
+    public function getAgeGroupsStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getAgeGroupsDistribution($filters, $total);
+    }
+
+    /**
+     * Get prison distribution.
+     */
+    public function getPrisonStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getPrisonDistribution($filters, $total);
+    }
+
+    /**
+     * Get LGA distribution.
+     */
+    public function getLgaStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getLgaDistribution($filters, $total);
+    }
+
+    /**
+     * Get document verification status distribution.
+     */
+    public function getDocumentVerificationStats(array $filters = []): array
+    {
+        $total = $this->buildDocumentsQuery($filters)->count();
+
+        return $this->getDocumentVerificationDistribution($filters, $total);
+    }
+
+    /**
+     * Get document expiry status distribution.
+     */
+    public function getDocumentExpiryStats(array $filters = []): array
+    {
+        $total = $this->buildDocumentsQuery($filters)->count();
+
+        return $this->getDocumentExpiryDistribution($filters, $total);
+    }
+
+    /**
+     * Get retirement eligibility statistics.
+     */
+    public function getRetirementEligibilityStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getRetirementEligibilityDistribution($filters, $total);
+    }
+
+    /**
+     * Get promotion eligibility statistics.
+     */
+    public function getPromotionEligibilityStats(array $filters = []): array
+    {
+        $query = $this->buildStaffQuery($filters);
+        $total = (clone $query)->count();
+
+        return $this->getPromotionEligibilityDistribution($filters, $total);
+    }
+
+    // ========================================================================
+    // DISTRIBUTION METHODS
+    // ========================================================================
+
+    private function getAgeGroupsDistribution(array $filters, int $total): array
+    {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+
+        // Calculate age using database-specific syntax
+        if ($connection === 'sqlite') {
+            $ageCalc = "CAST((julianday('now') - julianday(staff.dob)) / 365.25 AS INTEGER)";
+        } else {
+            $ageCalc = 'TIMESTAMPDIFF(YEAR, staff.dob, CURDATE())';
+        }
+
+        return $this->buildStaffQuery($filters)
+            ->selectRaw("{$ageCalc} as age")
+            ->whereNotNull('dob')
+            ->get()
+            ->groupBy(function ($item) {
+                $age = $item->age;
+                if ($age < 18) {
+                    return 'Under 18';
+                } elseif ($age < 25) {
+                    return '18-24';
+                } elseif ($age < 35) {
+                    return '25-34';
+                } elseif ($age < 45) {
+                    return '35-44';
+                } elseif ($age < 55) {
+                    return '45-54';
+                } elseif ($age < 60) {
+                    return '55-59';
+                } else {
+                    return '60+';
+                }
+            })
+            ->map(function ($group, $label) use ($total) {
+                return [
+                    'label' => $label,
+                    'count' => $group->count(),
+                    'percentage' => $total > 0 ? round(($group->count() / $total) * 100, 2) : 0,
+                ];
+            })
+            ->values()
+            ->sortBy('label')
+            ->toArray();
+    }
+
+    private function getPrisonDistribution(array $filters, int $total): array
+    {
+        return $this->buildStaffQuery($filters)
+            ->leftJoin('prisons', 'staff.prison', '=', 'prisons.id')
+            ->selectRaw('prisons.prison_name as label, COUNT(*) as count')
+            ->groupBy('prisons.prison_name')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => $item->label ?? 'Unassigned',
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getLgaDistribution(array $filters, int $total): array
+    {
+        // LGA is stored as string in staff table
+        return $this->buildStaffQuery($filters)
+            ->selectRaw('lga as label, COUNT(*) as count')
+            ->whereNotNull('lga')
+            ->where('lga', '!=', '')
+            ->groupBy('lga')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => ucwords(strtolower($item->label)),
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getDocumentVerificationDistribution(array $filters, int $total): array
+    {
+        return $this->buildDocumentsQuery($filters)
+            ->selectRaw('verification_status as label, COUNT(*) as count')
+            ->groupBy('verification_status')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => ucfirst($item->label ?? 'unknown'),
+                'count' => $item->count,
+                'percentage' => $total > 0 ? round(($item->count / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getDocumentExpiryDistribution(array $filters, int $total): array
+    {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+
+        // Calculate expiry status
+        if ($connection === 'sqlite') {
+            $expiredCondition = "expires_at IS NOT NULL AND expires_at < date('now')";
+            $expiringSoonCondition = "expires_at IS NOT NULL AND expires_at >= date('now') AND expires_at <= date('now', '+30 days')";
+        } else {
+            $expiredCondition = 'expires_at IS NOT NULL AND expires_at < CURDATE()';
+            $expiringSoonCondition = 'expires_at IS NOT NULL AND expires_at >= CURDATE() AND expires_at <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)';
+        }
+
+        $query = $this->buildDocumentsQuery($filters);
+
+        $expired = (clone $query)->whereRaw($expiredCondition)->count();
+        $expiringSoon = (clone $query)->whereRaw($expiringSoonCondition)->count();
+        $valid = (clone $query)
+            ->whereRaw("expires_at IS NOT NULL AND NOT ({$expiredCondition}) AND NOT ({$expiringSoonCondition})")
+            ->count();
+        $noExpiry = (clone $query)->whereNull('expires_at')->count();
+
+        return collect([
+            ['label' => 'Expired', 'count' => $expired],
+            ['label' => 'Expiring Soon (30 days)', 'count' => $expiringSoon],
+            ['label' => 'Valid', 'count' => $valid],
+            ['label' => 'No Expiry Date', 'count' => $noExpiry],
+        ])
+            ->filter(fn ($item) => $item['count'] > 0)
+            ->map(fn ($item) => [
+                'label' => $item['label'],
+                'count' => $item['count'],
+                'percentage' => $total > 0 ? round(($item['count'] / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getRetirementEligibilityDistribution(array $filters, int $total): array
+    {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+
+        // Calculate retirement age (60 years) eligibility
+        if ($connection === 'sqlite') {
+            $eligibleCondition = "(julianday('now') - julianday(dob)) / 365.25 >= 57";
+            $dueIn1Year = "(julianday('now') - julianday(dob)) / 365.25 >= 59";
+        } else {
+            $eligibleCondition = 'TIMESTAMPDIFF(YEAR, dob, CURDATE()) >= 57';
+            $dueIn1Year = 'TIMESTAMPDIFF(YEAR, dob, CURDATE()) >= 59';
+        }
+
+        $query = $this->buildStaffQuery($filters);
+
+        $eligibleNow = (clone $query)->whereRaw($eligibleCondition)->count();
+        $dueIn1Year = (clone $query)->whereRaw($dueIn1Year)->count();
+        $notEligible = $total - $eligibleNow;
+
+        return collect([
+            ['label' => 'Eligible (57+ years)', 'count' => $eligibleNow],
+            ['label' => 'Due in 1 Year (59+ years)', 'count' => $dueIn1Year],
+            ['label' => 'Not Yet Eligible', 'count' => $notEligible],
+        ])
+            ->map(fn ($item) => [
+                'label' => $item['label'],
+                'count' => $item['count'],
+                'percentage' => $total > 0 ? round(($item['count'] / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    private function getPromotionEligibilityDistribution(array $filters, int $total): array
+    {
+        // Promotion eligibility based on years in current rank (minimum 3 years)
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+
+        if ($connection === 'sqlite') {
+            $yearsInRank = "CAST((julianday('now') - julianday(present_appointment_date)) / 365.25 AS INTEGER)";
+        } else {
+            $yearsInRank = 'TIMESTAMPDIFF(YEAR, present_appointment_date, CURDATE())';
+        }
+
+        $query = $this->buildStaffQuery($filters);
+
+        $eligible = (clone $query)
+            ->whereNotNull('present_appointment_date')
+            ->whereRaw("{$yearsInRank} >= 3")
+            ->count();
+
+        $dueSoon = (clone $query)
+            ->whereNotNull('present_appointment_date')
+            ->whereRaw("{$yearsInRank} >= 2 AND {$yearsInRank} < 3")
+            ->count();
+
+        $notEligible = $total - $eligible - $dueSoon;
+
+        return collect([
+            ['label' => 'Eligible (3+ years)', 'count' => $eligible],
+            ['label' => 'Due Soon (2-3 years)', 'count' => $dueSoon],
+            ['label' => 'Not Yet Eligible', 'count' => max(0, $notEligible)],
+        ])
+            ->map(fn ($item) => [
+                'label' => $item['label'],
+                'count' => $item['count'],
+                'percentage' => $total > 0 ? round(($item['count'] / $total) * 100, 2) : 0,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Build documents query with filters applied.
+     */
+    private function buildDocumentsQuery(array $filters): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = \App\Models\StaffDocument::query();
+
+        if (isset($filters['verification_status'])) {
+            $query->where('verification_status', $filters['verification_status']);
+        }
+
+        if (isset($filters['document_type'])) {
+            $query->where('document_type', $filters['document_type']);
+        }
+
+        return $query;
     }
 
     /**

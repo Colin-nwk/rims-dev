@@ -96,9 +96,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('marital-status', [StatisticsController::class, 'maritalStatus']);
         Route::get('state-of-origin', [StatisticsController::class, 'stateOfOrigin']);
         Route::get('assigned-state', [StatisticsController::class, 'assignedState']);
+        Route::get('zone', [StatisticsController::class, 'zone']);
         Route::get('rank', [StatisticsController::class, 'rank']);
+        Route::get('initial-rank', [StatisticsController::class, 'initialRank']);
+        Route::get('initial-command', [StatisticsController::class, 'initialCommand']);
+        Route::get('present-command', [StatisticsController::class, 'presentCommand']);
+        Route::get('level', [StatisticsController::class, 'level']);
+        Route::get('department', [StatisticsController::class, 'department']);
+        Route::get('staff-status', [StatisticsController::class, 'staffStatus']);
         Route::get('education-type', [StatisticsController::class, 'educationType']);
         Route::get('appointment-trends', [StatisticsController::class, 'appointmentTrends']);
+        Route::get('age-groups', [StatisticsController::class, 'ageGroups']);
+        Route::get('prison', [StatisticsController::class, 'prison']);
+        Route::get('lga', [StatisticsController::class, 'lga']);
+        Route::get('documents/verification', [StatisticsController::class, 'documentVerification']);
+        Route::get('documents/expiry', [StatisticsController::class, 'documentExpiry']);
+        Route::get('retirement-eligibility', [StatisticsController::class, 'retirementEligibility']);
+        Route::get('promotion-eligibility', [StatisticsController::class, 'promotionEligibility']);
     });
 
     // --- Staff Management ---
