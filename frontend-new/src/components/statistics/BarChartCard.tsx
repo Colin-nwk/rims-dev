@@ -94,6 +94,7 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({
     }));
   }, [data, maxItems, colors]);
   const hasMore = data.length > maxItems;
+  const chartHeight = height > 0 ? height : 300;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
@@ -110,7 +111,7 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({
       </div>
 
       {isLoading ? (
-        <div className="space-y-3" style={{ height }}>
+        <div className="space-y-3" style={{ height: chartHeight }}>
           {[80, 65, 50, 40, 30].map((width, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className="h-4 w-20 animate-pulse rounded bg-slate-100" />
@@ -124,7 +125,7 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({
       ) : displayData.length === 0 ? (
         <div
           className="flex flex-col items-center justify-center text-slate-400"
-          style={{ height }}
+          style={{ height: chartHeight }}
         >
           <svg
             className="mb-2 h-12 w-12 opacity-50"
@@ -142,8 +143,8 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({
           <p className="text-sm">No data available</p>
         </div>
       ) : layout === "horizontal" ? (
-        <div style={{ height }}>
-          <ResponsiveContainer width="100%" height="100%">
+        <div style={{ height: chartHeight }}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart
               data={displayData}
               layout="vertical"
@@ -169,8 +170,8 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({
           </ResponsiveContainer>
         </div>
       ) : (
-        <div style={{ height }}>
-          <ResponsiveContainer width="100%" height="100%">
+        <div style={{ height: chartHeight }}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart
               data={displayData}
               margin={{ top: 10, right: 10, left: 10, bottom: 40 }}

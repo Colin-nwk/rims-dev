@@ -243,6 +243,7 @@ class StaffController extends Controller
             'status' => $staff->status,
             'sex' => $staff->sex,
             'assigned_state_name' => $staff->assignedState?->state,
+            'station' => $staff->station,
             'updated_at' => $staff->updated_at,
         ]);
     }

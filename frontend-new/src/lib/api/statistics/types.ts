@@ -53,6 +53,16 @@ export interface AllStatistics {
   staff_status: StatItem[];
   appointment_by_year: StatItem[];
   appointment_by_month: StatItem[];
+  // New statistics
+  initial_rank?: StatItem[];
+  initial_command?: StatItem[];
+  present_command?: StatItem[];
+  zone?: StatItem[];
+  age_groups?: StatItem[];
+  prison?: StatItem[];
+  lga?: StatItem[];
+  retirement_eligibility?: StatItem[];
+  promotion_eligibility?: StatItem[];
 }
 
 // Filters for statistics queries
@@ -68,6 +78,14 @@ export interface StatisticsFilters {
   year_from?: string;
   year_to?: string;
   marital_status?: string;
+  // New filters
+  initial_rank?: string;
+  present_command?: string;
+  initial_command?: string;
+  prison?: string;
+  lga?: string;
+  age_range?: string;
+  zone?: string;
 }
 
 // Generic filter options data
@@ -184,6 +202,12 @@ export const CHART_COLORS = {
   ],
   trend: ["#10b981", "#3b82f6"],
   education: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899"],
+  // New color schemes
+  ageGroups: ["#06b6d4", "#0891b2", "#0e7490", "#155e75", "#164e63", "#134e4a", "#115e59"],
+  eligibility: ["#10b981", "#f59e0b", "#ef4444"],
+  documents: ["#22c55e", "#eab308", "#ef4444", "#94a3b8"],
+  prison: ["#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd6fe", "#ede9fe"],
+  lga: ["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#ffedd5"],
 } as const;
 
 // Helper to get color for a chart item

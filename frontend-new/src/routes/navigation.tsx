@@ -10,6 +10,7 @@ import {
   FolderOpenDot,
   HelpCircle,
   LayoutDashboard,
+  MapPin,
   Shield,
   User,
   UserCog,
@@ -43,6 +44,12 @@ export const mainNavItems: NavItem[] = [
     name: "Staff Directory",
     icon: <Users className="w-5 h-5" />,
     path: ROUTES.STAFF_DIRECTORY,
+    adminOnly: true,
+  },
+  {
+    name: "Staff Postings",
+    icon: <MapPin className="w-5 h-5" />,
+    path: ROUTES.STAFF_POSTINGS,
     adminOnly: true,
   },
   {

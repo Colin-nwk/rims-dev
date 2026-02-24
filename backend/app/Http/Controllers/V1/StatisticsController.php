@@ -114,21 +114,21 @@ class StatisticsController extends Controller
     {
         $filters = $this->extractFilters($request);
 
-        return $this->successResponse($this->statisticsService->getLevelDistribution($filters, $this->getTotalStaff($filters)));
+        return $this->successResponse($this->statisticsService->getLevelStats($filters));
     }
 
     public function department(Request $request): JsonResponse
     {
         $filters = $this->extractFilters($request);
 
-        return $this->successResponse($this->statisticsService->getDepartmentDistribution($filters, $this->getTotalStaff($filters)));
+        return $this->successResponse($this->statisticsService->getDepartmentStats($filters));
     }
 
     public function staffStatus(Request $request): JsonResponse
     {
         $filters = $this->extractFilters($request);
 
-        return $this->successResponse($this->statisticsService->getStaffStatusDistribution($filters, $this->getTotalStaff($filters)));
+        return $this->successResponse($this->statisticsService->getStaffStatusStats($filters));
     }
 
     public function educationType(Request $request): JsonResponse
@@ -223,13 +223,4 @@ class StatisticsController extends Controller
         ]));
     }
 
-    /**
-     * Get total staff count with filters.
-     *
-     * @param  array<string, mixed>  $filters
-     */
-    private function getTotalStaff(array $filters): int
-    {
-        return \App\Models\Staff::query()->count();
-    }
 }
