@@ -5,12 +5,13 @@ import { type StatItem, getChartColor } from "@/lib/api/statistics";
 interface PieChartCardProps {
   title: string;
   subtitle?: string;
-  data: StatItem[];
+  data: StatItem[] | Record<string, StatItem>;
   colors: readonly string[];
   isLoading?: boolean;
   showLegend?: boolean;
   innerRadius?: number;
   outerRadius?: number;
+  height?: number;
 }
 
 const CustomTooltip = ({
@@ -61,6 +62,14 @@ const CustomLegend = ({
   );
 };
 
+function normalizeStatItems(
+  data: StatItem[] | Record<string, StatItem> | null | undefined,
+): StatItem[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  return Object.values(data);
+}
+
 export const PieChartCard: React.FC<PieChartCardProps> = ({
   title,
   subtitle,
@@ -70,16 +79,19 @@ export const PieChartCard: React.FC<PieChartCardProps> = ({
   showLegend = true,
   innerRadius = 60,
   outerRadius = 90,
+  height = 256,
 }) => {
-  const total = data.reduce((sum, item) => sum + item.count, 0);
+  const chartHeight = height > 0 ? height : 256;
+  const normalizedData = useMemo(() => normalizeStatItems(data), [data]);
+  const total = normalizedData.reduce((sum, item) => sum + item.count, 0);
 
   // Add fill colors to data
   const coloredData = useMemo(() => {
-    return data.map((item, index) => ({
+    return normalizedData.map((item, index) => ({
       ...item,
       fill: getChartColor(index, colors),
     }));
-  }, [data, colors]);
+  }, [normalizedData, colors]);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
@@ -92,7 +104,7 @@ export const PieChartCard: React.FC<PieChartCardProps> = ({
         <div className="flex h-64 items-center justify-center">
           <div className="h-44 w-44 animate-pulse rounded-full bg-slate-100" />
         </div>
-      ) : data.length === 0 ? (
+      ) : normalizedData.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center text-slate-400">
           <svg
             className="h-12 w-12 mb-2 opacity-50"
@@ -117,8 +129,8 @@ export const PieChartCard: React.FC<PieChartCardProps> = ({
         </div>
       ) : (
         <>
-          <div className="relative h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="relative" style={{ height: chartHeight }}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
               <PieChart>
                 <Pie
                   data={coloredData}

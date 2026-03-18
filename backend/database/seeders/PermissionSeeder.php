@@ -31,6 +31,12 @@ class PermissionSeeder extends Seeder
             ['name' => 'staff-document.delete', 'description' => 'Delete staff documents', 'group' => 'staff-document'],
             ['name' => 'staff-document.verify', 'description' => 'Verify or reject staff documents', 'group' => 'staff-document'],
 
+            // Staff Posting Management
+            ['name' => 'staff-posting.view', 'description' => 'View staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.create', 'description' => 'Create staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.edit', 'description' => 'Edit staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.delete', 'description' => 'Delete staff postings', 'group' => 'staff-posting'],
+
             // User Management
             ['name' => 'user.view', 'description' => 'View system users', 'group' => 'user'],
             ['name' => 'user.create', 'description' => 'Create new system users', 'group' => 'user'],

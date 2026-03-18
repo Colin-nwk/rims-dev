@@ -58,6 +58,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   isLoading = false,
   height = 350,
 }) => {
+  const chartHeight = height > 0 ? height : 350;
   // Calculate summary stats
   const totalAppointments = yearlyData.reduce(
     (sum, item) => sum + item.count,
@@ -92,13 +93,16 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center" style={{ height }}>
+        <div
+          className="flex items-center justify-center"
+          style={{ height: chartHeight }}
+        >
           <div className="h-full w-full animate-pulse rounded-lg bg-slate-100" />
         </div>
       ) : yearlyData.length === 0 ? (
         <div
           className="flex flex-col items-center justify-center text-slate-400"
-          style={{ height }}
+          style={{ height: chartHeight }}
         >
           <svg
             className="mb-2 h-12 w-12 opacity-50"
@@ -116,8 +120,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           <p className="text-sm">No trend data available</p>
         </div>
       ) : (
-        <div style={{ height }}>
-          <ResponsiveContainer width="100%" height="100%">
+        <div style={{ height: chartHeight }}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <AreaChart
               data={yearlyData}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}

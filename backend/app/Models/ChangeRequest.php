@@ -54,10 +54,10 @@ class ChangeRequest extends Model
             if ($user instanceof \App\Models\Staff) {
                 return $query->where(function ($q) use ($user) {
                     $q->where('requested_by_id', $user->id)
-                      ->orWhere('service_no', $user->service_no);
+                        ->orWhere('service_no', $user->service_no);
                 });
             }
-            
+
             // For non-staff users without view_all permission, only show their own requests
             return $query->where('requested_by_id', $user->id);
         }

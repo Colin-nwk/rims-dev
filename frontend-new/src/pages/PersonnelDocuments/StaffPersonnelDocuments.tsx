@@ -327,7 +327,7 @@ const StaffPersonnelDocuments = () => {
                 Upload and track your non-education personnel documents
               </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-3 w-full sm:w-max">
+            <div className="grid grid-cols-2 sm:grid-cols-3 items-center gap-3 w-full sm:w-max">
               <Button
                 variant="outline"
                 onClick={() => refetch()}

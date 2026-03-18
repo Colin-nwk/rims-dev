@@ -80,4 +80,12 @@ class User extends Authenticatable
             set: fn ($value) => is_numeric($value) ? $value : (self::STATUS_REVERSE_MAP[$value] ?? self::STATUS_ACTIVE),
         );
     }
+
+    /**
+     * Get all postings created by this user.
+     */
+    public function createdPostings()
+    {
+        return $this->morphMany(\App\Models\StaffPosting::class, 'creator');
+    }
 }

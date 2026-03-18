@@ -12,6 +12,7 @@ use App\Http\Controllers\V1\StaffCareerController;
 use App\Http\Controllers\V1\StaffController;
 use App\Http\Controllers\V1\StaffDocumentController;
 use App\Http\Controllers\V1\StaffEducationController;
+use App\Http\Controllers\V1\StaffPostingController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
@@ -95,12 +96,27 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('marital-status', [StatisticsController::class, 'maritalStatus']);
         Route::get('state-of-origin', [StatisticsController::class, 'stateOfOrigin']);
         Route::get('assigned-state', [StatisticsController::class, 'assignedState']);
+        Route::get('zone', [StatisticsController::class, 'zone']);
         Route::get('rank', [StatisticsController::class, 'rank']);
+        Route::get('initial-rank', [StatisticsController::class, 'initialRank']);
+        Route::get('initial-command', [StatisticsController::class, 'initialCommand']);
+        Route::get('present-command', [StatisticsController::class, 'presentCommand']);
+        Route::get('level', [StatisticsController::class, 'level']);
+        Route::get('department', [StatisticsController::class, 'department']);
+        Route::get('staff-status', [StatisticsController::class, 'staffStatus']);
         Route::get('education-type', [StatisticsController::class, 'educationType']);
         Route::get('appointment-trends', [StatisticsController::class, 'appointmentTrends']);
+        Route::get('age-groups', [StatisticsController::class, 'ageGroups']);
+        Route::get('prison', [StatisticsController::class, 'prison']);
+        Route::get('lga', [StatisticsController::class, 'lga']);
+        Route::get('documents/verification', [StatisticsController::class, 'documentVerification']);
+        Route::get('documents/expiry', [StatisticsController::class, 'documentExpiry']);
+        Route::get('retirement-eligibility', [StatisticsController::class, 'retirementEligibility']);
+        Route::get('promotion-eligibility', [StatisticsController::class, 'promotionEligibility']);
     });
 
     // --- Staff Management ---
+    Route::get('staff/export', [StaffController::class, 'export']);
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
@@ -123,6 +139,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('staff/{staff}/career-history', [StaffCareerController::class, 'index']);
     Route::get('staff/{staff}/career-history/{id}', [StaffCareerController::class, 'show']);
     Route::post('staff/{staff}/career-history', [StaffCareerController::class, 'store']);
+
+    // --- Staff Posting Management ---
+    // Route::get('staff-postings/statistics', [StaffPostingController::class, 'statistics']);
+    Route::get('staff/{staff}/postings', [StaffPostingController::class, 'indexByStaff']);
+    Route::get('staff/{staff}/postings/active', [StaffPostingController::class, 'showActive']);
+    Route::apiResource('staff-postings', StaffPostingController::class);
+    Route::post('staff-postings/{staffPosting}/complete', [StaffPostingController::class, 'complete']);
 
     // --- User Management ---
     Route::prefix('user')->group(function () {

@@ -4,6 +4,7 @@ import {
   Plus,
   RefreshCw,
   Download,
+  Loader2,
   Trash2,
   Users,
   UserCheck,
@@ -34,6 +35,10 @@ import {
   useAssignUserRole,
   useRemoveUserRole,
 } from "@/lib/api/users";
+import {
+  fetchAllDataAndExport,
+  type ColumnMapping,
+} from "@/lib/helpers/excel-export";
 
 const AdminUsers = () => {
   // Get current logged-in user
@@ -44,6 +49,7 @@ const AdminUsers = () => {
   const [perPage, setPerPage] = useState(10);
   const [filters, setFilters] = useState<IUserFilters>({});
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -213,8 +219,60 @@ const AdminUsers = () => {
   };
 
   // Export handler
-  const handleExport = () => {
-    toast.info("Export functionality coming soon");
+  const handleExport = async () => {
+    setIsExporting(true);
+
+    // Column mappings for better Excel headers
+    const columnMappings: ColumnMapping[] = [
+      { key: "id", columnName: "ID" },
+      { key: "name", columnName: "Name" },
+      { key: "email", columnName: "Email" },
+      { key: "status", columnName: "Status" },
+      { key: "email_verified_at", columnName: "Email Verified At" },
+      { key: "created_at", columnName: "Created At" },
+      { key: "updated_at", columnName: "Updated At" },
+    ];
+
+    // Include only specific columns
+    const includeColumns = [
+      "id",
+      "name",
+      "email",
+      "status",
+      "email_verified_at",
+      "created_at",
+      "updated_at",
+    ];
+
+    // Build filters for export
+    const exportFilters: Record<string, string | undefined> = {
+      search: filters.search,
+      status: filters.status,
+    };
+
+    try {
+      const result = await fetchAllDataAndExport(
+        "/user/users",
+        "Admin_Users",
+        exportFilters,
+        5000,
+        undefined,
+        undefined,
+        columnMappings,
+        undefined,
+        includeColumns,
+      );
+
+      if (result.status) {
+        toast.success("Admin users exported successfully");
+      } else {
+        toast.error("Failed to export admin users");
+      }
+    } catch {
+      toast.error("An error occurred while exporting");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Modal close handlers
@@ -290,10 +348,14 @@ const AdminUsers = () => {
               <Button
                 variant="outline"
                 onClick={handleExport}
-                disabled={total === 0}
+                disabled={total === 0 || isExporting}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isExporting ? "Exporting..." : "Export"}
               </Button>
               <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />

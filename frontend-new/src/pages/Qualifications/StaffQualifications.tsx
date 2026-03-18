@@ -1,5 +1,4 @@
 import {
-  Download,
   FileCheck,
   FileX,
   GraduationCap,
@@ -164,11 +163,6 @@ const StaffQualifications = () => {
     );
   };
 
-  // Export handler
-  const handleExport = () => {
-    toast.info("Export functionality coming soon");
-  };
-
   // Modal close handlers
   const handleFormModalClose = () => {
     setIsFormModalOpen(false);
@@ -224,7 +218,7 @@ const StaffQualifications = () => {
                 View and manage your education records
               </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 items-center gap-3 w-full sm:w-max">
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -234,14 +228,6 @@ const StaffQualifications = () => {
                   className={`w-4 h-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
                 />
                 Refresh
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleExport}
-                disabled={total === 0}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export
               </Button>
               <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />
