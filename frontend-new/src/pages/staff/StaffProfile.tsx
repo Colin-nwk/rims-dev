@@ -267,13 +267,9 @@ export default function StaffProfile() {
                 value={staff.present_rank_name}
                 icon={Briefcase}
               />
-              {staff.assigned_state_name && (
-                <InfoItem
-                  label="Station"
-                  value={staff.assigned_state_name}
-                  icon={MapPin}
-                />
-              )}
+            {staff.station && (
+              <InfoItem label="Station" value={staff.station} icon={MapPin} />
+            )}
             </div>
           </div>
         )}

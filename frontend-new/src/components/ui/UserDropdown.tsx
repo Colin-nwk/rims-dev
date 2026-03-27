@@ -4,7 +4,12 @@ import { DropdownItem } from "./DropdownItem";
 import { Settings, LogOut, UserCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuthContext";
 import type { User } from "@/lib/api/auth/types";
-import { isStaffUser, getDisplayName } from "@/lib/api/auth/types";
+import {
+  isStaffUser,
+  getDisplayName,
+  getUserInitials,
+} from "@/lib/api/auth/types";
+import { getFileUrl } from "@/lib/api/apiClient";
 import { toast } from "react-toastify";
 
 const getUserAccountType = (user: User): string => {
@@ -55,8 +60,35 @@ export default function UserDropdown() {
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center gap-2 px-3 py-2 transition rounded-full hover:bg-gray-100"
       >
-        <div className="flex items-center justify-center bg-gray-200 rounded-full w-9 h-9">
-          <UserCircle2 className="w-6 h-6 text-gray-600" />
+        <div className="flex items-center justify-center bg-gray-200 rounded-full w-9 h-9 overflow-hidden">
+          {user && isStaffUser(user) ? (
+            user.photo ? (
+              <>
+                <img
+                  src={getFileUrl(user.photo, user.updated_at)}
+                  alt={getDisplayName(user)}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback)
+                      (fallback as HTMLElement).style.display = "flex";
+                  }}
+                />
+                <div className="hidden w-full h-full items-center justify-center bg-emerald-100">
+                  <span className="text-sm font-semibold text-emerald-700">
+                    {getUserInitials(user)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-gray-600">
+                {getUserInitials(user) || "U"}
+              </span>
+            )
+          ) : (
+            <UserCircle2 className="w-6 h-6 text-gray-600" />
+          )}
         </div>
         <span className="text-sm font-medium text-gray-800">
           {user ? getDisplayName(user) : "User"}

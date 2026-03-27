@@ -10,6 +10,7 @@ import {
   FolderOpenDot,
   HelpCircle,
   LayoutDashboard,
+  MapPin,
   Shield,
   User,
   UserCog,
@@ -43,6 +44,12 @@ export const mainNavItems: NavItem[] = [
     name: "Staff Directory",
     icon: <Users className="w-5 h-5" />,
     path: ROUTES.STAFF_DIRECTORY,
+    adminOnly: true,
+  },
+  {
+    name: "Staff Postings",
+    icon: <MapPin className="w-5 h-5" />,
+    path: ROUTES.STAFF_POSTINGS,
     adminOnly: true,
   },
   {
@@ -97,14 +104,14 @@ export function useMainNavItems(): NavItem[] {
 
   // Admin: fetch dashboard stats for total pending count
   const { data: stats } = useDashboardStats({
-    refetchInterval: 30000,
+    refetchInterval: 60000, // 60 seconds
   });
 
   // Staff: fetch their own pending change requests
   const { data: staffRequests } = useChangeRequests(
     { per_page: 100 },
     { status: "PENDING", service_no: staffServiceNo },
-    { enabled: !!staffServiceNo, refetchInterval: 30000 },
+    { enabled: !!staffServiceNo, refetchInterval: 60000 }, // 60 seconds
   );
 
   // Admin sees total pending count

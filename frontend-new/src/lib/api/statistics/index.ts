@@ -30,4 +30,16 @@ export {
   useEducationTypeStats,
   useAppointmentTrends,
   useGenericData,
+  // New hooks
+  useInitialRankStats,
+  useInitialCommandStats,
+  usePresentCommandStats,
+  useZoneStats,
+  useAgeGroupsStats,
+  usePrisonStats,
+  useLgaStats,
+  useDocumentVerificationStats,
+  useDocumentExpiryStats,
+  useRetirementEligibilityStats,
+  usePromotionEligibilityStats,
 } from "./statisticsService";

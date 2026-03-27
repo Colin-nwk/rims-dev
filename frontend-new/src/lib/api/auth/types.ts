@@ -41,6 +41,7 @@ export interface StaffUser extends BaseUser {
   file_no?: string | null;
   duty?: string | null;
   description?: string | null;
+  station?: string | null;
   photo?: string | null;
   last_login?: string | null;
   is_verified?: number | null;

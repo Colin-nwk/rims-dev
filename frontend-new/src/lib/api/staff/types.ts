@@ -94,6 +94,7 @@ export interface Staff {
   lga?: string;
   initial_command?: string | number | StaffCommandState | null;
   present_command?: string | number | StaffCommandState | null;
+  station?: string | null;
 
   // Administrative
   file_no?: string;
@@ -222,6 +223,7 @@ export interface StaffIDCardData {
   status: number;
   sex?: string;
   assigned_state_name?: string;
+  station?: string | null;
   updated_at?: string;
 }
 

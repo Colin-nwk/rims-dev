@@ -223,6 +223,7 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
               label="Assigned State"
               value={getStateName(user.assigned_state, genericData?.states)}
             />
+            <InfoItem icon={Building2} label="Station" value={user.station} />
             <InfoItem
               icon={Building2}
               label="Prison"

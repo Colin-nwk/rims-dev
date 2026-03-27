@@ -226,6 +226,7 @@ function PostingOriginTabView({ staff, genericData }: StaffViewTabProps) {
           label="Custodial Center"
           value={getPrisonName(staff.prison, genericData?.prisons)}
         />
+        <InfoField label="Station" value={staff.station} />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <InfoField

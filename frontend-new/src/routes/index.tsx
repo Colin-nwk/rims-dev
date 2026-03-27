@@ -32,6 +32,7 @@ import ChangeRequests from "@/pages/ChangeRequests";
 import Statistics from "@/pages/Statistics";
 import RolesPermissions from "@/pages/RolesPermissions";
 import Profile from "@/pages/Profile";
+import StaffPostings from "@/pages/StaffPostings";
 
 // Public pages
 import StaffProfile from "@/pages/staff/StaffProfile";
@@ -127,6 +128,10 @@ export const routes = [
           {
             path: ROUTES.STAFF_DIRECTORY,
             element: <StaffDirectory />,
+          },
+          {
+            path: ROUTES.STAFF_POSTINGS,
+            element: <StaffPostings />,
           },
           {
             path: ROUTES.STAFF_ADD,

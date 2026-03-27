@@ -4,6 +4,7 @@ import {
   FileText,
   FileX,
   GraduationCap,
+  Loader2,
   Plus,
   RefreshCw,
   Trash2,
@@ -33,6 +34,10 @@ import {
   useStaffEducation,
   useUpdateStaffEducation,
 } from "@/lib/api/staff-education";
+import {
+  fetchAllDataAndExport,
+  type ColumnMapping,
+} from "@/lib/helpers/excel-export";
 
 const Qualifications = () => {
   // URL search params for filtering by service_no from Staff Directory
@@ -44,6 +49,7 @@ const Qualifications = () => {
   const [perPage, setPerPage] = useState(10);
   const [filters, setFilters] = useState<IStaffEducationFilters>({});
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Combine URL service_no param with other filters for API call
   const effectiveFilters: IStaffEducationFilters = serviceNoFromUrl
@@ -147,7 +153,9 @@ const Qualifications = () => {
             refetch();
           },
           onError: (error) => {
-            toast.error(error?.message || "Failed to submit qualification update");
+            toast.error(
+              error?.message || "Failed to submit qualification update",
+            );
           },
         },
       );
@@ -195,8 +203,60 @@ const Qualifications = () => {
   };
 
   // Export handler
-  const handleExport = () => {
-    toast.info("Export functionality coming soon");
+  const handleExport = async () => {
+    setIsExporting(true);
+
+    // Column mappings for better Excel headers
+    const columnMappings: ColumnMapping[] = [
+      { key: "staff.service_no", columnName: "Service Number" },
+      { key: "staff.surname", columnName: "Surname" },
+      { key: "staff.first_name", columnName: "First Name" },
+      { key: "staff.present_rank_name", columnName: "Rank" },
+      { key: "institution", columnName: "Institution" },
+      { key: "course", columnName: "Course" },
+      { key: "type", columnName: "Type" },
+      { key: "start_date", columnName: "Start Date" },
+      { key: "end_date", columnName: "End Date" },
+      { key: "created_at", columnName: "Created At" },
+    ];
+
+    // Only include these specific columns in the export
+    const includeColumns = [
+      "staff.service_no",
+      "staff.surname",
+      "staff.first_name",
+      "staff.present_rank_name",
+      "institution",
+      "course",
+      "type",
+      "start_date",
+      "end_date",
+      "created_at",
+    ];
+
+    try {
+      const result = await fetchAllDataAndExport(
+        "/staff-education",
+        "Staff_Qualifications",
+        effectiveFilters as Record<string, string | undefined>,
+        5000, // Fetch 5000 per page to minimize requests
+        undefined,
+        undefined,
+        columnMappings,
+        undefined,
+        includeColumns,
+      );
+
+      if (result.status) {
+        toast.success("Qualifications exported successfully");
+      } else {
+        toast.error("Failed to export qualifications");
+      }
+    } catch {
+      toast.error("An error occurred while exporting");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Modal close handlers
@@ -215,21 +275,6 @@ const Qualifications = () => {
     setIsDeleteModalOpen(false);
     setSelectedEducation(null);
   };
-
-  // Edit from view modal
-  // const handleEditFromView = (education: StaffEducation) => {
-  //   setIsViewModalOpen(false);
-  //   setSelectedEducation(education);
-  //   setIsEditMode(true);
-  //   setIsFormModalOpen(true);
-  // };
-
-  // // Delete from view modal
-  // const handleDeleteFromView = (education: StaffEducation) => {
-  //   setIsViewModalOpen(false);
-  //   setSelectedEducation(education);
-  //   setIsDeleteModalOpen(true);
-  // };
 
   // Pagination data
   const qualificationsData = data?.data || [];
@@ -269,10 +314,14 @@ const Qualifications = () => {
               <Button
                 variant="outline"
                 onClick={handleExport}
-                disabled={total === 0}
+                disabled={total === 0 || isExporting}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isExporting ? "Exporting..." : "Export"}
               </Button>
               <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />

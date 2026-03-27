@@ -116,6 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Staff Management ---
+    Route::get('staff/export', [StaffController::class, 'export']);
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
     Route::post('staff/{staff}/roles', [StaffController::class, 'assignRole']);
