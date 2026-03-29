@@ -187,6 +187,10 @@ class Staff extends Authenticatable
         'state_of_origin',
         'lga',
         'department',
+        'work_distribution_id',
+        'training_institute_id',
+        'directorate_id',
+        'staff_status_id',
         'file_no',
         'ippis',
         'duty',
@@ -313,6 +317,26 @@ class Staff extends Authenticatable
     public function presentRank()
     {
         return $this->belongsTo(Ranking::class, 'present_rank');
+    }
+
+    public function workDistribution()
+    {
+        return $this->belongsTo(WorkDistribution::class, 'work_distribution_id');
+    }
+
+    public function trainingInstitute()
+    {
+        return $this->belongsTo(TrainingInstitute::class, 'training_institute_id');
+    }
+
+    public function directorate()
+    {
+        return $this->belongsTo(Directorate::class, 'directorate_id');
+    }
+
+    public function staffStatus()
+    {
+        return $this->belongsTo(Status::class, 'staff_status_id');
     }
 
     /**

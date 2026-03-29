@@ -104,6 +104,10 @@ class StaffController extends Controller
             'documents',
             'presentRank',
             'initialRank',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
             'postings',
             'activePosting',
         ]));
@@ -293,6 +297,10 @@ class StaffController extends Controller
             'level',
             'step',
             'department',
+            'work_distribution_id',
+            'training_institute_id',
+            'directorate_id',
+            'staff_status_id',
             'duty',
             'assigned_state',
             'prison',
@@ -309,6 +317,10 @@ class StaffController extends Controller
                 'details:service_no,nin,bvn,place_of_birth,contact_address,permanent_home_address,blood_group,genotype,marital_status,pfa_name,pension_pin,next_of_kin_name,next_of_kin_phone,next_of_kin_relationship,bank_name,account_number,account_name',
                 'presentRank:id,title',
                 'initialRank:id,title',
+                'workDistribution:id,name',
+                'trainingInstitute:id,name',
+                'directorate:id,name',
+                'staffStatus:id,name',
             ])
             ->filter($request->all());
 
