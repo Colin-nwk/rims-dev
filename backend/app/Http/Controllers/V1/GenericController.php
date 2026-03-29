@@ -29,6 +29,9 @@ class GenericController extends Controller
             'rankings' => \App\Models\Ranking::class,
             'levels' => \App\Models\Level::class,
             'marital_statuses' => \App\Models\MaritalStatus::class,
+            'work_distributions' => \App\Models\WorkDistribution::class,
+            'training_institutes' => \App\Models\TrainingInstitute::class,
+            'directorates' => \App\Models\Directorate::class,
             'blood_groups' => \App\Models\BloodGroup::class,
             'blood_genotypes' => \App\Models\BloodGenotype::class,
             'complexions' => \App\Models\Complexion::class,
@@ -118,6 +121,18 @@ class GenericController extends Controller
                 ->orderBy('level_number')
                 ->get(),
             'marital_statuses' => \App\Models\MaritalStatus::select('id', 'name', 'status')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get(),
+            'work_distributions' => \App\Models\WorkDistribution::select('id', 'name', 'status')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get(),
+            'training_institutes' => \App\Models\TrainingInstitute::select('id', 'name', 'status')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get(),
+            'directorates' => \App\Models\Directorate::select('id', 'name', 'status')
                 ->where('status', true)
                 ->orderBy('name')
                 ->get(),
