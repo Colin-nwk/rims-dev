@@ -28,13 +28,15 @@ class DatabaseSeeder extends Seeder
             RankingSeeder::class,
             LevelSeeder::class,
             MaritalStatusSeeder::class,
+
+            // Additional reference data seeders
             WorkDistributionSeeder::class,
             TrainingInstituteSeeder::class,
             DirectorateSeeder::class,
             StatusSeeder::class,
 
             // Main data seeders
-            // StaffSeeder::class,
+            StaffSeeder::class,
             SqlStaffSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
