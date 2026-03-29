@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Database\Seeders\DirectorateSeeder;
+use Database\Seeders\StatusSeeder;
 use Database\Seeders\TrainingInstituteSeeder;
 use Database\Seeders\WorkDistributionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,6 +42,17 @@ class LookupReferenceSeederTest extends TestCase
         $this->assertDatabaseCount('directorates', 8);
         $this->assertDatabaseHas('directorates', [
             'name' => 'Finance & budget',
+            'status' => 1,
+        ]);
+    }
+
+    public function test_status_seeder_populates_expected_records(): void
+    {
+        $this->seed(StatusSeeder::class);
+
+        $this->assertDatabaseCount('statuses', 10);
+        $this->assertDatabaseHas('statuses', [
+            'name' => 'Compulsory retirement',
             'status' => 1,
         ]);
     }

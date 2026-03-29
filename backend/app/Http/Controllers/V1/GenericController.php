@@ -29,6 +29,7 @@ class GenericController extends Controller
             'rankings' => \App\Models\Ranking::class,
             'levels' => \App\Models\Level::class,
             'marital_statuses' => \App\Models\MaritalStatus::class,
+            'statuses' => \App\Models\Status::class,
             'work_distributions' => \App\Models\WorkDistribution::class,
             'training_institutes' => \App\Models\TrainingInstitute::class,
             'directorates' => \App\Models\Directorate::class,
@@ -121,6 +122,10 @@ class GenericController extends Controller
                 ->orderBy('level_number')
                 ->get(),
             'marital_statuses' => \App\Models\MaritalStatus::select('id', 'name', 'status')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get(),
+            'statuses' => \App\Models\Status::select('id', 'name', 'status')
                 ->where('status', true)
                 ->orderBy('name')
                 ->get(),

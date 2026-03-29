@@ -47,8 +47,8 @@ Route::prefix('user')->group(function () {
 });
 
 // Generic Read-Only Resources (Zones, States, Prisons, Degree Types, Rankings, Levels, Marital Statuses)
-Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|work_distributions|training_institutes|directorates');
-Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|work_distributions|training_institutes|directorates');
+Route::get('{model}', [GenericController::class, 'index'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|statuses|work_distributions|training_institutes|directorates');
+Route::get('{model}/{id}', [GenericController::class, 'show'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|statuses|work_distributions|training_institutes|directorates');
 
 Route::get('generic-data', [GenericController::class, 'getGenericData']);
 
@@ -172,8 +172,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('complaints/{complaint}/messages', [ComplaintController::class, 'addMessage']);
 
     // --- Generic Resources (Write) ---
-    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|work_distributions|training_institutes|directorates');
-    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|work_distributions|training_institutes|directorates');
-    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|work_distributions|training_institutes|directorates');
+    Route::post('{model}', [GenericController::class, 'store'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|statuses|work_distributions|training_institutes|directorates');
+    Route::put('{model}/{id}', [GenericController::class, 'update'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|statuses|work_distributions|training_institutes|directorates');
+    Route::delete('{model}/{id}', [GenericController::class, 'destroy'])->where('model', 'zones|states|prisons|degree_types|rankings|levels|marital_statuses|statuses|work_distributions|training_institutes|directorates');
 
 });

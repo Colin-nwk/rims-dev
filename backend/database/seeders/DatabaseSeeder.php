@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             WorkDistributionSeeder::class,
             TrainingInstituteSeeder::class,
             DirectorateSeeder::class,
+            StatusSeeder::class,
 
             // Main data seeders
             // StaffSeeder::class,
