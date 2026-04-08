@@ -30,10 +30,14 @@ import { ROUTES } from "@/routes/constants";
 import { useAuth } from "@/hooks/useAuthContext";
 import { isStaffUser } from "@/lib/api/auth/types";
 import {
-  getStateId,
-  getStateName,
+  getDirectorateName,
   getPrisonName,
   getRankName,
+  getStaffStatusName,
+  getStateId,
+  getStateName,
+  getTrainingInstituteName,
+  getWorkDistributionName,
 } from "@/lib/helpers/genericDataHelpers";
 import { ChangePasswordModal } from "@/components/staff/ChangePasswordModal";
 import { TabNav } from "@/components/staff/StaffFormTabs";
@@ -594,6 +598,92 @@ const BasicInfoTab: React.FC<{
               placeholder="e.g., Registry Officer"
             />
           </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Select
+              label="Work Distribution"
+              name="work_distribution_id"
+              value={values.work_distribution_id ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFieldValue(
+                  "work_distribution_id",
+                  val === "" ? undefined : Number(val),
+                );
+              }}
+              onBlur={handleBlur}
+              disabled={isLoadingGeneric}
+            >
+              <option value="">Not specified</option>
+              {genericData?.work_distributions?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Training Institute"
+              name="training_institute_id"
+              value={values.training_institute_id ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFieldValue(
+                  "training_institute_id",
+                  val === "" ? undefined : Number(val),
+                );
+              }}
+              onBlur={handleBlur}
+              disabled={isLoadingGeneric}
+            >
+              <option value="">Not specified</option>
+              {genericData?.training_institutes?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Directorate"
+              name="directorate_id"
+              value={values.directorate_id ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFieldValue(
+                  "directorate_id",
+                  val === "" ? undefined : Number(val),
+                );
+              }}
+              onBlur={handleBlur}
+              disabled={isLoadingGeneric}
+            >
+              <option value="">Not specified</option>
+              {genericData?.directorates?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Staff Status"
+              name="staff_status_id"
+              value={values.staff_status_id ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFieldValue(
+                  "staff_status_id",
+                  val === "" ? undefined : Number(val),
+                );
+              }}
+              onBlur={handleBlur}
+              disabled={isLoadingGeneric}
+            >
+              <option value="">Not specified</option>
+              {genericData?.statuses?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+          </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Select
               label="Present Rank"
@@ -779,7 +869,7 @@ const PostingOriginTab: React.FC<{
         >
           <option value="">Select Initial Command</option>
           {genericData?.states?.map((state) => (
-            <option key={state.id} value={state.state}>
+            <option key={state.id} value={state.id}>
               {state.state}
             </option>
           ))}
@@ -795,7 +885,7 @@ const PostingOriginTab: React.FC<{
         >
           <option value="">Select Present Command</option>
           {genericData?.states?.map((state) => (
-            <option key={state.id} value={state.state}>
+            <option key={state.id} value={state.id}>
               {state.state}
             </option>
           ))}
@@ -1552,14 +1642,59 @@ const ReviewTab: React.FC<{
                 {values.department || "N/A"}
               </p>
             </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Work Distribution
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getWorkDistributionName(
+                  values.work_distribution_id,
+                  genericData?.work_distributions,
+                ) || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Training Institute
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getTrainingInstituteName(
+                  values.training_institute_id,
+                  genericData?.training_institutes,
+                ) || "N/A"}
+              </p>
+            </div>
           </div>
           <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Directorate
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getDirectorateName(
+                  values.directorate_id,
+                  genericData?.directorates,
+                ) || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Staff Status
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getStaffStatusName(
+                  values.staff_status_id,
+                  genericData?.statuses,
+                ) || "N/A"}
+              </p>
+            </div>
             <div>
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
                 Present Rank
               </p>
               <p className="text-slate-900 font-medium">
-                {getRankName(values.present_rank, genericData?.rankings) || "N/A"}
+                {getRankName(values.present_rank, genericData?.rankings) ||
+                  "N/A"}
               </p>
             </div>
             <div>
@@ -1661,6 +1796,10 @@ const EditStaffFormPage: React.FC = () => {
         status: staffData.data.status,
         department: staffData.data.department || "",
         duty: staffData.data.duty || "",
+        work_distribution_id: staffData.data.work_distribution_id,
+        training_institute_id: staffData.data.training_institute_id,
+        directorate_id: staffData.data.directorate_id,
+        staff_status_id: staffData.data.staff_status_id,
         present_rank: extractRankId(staffData.data.present_rank),
         initial_rank: extractRankId(staffData.data.initial_rank),
         level: staffData.data.level,
@@ -1719,6 +1858,10 @@ const EditStaffFormPage: React.FC = () => {
         status: 1,
         department: "",
         duty: "",
+        work_distribution_id: undefined,
+        training_institute_id: undefined,
+        directorate_id: undefined,
+        staff_status_id: undefined,
         present_rank: "",
         initial_rank: "",
         level: undefined,

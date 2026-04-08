@@ -150,18 +150,21 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             Status
           </label>
           <select
-            value={filters.status ?? ""}
+            value={filters.staff_status_id ?? ""}
             onChange={(e) =>
               handleFilterChange(
-                "status",
+                "staff_status_id",
                 e.target.value ? Number(e.target.value) : "",
               )
             }
             className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
           >
-            <option value="">All Status</option>
-            <option value="1">Active</option>
-            <option value="0">Inactive</option>
+            <option value="">All Statuses</option>
+            {genericData?.statuses?.map((status) => (
+              <option key={status.id} value={status.id}>
+                {status.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -233,7 +236,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
         {/* Prison */}
         <div>
           <label className="block mb-1 text-sm font-medium text-slate-700">
-            Custodial Center
+            Assigned Location
             {(filters.zone_id || filters.assigned_state) && (
               <span className="ml-1 text-xs text-slate-500">(filtered)</span>
             )}
@@ -246,7 +249,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
           >
             <option value="">
               {filters.assigned_state
-                ? `All Centers in State`
+                ? `All locations in State`
                 : "Select State First"}
             </option>
             {filteredPrisons.map((prison) => (
@@ -257,18 +260,28 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
           </select>
         </div>
 
-        {/* Department */}
+        {/* Work Distribution */}
         <div>
           <label className="block mb-1 text-sm font-medium text-slate-700">
-            Department
+            Work Distribution
           </label>
-          <input
-            type="text"
-            placeholder="e.g., Admin"
-            value={filters.department || ""}
-            onChange={(e) => handleFilterChange("department", e.target.value)}
+          <select
+            value={filters.work_distribution_id ?? ""}
+            onChange={(e) =>
+              handleFilterChange(
+                "work_distribution_id",
+                e.target.value ? Number(e.target.value) : "",
+              )
+            }
             className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
-          />
+          >
+            <option value="">All Work Distributions</option>
+            {genericData?.work_distributions?.map((work) => (
+              <option key={work.id} value={work.id}>
+                {work.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Present Rank */}
@@ -353,6 +366,56 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             <option value="46-55">46 - 55 years</option>
             <option value="56-60">56 - 60 years</option>
             <option value="60+">60+ years</option>
+          </select>
+        </div>
+
+        {/* Directorates */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Directorates
+          </label>
+          <select
+            value={filters.directorate_id || ""}
+            onChange={(e) =>
+              handleFilterChange(
+                "directorate_id",
+                e.target.value ? Number(e.target.value) : "",
+              )
+            }
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Directorates</option>
+            {genericData?.directorates?.map((directorate) => (
+              <option key={directorate.id} value={directorate.id}>
+                {directorate.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Training Institutes */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-slate-700">
+            Training Institutes
+          </label>
+          <select
+            value={filters.training_institute_id || ""}
+            onChange={(e) =>
+              handleFilterChange(
+                "training_institute_id",
+                e.target.value ? Number(e.target.value) : "",
+              )
+            }
+            disabled={isLoadingGeneric}
+            className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
+          >
+            <option value="">All Training Institutes</option>
+            {genericData?.training_institutes?.map((institutes) => (
+              <option key={institutes.id} value={institutes.id}>
+                {institutes.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

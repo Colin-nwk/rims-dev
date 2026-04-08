@@ -72,6 +72,10 @@ export interface Staff {
 
   // Work Information
   department?: string;
+  work_distribution_id?: number;
+  training_institute_id?: number;
+  directorate_id?: number;
+  staff_status_id?: number;
   duty?: string;
   present_rank?: string | number;
   initial_rank?: string | number;
@@ -133,6 +137,10 @@ export interface CreateStaffDTO {
   // Work
   department?: string;
   duty?: string;
+  work_distribution_id?: number;
+  training_institute_id?: number;
+  directorate_id?: number;
+  staff_status_id?: number;
   present_rank?: string;
   initial_rank?: string;
   level?: number;
@@ -179,6 +187,10 @@ export interface UpdateStaffDTO {
 
   department?: string;
   duty?: string;
+  work_distribution_id?: number;
+  training_institute_id?: number;
+  directorate_id?: number;
+  staff_status_id?: number;
   present_rank?: string;
   initial_rank?: string;
   level?: number;
@@ -243,16 +255,18 @@ export interface AssignRoleDTO {
 
 // Staff filters for list query
 export interface StaffFilters {
-  status?: number | string;
+  staff_status_id?: number;
   assigned_state?: string;
   prison?: string;
   sex?: string;
   initial_rank?: string;
   present_rank?: string;
   level?: number;
-  department?: string;
+  work_distribution_id?: number;
   zone_id?: number;
   age_range?: string;
+  directorate_id?: number;
+  training_institute_id?: number;
 }
 
 // Change Request Response (returned when creating/updating staff)

@@ -1,11 +1,14 @@
 import { useAuth } from "@/hooks/useAuthContext";
 import { getDisplayName } from "@/lib/api/auth";
 import {
+  Briefcase,
   Building2,
   CheckCircle,
   Clock,
   Eye,
   FileText,
+  GraduationCap,
+  Landmark,
   Map,
   MapPin,
   TrendingUp,
@@ -23,7 +26,80 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { useDashboardStats } from "../../lib/api/dashboard";
+import type { StaffDistributionMap } from "@/lib/api/dashboard";
 import { formatNumberWithCommas } from "@/lib/utils";
+
+function sortDistributionEntries(
+  distribution: StaffDistributionMap | undefined,
+): [string, number][] {
+  if (!distribution) return [];
+  return Object.entries(distribution).sort((a, b) => b[1] - a[1]);
+}
+
+/** Sum of counts in this breakdown — use as denominator so row shares add to 100%. */
+function sumDistributionCounts(rows: [string, number][]): number {
+  return rows.reduce((acc, [, c]) => acc + c, 0);
+}
+
+/** Share of one row within this table — denominator is the sum of Staff in the table so shares add to 100%. */
+function formatRowShare(count: number, rowSum: number): string {
+  if (rowSum <= 0) return "—";
+  const pct = (count / rowSum) * 100;
+  return `${pct.toFixed(3)}%`;
+}
+
+function StaffDistributionTable({
+  title,
+  distribution,
+}: {
+  title: string;
+  distribution: StaffDistributionMap | undefined;
+}) {
+  const rows = sortDistributionEntries(distribution);
+  const rowSum = sumDistributionCounts(rows);
+
+  return (
+    <Card className="border-0 bg-white shadow-lg">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {rows.length === 0 ? (
+          <p className="py-6 text-center text-sm text-slate-500">
+            No distribution data available.
+          </p>
+        ) : (
+          <div className="max-h-80 overflow-y-auto rounded-lg border border-slate-200">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                <tr>
+                  <th className="px-3 py-2">Label</th>
+                  <th className="px-3 py-2 text-right">Staff</th>
+                  <th className="px-3 py-2 text-right">Share</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {rows.map(([label, count]) => (
+                  <tr key={label} className="hover:bg-slate-50/80">
+                    <td className="max-w-50 truncate px-3 py-2 font-medium text-slate-800">
+                      {label}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums text-slate-700">
+                      {formatNumberWithCommas(count)}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums text-slate-500">
+                      {formatRowShare(count, rowSum)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -39,7 +115,7 @@ const Dashboard = () => {
             <div className="w-64 h-4 rounded bg-slate-200"></div>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <div
                 key={i}
                 className="h-32 bg-white border rounded-xl border-slate-200 animate-pulse"
@@ -127,6 +203,33 @@ const Dashboard = () => {
       bgGradient: "from-slate-50 to-slate-100",
       textColor: "text-slate-600",
     },
+    {
+      title: "Work Distributions",
+      value: stats?.work_distributions ?? 0,
+      subtitle: "Posting types you can assign",
+      icon: Briefcase,
+      gradient: "from-teal-500 to-teal-600",
+      bgGradient: "from-teal-50 to-teal-100",
+      textColor: "text-teal-600",
+    },
+    {
+      title: "Directorates",
+      value: stats?.directorates ?? 0,
+      subtitle: "Organizational pillars on file",
+      icon: Landmark,
+      gradient: "from-rose-500 to-rose-600",
+      bgGradient: "from-rose-50 to-rose-100",
+      textColor: "text-rose-600",
+    },
+    {
+      title: "Training Institutes",
+      value: stats?.training_schools ?? 0,
+      subtitle: "Schools & academies in the roster",
+      icon: GraduationCap,
+      gradient: "from-violet-500 to-violet-600",
+      bgGradient: "from-violet-50 to-violet-100",
+      textColor: "text-violet-600",
+    },
   ];
 
   return (
@@ -203,6 +306,29 @@ const Dashboard = () => {
             );
           })}
         </div>
+
+        {/* Staff distribution breakdown (from staff FKs) */}
+        {stats?.staff_distributions && (
+          <div className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold text-slate-800">
+              Staff distribution
+            </h2>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <StaffDistributionTable
+                title="By work distribution"
+                distribution={stats.staff_distributions.work_distributions}
+              />
+              <StaffDistributionTable
+                title="By directorate"
+                distribution={stats.staff_distributions.directorates}
+              />
+              <StaffDistributionTable
+                title="By training institute"
+                distribution={stats.staff_distributions.training_schools}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Change Requests Section */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -139,6 +139,20 @@ const Statistics: React.FC = () => {
     }));
   };
 
+  const handleNumericFilterChange = (
+    key:
+      | "directorate_id"
+      | "staff_status_id"
+      | "work_distribution_id"
+      | "training_institute_id",
+    raw: string,
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: raw ? Number(raw) : undefined,
+    }));
+  };
+
   // Cascading filter handlers
   const handleZoneChange = (value: string) => {
     setFilters((prev) => {
@@ -146,8 +160,22 @@ const Statistics: React.FC = () => {
       if (prev.zone_id !== value) {
         newFilters.state_of_origin = undefined;
         newFilters.assigned_state = undefined;
+        newFilters.prison = undefined;
       }
       return newFilters;
+    });
+  };
+
+  const handleAssignedStateChange = (value: string) => {
+    setFilters((prev) => {
+      const next: StatisticsFilters = {
+        ...prev,
+        assigned_state: value || undefined,
+      };
+      if (prev.assigned_state !== value) {
+        next.prison = undefined;
+      }
+      return next;
     });
   };
 
@@ -163,17 +191,33 @@ const Statistics: React.FC = () => {
     return states.filter((state) => state.zone_id === Number(filters.zone_id));
   }, [genericData, filters.zone_id]);
 
-  // Filter prisons based on selected state
+  // Filter locations (prisons) by zone and assigned state — aligned with staff directory filters
   const filteredPrisons = useMemo(() => {
     const prisons = genericData?.prisons;
+    const states = genericData?.states;
     if (!prisons) return [];
-    if (!filters.assigned_state) return prisons;
-    const selectedState = genericData?.states.find(
-      (s) => s.state === filters.assigned_state,
-    );
-    if (!selectedState) return prisons;
-    return prisons.filter((prison) => prison.state_id === selectedState.id);
-  }, [genericData, filters.assigned_state]);
+    let filtered = prisons;
+    if (filters.zone_id && states) {
+      const statesInZone = states.filter(
+        (state) => state.zone_id === Number(filters.zone_id),
+      );
+      const stateIdsInZone = statesInZone.map((s) => s.id);
+      filtered = filtered.filter((prison) =>
+        stateIdsInZone.includes(prison.state_id),
+      );
+    }
+    if (filters.assigned_state && states) {
+      const selectedState = states.find(
+        (state) => state.state === filters.assigned_state,
+      );
+      if (selectedState) {
+        filtered = filtered.filter(
+          (prison) => prison.state_id === selectedState.id,
+        );
+      }
+    }
+    return filtered;
+  }, [genericData, filters.zone_id, filters.assigned_state]);
 
   const activeFilterCount = useMemo(() => {
     return Object.values(filters).filter((v) => v !== undefined && v !== "")
@@ -331,12 +375,17 @@ const Statistics: React.FC = () => {
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
                     Assigned State
+                    {filters.zone_id && (
+                      <span className="ml-1 font-normal text-slate-500">
+                        (filtered by zone)
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <select
                       value={filters.assigned_state || ""}
                       onChange={(e) =>
-                        handleFilterChange("assigned_state", e.target.value)
+                        handleAssignedStateChange(e.target.value)
                       }
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
@@ -470,10 +519,15 @@ const Statistics: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Prison */}
+                {/* Assigned location (prison) */}
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
-                    Prison
+                    Assigned Location
+                    {(filters.zone_id || filters.assigned_state) && (
+                      <span className="ml-1 font-normal text-slate-500">
+                        (filtered)
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <select
@@ -481,9 +535,14 @@ const Statistics: React.FC = () => {
                       onChange={(e) =>
                         handleFilterChange("prison", e.target.value)
                       }
-                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                      disabled={!filters.assigned_state}
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <option value="">All Prisons</option>
+                      <option value="">
+                        {filters.assigned_state
+                          ? "All locations in state"
+                          : "Select assigned state first"}
+                      </option>
                       {filteredPrisons.map((prison) => (
                         <option key={prison.id} value={prison.id}>
                           {prison.prison_name}
@@ -518,42 +577,107 @@ const Statistics: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Department */}
+                {/* Directorates */}
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-600">
-                    Department
-                  </label>
-                  <input
-                    type="text"
-                    value={filters.department || ""}
-                    onChange={(e) =>
-                      handleFilterChange("department", e.target.value)
-                    }
-                    placeholder="Enter department..."
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
-                  />
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
-                    Account Status
+                    Directorates
                   </label>
                   <div className="relative">
                     <select
-                      value={filters.status || ""}
+                      value={filters.directorate_id ?? ""}
                       onChange={(e) =>
-                        handleFilterChange("status", e.target.value)
+                        handleNumericFilterChange(
+                          "directorate_id",
+                          e.target.value,
+                        )
                       }
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
                     >
-                      <option value="">All Statuses</option>
-                      {[
-                        { name: "Active", value: 1 },
-                        { name: "Inactive", value: 0 },
-                      ].map((status) => (
-                        <option key={status.name} value={status.value}>
+                      <option value="">All directorates</option>
+                      {genericData?.directorates.map((directorate) => (
+                        <option key={directorate.id} value={directorate.id}>
+                          {directorate.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Statuses (workflow / HR status) */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Statuses
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.staff_status_id ?? ""}
+                      onChange={(e) =>
+                        handleNumericFilterChange(
+                          "staff_status_id",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All statuses</option>
+                      {genericData?.statuses.map((status) => (
+                        <option key={status.id} value={status.id}>
                           {status.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Work distribution */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Work Distribution
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.work_distribution_id ?? ""}
+                      onChange={(e) =>
+                        handleNumericFilterChange(
+                          "work_distribution_id",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Work Distributions</option>
+                      {genericData?.work_distributions.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Training institutes */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-600">
+                    Training Institutes
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filters.training_institute_id ?? ""}
+                      onChange={(e) =>
+                        handleNumericFilterChange(
+                          "training_institute_id",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500"
+                    >
+                      <option value="">All Training Institutes</option>
+                      {genericData?.training_institutes.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
                         </option>
                       ))}
                     </select>
