@@ -11,7 +11,14 @@ import { getFileUrl } from "@/lib/api/apiClient";
 import { ROUTES } from "@/routes/constants";
 import { Button } from "@/components/ui/button";
 import { useGenericData } from "@/lib/api";
-import { getStateName, getPrisonName } from "@/lib/helpers/genericDataHelpers";
+import {
+  getStateName,
+  getPrisonName,
+  getWorkDistributionName,
+  getDirectorateName,
+  getTrainingInstituteName,
+  getStaffStatusName,
+} from "@/lib/helpers/genericDataHelpers";
 import {
   User,
   Mail,
@@ -30,6 +37,8 @@ import {
   Timer,
   Sparkles,
   Edit,
+  Landmark,
+  Tag,
 } from "lucide-react";
 
 // Info item component for consistent styling
@@ -188,12 +197,45 @@ const StaffProfile = ({ user }: { user: StaffUser }) => {
               value={user.service_no}
             />
             <InfoItem icon={Hash} label="File Number" value={user.file_no} />
+            <InfoItem icon={Hash} label="IPPIS" value={user.ippis} />
             <InfoItem
-              icon={GraduationCap}
+              icon={Building2}
               label="Department"
               value={user.department}
             />
             <InfoItem icon={Briefcase} label="Duty" value={user.duty} />
+            <InfoItem
+              icon={Tag}
+              label="Statuses"
+              value={getStaffStatusName(
+                user.staff_status_id,
+                genericData?.statuses,
+              )}
+            />
+            <InfoItem
+              icon={Briefcase}
+              label="Work Distribution"
+              value={getWorkDistributionName(
+                user.work_distribution_id,
+                genericData?.work_distributions,
+              )}
+            />
+            <InfoItem
+              icon={Landmark}
+              label="Directorate"
+              value={getDirectorateName(
+                user.directorate_id,
+                genericData?.directorates,
+              )}
+            />
+            <InfoItem
+              icon={GraduationCap}
+              label="Training Institute"
+              value={getTrainingInstituteName(
+                user.training_institute_id,
+                genericData?.training_institutes,
+              )}
+            />
           </div>
         </ProfileCard>
 
