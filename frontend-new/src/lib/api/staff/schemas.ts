@@ -133,6 +133,10 @@ const baseStaffSchema = z.object({
   // Work Information
   department: z.string().optional(),
   duty: z.string().optional(),
+  work_distribution_id: z.number().int().optional(),
+  training_institute_id: z.number().int().optional(),
+  directorate_id: z.number().int().optional(),
+  staff_status_id: z.number().int().optional(),
   present_rank: z.string().optional(),
   initial_rank: z.string().optional(),
   level: z
@@ -186,6 +190,10 @@ export const officialInfoSchema = z.object({
   file_no: z.string().optional(),
   department: z.string().min(1, "Department is required"),
   duty: z.string().optional(),
+  work_distribution_id: z.number().int().optional(),
+  training_institute_id: z.number().int().optional(),
+  directorate_id: z.number().int().optional(),
+  staff_status_id: z.number().int().optional(),
   present_rank: z.string().min(1, "Present rank is required"),
   initial_rank: z.string().optional(),
   level: z
@@ -225,6 +233,10 @@ export const basicInfoSchema = z.object({
   file_no: z.string().optional(),
   department: z.string().min(1, "Department is required"),
   duty: z.string().optional(),
+  work_distribution_id: z.number().int().optional(),
+  training_institute_id: z.number().int().optional(),
+  directorate_id: z.number().int().optional(),
+  staff_status_id: z.number().int().optional(),
   present_rank: z.string().min(1, "Present rank is required"),
   initial_rank: z.string().optional(),
   level: z
@@ -256,8 +268,8 @@ export const postingOriginSchema = z.object({
   lga: z.string().optional(),
   assigned_state: z.string().optional(),
   prison: z.string().optional(),
-  initial_command: z.string().optional(),
-  present_command: z.string().optional(),
+  initial_command: z.number().optional(),
+  present_command: z.number().optional(),
   command_post_date: z.string().optional(),
 });
 

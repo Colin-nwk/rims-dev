@@ -12,7 +12,15 @@ import { Button } from "@/components/ui/button";
 import { TabNav } from "@/components/staff/StaffFormTabs";
 import { getFileUrl, useGenericData } from "@/lib/api";
 import { useStaff, type Staff, type StaffEducation } from "@/lib/api/staff";
-import { getPrisonName, getRankName, getStateName } from "@/lib/helpers/genericDataHelpers";
+import {
+  getDirectorateName,
+  getPrisonName,
+  getRankName,
+  getStaffStatusName,
+  getStateName,
+  getTrainingInstituteName,
+  getWorkDistributionName,
+} from "@/lib/helpers/genericDataHelpers";
 import { ROUTES } from "@/routes/constants";
 
 export default function StaffViewPage() {
@@ -126,7 +134,9 @@ export default function StaffViewPage() {
 
       <div className="max-w-7xl mx-auto py-6">
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
-          {activeTab === "basic" && <BasicInfoTabView staff={staff} />}
+          {activeTab === "basic" && (
+            <BasicInfoTabView staff={staff} genericData={genericData} />
+          )}
           {activeTab === "posting" && (
             <PostingOriginTabView staff={staff} genericData={genericData} />
           )}
@@ -147,7 +157,7 @@ export default function StaffViewPage() {
   );
 }
 
-function BasicInfoTabView({ staff }: StaffViewTabProps) {
+function BasicInfoTabView({ staff, genericData }: StaffViewTabProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -184,6 +194,36 @@ function BasicInfoTabView({ staff }: StaffViewTabProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <InfoField label="Department" value={staff.department} />
             <InfoField label="Duty / Role" value={staff.duty} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <InfoField
+              label="Work Distribution"
+              value={getWorkDistributionName(
+                staff.work_distribution_id,
+                genericData?.work_distributions,
+              )}
+            />
+            <InfoField
+              label="Training Institute"
+              value={getTrainingInstituteName(
+                staff.training_institute_id,
+                genericData?.training_institutes,
+              )}
+            />
+            <InfoField
+              label="Directorate"
+              value={getDirectorateName(
+                staff.directorate_id,
+                genericData?.directorates,
+              )}
+            />
+            <InfoField
+              label="Staff Status"
+              value={getStaffStatusName(
+                staff.staff_status_id,
+                genericData?.statuses,
+              )}
+            />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <InfoField label="Present Rank" value={staff.present_rank_name} />
@@ -447,7 +487,10 @@ function ReviewTabView({ staff, genericData }: StaffViewTabProps) {
             <SummaryItem label="Department" value={staff.department} />
           </div>
           <div className="space-y-3">
-            <SummaryItem label="Present Rank" value={getRankName(staff.present_rank, genericData?.rankings)} />
+            <SummaryItem
+              label="Present Rank"
+              value={getRankName(staff.present_rank, genericData?.rankings)}
+            />
             <SummaryItem
               label="Assigned State"
               value={getStateName(staff.assigned_state, genericData?.states)}

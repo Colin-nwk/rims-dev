@@ -243,6 +243,10 @@ class Staff extends Authenticatable
         'department',
         'zone_id',
         'station',
+        'work_distribution_id',
+        'training_institute_id',
+        'directorate_id',
+        'staff_status_id',
     ];
 
     /**

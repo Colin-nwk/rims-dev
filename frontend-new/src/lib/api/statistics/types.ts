@@ -72,8 +72,10 @@ export interface StatisticsFilters {
   sex?: string;
   present_rank?: string;
   level?: string;
-  department?: string;
-  status?: string;
+  directorate_id?: number;
+  staff_status_id?: number;
+  work_distribution_id?: number;
+  training_institute_id?: number;
   zone_id?: string;
   year_from?: string;
   year_to?: string;
@@ -165,6 +167,12 @@ export interface HairColour {
   status: boolean;
 }
 
+interface Regular {
+  id: number;
+  name: string;
+  status: boolean;
+}
+
 export interface GenericData {
   zones: Zone[];
   states: State[];
@@ -173,13 +181,15 @@ export interface GenericData {
   rankings: Ranking[];
   levels: Level[];
   marital_statuses: MaritalStatus[];
+  statuses: Regular[];
+  work_distributions: Regular[];
+  training_institutes: Regular[];
+  directorates: Regular[];
   blood_groups: BloodGroup[];
   blood_genotypes: BloodGenotype[];
   complexions: Complexion[];
   hair_colours: HairColour[];
   degree_types?: DegreeType[];
-  departments?: string[];
-  statuses?: string[];
 }
 
 // Chart color schemes
@@ -203,7 +213,15 @@ export const CHART_COLORS = {
   trend: ["#10b981", "#3b82f6"],
   education: ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899"],
   // New color schemes
-  ageGroups: ["#06b6d4", "#0891b2", "#0e7490", "#155e75", "#164e63", "#134e4a", "#115e59"],
+  ageGroups: [
+    "#06b6d4",
+    "#0891b2",
+    "#0e7490",
+    "#155e75",
+    "#164e63",
+    "#134e4a",
+    "#115e59",
+  ],
   eligibility: ["#10b981", "#f59e0b", "#ef4444"],
   documents: ["#22c55e", "#eab308", "#ef4444", "#94a3b8"],
   prison: ["#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd6fe", "#ede9fe"],

@@ -35,6 +35,12 @@ interface RankLike {
   name?: string;
 }
 
+/** Generic `{ id, name }` rows from generic data (work distributions, directorates, etc.) */
+interface NamedLookupItem {
+  id: number;
+  name: string;
+}
+
 /**
  * Get state name by ID
  * @param stateValue - State ID, state name, or state object
@@ -204,4 +210,54 @@ export function getRankName(
 
   // Otherwise, it's already a rank name
   return rankValueStr;
+}
+
+function getNamedLookupName(
+  id?: number | null,
+  items?: NamedLookupItem[] | null,
+): string | undefined {
+  if (id === null || id === undefined) return undefined;
+  if (!items?.length) return undefined;
+  const match = items.find((item) => item.id === id);
+  return match?.name;
+}
+
+/**
+ * Work distribution label by ID (generic data `work_distributions`)
+ */
+export function getWorkDistributionName(
+  id?: number | null,
+  workDistributions?: NamedLookupItem[] | null,
+): string | undefined {
+  return getNamedLookupName(id, workDistributions);
+}
+
+/**
+ * Training institute label by ID (generic data `training_institutes`)
+ */
+export function getTrainingInstituteName(
+  id?: number | null,
+  trainingInstitutes?: NamedLookupItem[] | null,
+): string | undefined {
+  return getNamedLookupName(id, trainingInstitutes);
+}
+
+/**
+ * Directorate label by ID (generic data `directorates`)
+ */
+export function getDirectorateName(
+  id?: number | null,
+  directorates?: NamedLookupItem[] | null,
+): string | undefined {
+  return getNamedLookupName(id, directorates);
+}
+
+/**
+ * Staff status label by ID (generic data `statuses`, used for `staff_status_id`)
+ */
+export function getStaffStatusName(
+  id?: number | null,
+  statuses?: NamedLookupItem[] | null,
+): string | undefined {
+  return getNamedLookupName(id, statuses);
 }

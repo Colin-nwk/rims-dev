@@ -21,7 +21,15 @@ import { Input } from "@/components/ui/input";
 import { useCreateStaff, CreateStaffDTO, sexOptions } from "@/lib/api/staff";
 import { getFileUrl, useGenericData } from "@/lib/api";
 import { ROUTES } from "@/routes/constants";
-import { getStateName, getPrisonName, getRankName } from "@/lib/helpers/genericDataHelpers";
+import {
+  getDirectorateName,
+  getPrisonName,
+  getRankName,
+  getStaffStatusName,
+  getStateName,
+  getTrainingInstituteName,
+  getWorkDistributionName,
+} from "@/lib/helpers/genericDataHelpers";
 
 // Form values type for Create (Staff table only - no details or education)
 interface CreateStaffFormValues {
@@ -39,6 +47,10 @@ interface CreateStaffFormValues {
   service_no: string;
   department: string;
   duty: string;
+  work_distribution_id?: number;
+  training_institute_id?: number;
+  directorate_id?: number;
+  staff_status_id?: number;
   present_rank: string;
   initial_rank: string;
   level?: number;
@@ -114,6 +126,10 @@ const step2Schema = z.object({
   service_no: z.string().min(1, "Service number is required"),
   department: z.string().min(1, "Department is required"),
   duty: z.string().optional(),
+  work_distribution_id: z.number().int().optional(),
+  training_institute_id: z.number().int().optional(),
+  directorate_id: z.number().int().optional(),
+  staff_status_id: z.number().int().optional(),
   present_rank: z.string().min(1, "Present rank is required"),
   initial_rank: z.string().optional(),
   level: z.number().int().min(1).max(17).optional(),
@@ -553,6 +569,92 @@ const OfficialInfoStep: React.FC<{
           placeholder="e.g., Registry Officer"
         />
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Select
+          label="Work Distribution"
+          name="work_distribution_id"
+          value={values.work_distribution_id ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFieldValue(
+              "work_distribution_id",
+              val === "" ? undefined : Number(val),
+            );
+          }}
+          onBlur={handleBlur}
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Not specified</option>
+          {genericData?.work_distributions?.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label="Training Institute"
+          name="training_institute_id"
+          value={values.training_institute_id ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFieldValue(
+              "training_institute_id",
+              val === "" ? undefined : Number(val),
+            );
+          }}
+          onBlur={handleBlur}
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Not specified</option>
+          {genericData?.training_institutes?.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label="Directorate"
+          name="directorate_id"
+          value={values.directorate_id ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFieldValue(
+              "directorate_id",
+              val === "" ? undefined : Number(val),
+            );
+          }}
+          onBlur={handleBlur}
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Not specified</option>
+          {genericData?.directorates?.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label="Staff Status"
+          name="staff_status_id"
+          value={values.staff_status_id ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFieldValue(
+              "staff_status_id",
+              val === "" ? undefined : Number(val),
+            );
+          }}
+          onBlur={handleBlur}
+          disabled={isLoadingGeneric}
+        >
+          <option value="">Not specified</option>
+          {genericData?.statuses?.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </Select>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
           label="Present Rank"
@@ -760,7 +862,7 @@ const PostingOriginStep: React.FC<{
         >
           <option value="">Select Command</option>
           {genericData?.states?.map((state) => (
-            <option key={state.id} value={state.state}>
+            <option key={state.id} value={state.id}>
               {state.state}
             </option>
           ))}
@@ -776,7 +878,7 @@ const PostingOriginStep: React.FC<{
         >
           <option value="">Select Command</option>
           {genericData?.states?.map((state) => (
-            <option key={state.id} value={state.state}>
+            <option key={state.id} value={state.id}>
               {state.state}
             </option>
           ))}
@@ -869,14 +971,59 @@ const ReviewStep: React.FC<{
                 {values.department || "Not provided"}
               </p>
             </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Work Distribution
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getWorkDistributionName(
+                  values.work_distribution_id,
+                  genericData?.work_distributions,
+                ) || "Not provided"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Training Institute
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getTrainingInstituteName(
+                  values.training_institute_id,
+                  genericData?.training_institutes,
+                ) || "Not provided"}
+              </p>
+            </div>
           </div>
           <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Directorate
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getDirectorateName(
+                  values.directorate_id,
+                  genericData?.directorates,
+                ) || "Not provided"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
+                Staff Status
+              </p>
+              <p className="text-slate-900 font-medium">
+                {getStaffStatusName(
+                  values.staff_status_id,
+                  genericData?.statuses,
+                ) || "Not provided"}
+              </p>
+            </div>
             <div>
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
                 Present Rank
               </p>
               <p className="text-slate-900 font-medium">
-                {getRankName(values.present_rank, genericData?.rankings) || "Not provided"}
+                {getRankName(values.present_rank, genericData?.rankings) ||
+                  "Not provided"}
               </p>
             </div>
             <div>
@@ -967,6 +1114,10 @@ const CreateStaffFormPage: React.FC = () => {
     service_no: "",
     department: "",
     duty: "",
+    work_distribution_id: undefined,
+    training_institute_id: undefined,
+    directorate_id: undefined,
+    staff_status_id: undefined,
     present_rank: "",
     initial_rank: "",
     level: undefined,

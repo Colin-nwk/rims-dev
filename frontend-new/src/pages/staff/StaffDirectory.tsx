@@ -46,9 +46,9 @@ const StaffDirectory = () => {
   const { data, isLoading, isFetching, refetch } = useStaffList(
     { page, per_page: perPage, search: filters.search },
     {
-      status: filters.status,
+      staff_status_id: filters.staff_status_id,
       sex: filters.sex,
-      department: filters.department,
+      work_distribution_id: filters.work_distribution_id,
       present_rank: filters.present_rank,
       initial_rank: filters.initial_rank,
       level: filters.level,
@@ -56,6 +56,8 @@ const StaffDirectory = () => {
       prison: filters.prison,
       zone_id: filters.zone_id,
       age_range: filters.age_range,
+      directorate_id: filters.directorate_id,
+      training_institute_id: filters.training_institute_id,
     },
   );
 
@@ -270,9 +272,9 @@ const StaffDirectory = () => {
     // Build filters for export
     const exportFilters: Record<string, string | undefined> = {
       search: filters.search,
-      status: filters.status?.toString(),
+      staff_status_id: filters.staff_status_id?.toString(),
       sex: filters.sex,
-      department: filters.department,
+      work_distribution_id: filters.work_distribution_id?.toString(),
       present_rank: filters.present_rank,
       initial_rank: filters.initial_rank,
       level: filters.level?.toString(),
@@ -280,6 +282,8 @@ const StaffDirectory = () => {
       prison: filters.prison,
       zone_id: filters.zone_id?.toString(),
       age_range: filters.age_range,
+      directorate_id: filters.directorate_id?.toString(),
+      training_institute_id: filters.training_institute_id?.toString(),
     };
 
     try {

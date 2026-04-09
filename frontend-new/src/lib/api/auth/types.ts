@@ -38,8 +38,13 @@ export interface StaffUser extends BaseUser {
   state_of_origin?: string | null;
   lga?: string | null;
   department?: string | null;
+  ippis?: string | null;
   file_no?: string | null;
   duty?: string | null;
+  work_distribution_id?: number | null;
+  directorate_id?: number | null;
+  training_institute_id?: number | null;
+  staff_status_id?: number | null;
   description?: string | null;
   station?: string | null;
   photo?: string | null;

@@ -14,7 +14,7 @@ class StatisticsService
     /**
      * Get all statistics with optional filters.
      *
-     * @param  array<string, mixed>  $filters  Supported: state_of_origin, assigned_state, sex, present_rank, level, department, status, year_from, year_to, marital_status
+     * @param  array<string, mixed>  $filters  See StatisticsController::index for full list (includes directorate_id, staff_status_id, prison, zone_id, age_range, etc.)
      */
     public function getAll(array $filters = []): array
     {
@@ -241,8 +241,24 @@ class StatisticsService
             $query->where('staff.department', $filters['department']);
         }
 
+        if (isset($filters['directorate_id'])) {
+            $query->where('staff.directorate_id', $filters['directorate_id']);
+        }
+
         if (isset($filters['status'])) {
             $query->where('staff.status', $filters['status']);
+        }
+
+        if (isset($filters['staff_status_id'])) {
+            $query->where('staff.staff_status_id', $filters['staff_status_id']);
+        }
+
+        if (isset($filters['work_distribution_id'])) {
+            $query->where('staff.work_distribution_id', $filters['work_distribution_id']);
+        }
+
+        if (isset($filters['training_institute_id'])) {
+            $query->where('staff.training_institute_id', $filters['training_institute_id']);
         }
 
         if (isset($filters['prison'])) {
@@ -319,6 +335,18 @@ class StatisticsService
                 if (isset($filters['status'])) {
                     $q->where('status', $filters['status']);
                 }
+                if (isset($filters['directorate_id'])) {
+                    $q->where('directorate_id', $filters['directorate_id']);
+                }
+                if (isset($filters['staff_status_id'])) {
+                    $q->where('staff_status_id', $filters['staff_status_id']);
+                }
+                if (isset($filters['work_distribution_id'])) {
+                    $q->where('work_distribution_id', $filters['work_distribution_id']);
+                }
+                if (isset($filters['training_institute_id'])) {
+                    $q->where('training_institute_id', $filters['training_institute_id']);
+                }
                 if (isset($filters['zone_id'])) {
                     $q->whereHas('assignedState', function ($zoneQ) use ($filters) {
                         $zoneQ->where('zone_id', $filters['zone_id']);
@@ -359,6 +387,10 @@ class StatisticsService
             || isset($filters['assigned_state'])
             || isset($filters['sex'])
             || isset($filters['status'])
+            || isset($filters['directorate_id'])
+            || isset($filters['staff_status_id'])
+            || isset($filters['work_distribution_id'])
+            || isset($filters['training_institute_id'])
             || isset($filters['zone_id'])
             || isset($filters['zone'])
             || isset($filters['present_command'])
