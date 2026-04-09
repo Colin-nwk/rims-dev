@@ -2,13 +2,49 @@
 
 namespace Tests\Unit;
 
+use App\Models\Directorate;
 use App\Models\Staff;
+use App\Models\Status;
+use App\Models\TrainingInstitute;
+use App\Models\WorkDistribution;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StaffModelTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_staff_lookup_relationships_resolve_correctly(): void
+    {
+        $workDistribution = WorkDistribution::query()->create([
+            'name' => 'General duty',
+            'status' => true,
+        ]);
+        $trainingInstitute = TrainingInstitute::query()->create([
+            'name' => 'Correctional academy Ijebu Igbo',
+            'status' => true,
+        ]);
+        $directorate = Directorate::query()->create([
+            'name' => 'Human resource',
+            'status' => true,
+        ]);
+        $staffStatus = Status::query()->create([
+            'name' => 'Retirement',
+            'status' => true,
+        ]);
+
+        $staff = Staff::factory()->create([
+            'work_distribution_id' => $workDistribution->id,
+            'training_institute_id' => $trainingInstitute->id,
+            'directorate_id' => $directorate->id,
+            'staff_status_id' => $staffStatus->id,
+        ]);
+
+        $this->assertSame($workDistribution->id, $staff->workDistribution?->id);
+        $this->assertSame($trainingInstitute->id, $staff->trainingInstitute?->id);
+        $this->assertSame($directorate->id, $staff->directorate?->id);
+        $this->assertSame($staffStatus->id, $staff->staffStatus?->id);
+    }
 
     public function test_creating_staff_with_rank_creates_initial_career_history()
     {

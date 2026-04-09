@@ -125,6 +125,10 @@ class StaffService extends BaseService
             'initialCommand',
             'presentCommand',
             'documents',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
             'postings',
             'activePosting',
         ])->findOrFail($id);
@@ -149,6 +153,10 @@ class StaffService extends BaseService
             'documents',
             'presentRank',
             'initialRank',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
             'postings',
             'activePosting',
         ])
