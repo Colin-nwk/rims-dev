@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Directorate;
+use App\Models\State;
 use App\Models\Staff;
 use App\Models\TrainingInstitute;
 use App\Models\WorkDistribution;
@@ -75,5 +76,19 @@ class DashboardServiceTest extends TestCase
             'Correctional academy Ijebu Igbo' => 1,
             'Correctional training college Enugu' => 2,
         ], $stats['staff_distributions']['training_schools']);
+    }
+
+    public function test_get_stats_counts_only_states_without_placeholder_names(): void
+    {
+        State::factory()->create(['state' => 'Lagos']);
+        State::factory()->create(['state' => 'Kano']);
+
+        State::factory()->create(['state' => 'National HQ']);
+        State::factory()->create(['state' => 'Regional Headquarters']);
+        State::factory()->create(['state' => 'State HQ Annex']);
+
+        $stats = app(DashboardService::class)->getStats();
+
+        $this->assertSame(2, $stats['states']);
     }
 }

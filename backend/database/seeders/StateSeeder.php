@@ -383,6 +383,16 @@ class StateSeeder extends Seeder
                 'created_at' => '2025-11-09 18:52:30',
                 'updated_at' => '2025-11-09 18:52:30',
             ],
+            [
+                'id' => 38,
+                'state' => 'National Headquarters',
+                'capital' => 'Abuja',
+                'zone' => 'B',
+                'zone_id' => 2,
+                'status' => 1,
+                'created_at' => '2025-11-09 18:52:30',
+                'updated_at' => '2025-11-09 18:52:30',
+            ],
         ]);
 
         DB::statement('ALTER TABLE states AUTO_INCREMENT = 38;');

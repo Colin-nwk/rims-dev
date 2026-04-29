@@ -46,6 +46,10 @@ export interface ChangeRequest {
   created_at: string;
   updated_at: string;
   model?: Record<string, unknown> | null; // Current data from the model (for UPDATE/SENSITIVE)
+  /** Flattened dot-notation keys mapping to human-readable FK labels for `data` (UI only). */
+  data_ui?: Record<string, string>;
+  /** Flattened dot-notation keys mapping to human-readable FK labels for loaded `model`. */
+  model_ui?: Record<string, string>;
 }
 
 // Filters for querying change requests
@@ -132,4 +136,19 @@ export function getIdentifier(request: ChangeRequest): string {
   }
 
   return "-";
+}
+
+/**
+ * Prefer server-resolved FK labels (change request `data_ui` / `model_ui`) when present.
+ */
+export function formatChangeRequestFieldForDisplay(
+  dotKey: string,
+  _raw: unknown,
+  uiMap: Record<string, string> | undefined,
+): string | undefined {
+  const resolved = uiMap?.[dotKey];
+  if (typeof resolved === "string" && resolved.length > 0) {
+    return resolved;
+  }
+  return undefined;
 }
