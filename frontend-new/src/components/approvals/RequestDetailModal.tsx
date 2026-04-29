@@ -7,6 +7,7 @@ import {
   getStatusColor,
   getTypeColor,
   getIdentifier,
+  formatChangeRequestFieldForDisplay,
 } from "@/lib/api/change-requests";
 import { FilePreviewLink } from "@/components/file-preview-link/FilePreviewLink";
 import { User, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
@@ -99,7 +100,6 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     });
   };
 
-  // Format data value for display
   const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return "-";
     if (typeof value === "boolean") return value ? "Yes" : "No";
@@ -108,6 +108,18 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
     }
     if (typeof value === "object") return JSON.stringify(value, null, 2);
     return String(value);
+  };
+
+  const formatLeaf = (
+    dotKey: string,
+    raw: unknown,
+    uiMap: Record<string, string> | undefined,
+  ): string => {
+    const resolved = formatChangeRequestFieldForDisplay(dotKey, raw, uiMap);
+    if (resolved !== undefined) {
+      return resolved;
+    }
+    return formatValue(raw);
   };
 
   const isFileLinkKey = (key: string): boolean => {
@@ -406,7 +418,11 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                         <span className="block mt-1 text-sm text-slate-900 wrap-break-word">
                           {isFileLinkKey(key) && !filePath
                             ? "File has been removed"
-                            : formatValue(value)}
+                            : formatLeaf(
+                                key,
+                                value,
+                                request.data_ui ?? undefined,
+                              )}
                         </span>
                         {filePath && (
                           <div className="mt-2">
@@ -470,7 +486,11 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                                             : "text-slate-700"
                                         }`}
                                       >
-                                        {formatValue(currentValue)}
+                                        {formatLeaf(
+                                          key,
+                                          currentValue,
+                                          request.model_ui ?? undefined,
+                                        )}
                                       </div>
                                       {isFileLinkKey(key) &&
                                         getFileLinkValue(currentValue) && (
@@ -543,7 +563,11 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                                               : "text-emerald-700"
                                           }`}
                                         >
-                                          {formatValue(proposedValue)}
+                                          {formatLeaf(
+                                            key,
+                                            proposedValue,
+                                            request.data_ui ?? undefined,
+                                          )}
                                         </div>
                                         {isFileLinkKey(key) &&
                                           getFileLinkValue(proposedValue) && (
@@ -564,7 +588,11 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                               ) : (
                                 // No current data available, just show proposed
                                 <div className="text-sm font-medium text-slate-900 wrap-break-word">
-                                  {formatValue(proposedValue)}
+                                  {formatLeaf(
+                                    key,
+                                    proposedValue,
+                                    request.data_ui ?? undefined,
+                                  )}
                                   {isFileLinkKey(key) &&
                                     getFileLinkValue(proposedValue) && (
                                       <div className="mt-2">

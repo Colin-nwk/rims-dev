@@ -58,7 +58,11 @@ class DashboardService
                 )->count(),
             ],
             "zones" => Zone::count(),
-            "states" => State::count(),
+            "states" => State::query()
+                ->whereRaw('LOWER(`state`) NOT LIKE ?', ['%national%'])
+                ->whereRaw('LOWER(`state`) NOT LIKE ?', ['%hq%'])
+                ->whereRaw('LOWER(`state`) NOT LIKE ?', ['%headquarters%'])
+                ->count(),
             "prisons" => Prison::count(),
             "work_distributions" => WorkDistribution::count(),
             "directorates" => Directorate::count(),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
+use App\Services\ChangeRequestDisplayValueService;
 use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -32,6 +33,14 @@ class ChangeRequestController extends Controller
             if ($changeRequest->model instanceof \App\Models\Staff) {
                 $changeRequest->model->load(['details', 'education']);
             }
+        });
+
+        $displayResolver = app(ChangeRequestDisplayValueService::class);
+
+        $requests->getCollection()->transform(function (ChangeRequest $changeRequest) use ($displayResolver) {
+            $uiMaps = $displayResolver->mapsFor($changeRequest);
+
+            return array_merge($changeRequest->toArray(), $uiMaps);
         });
 
         return $this->collectionResponse($requests);

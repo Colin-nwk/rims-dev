@@ -7,6 +7,7 @@ import {
   getModelName,
   getTypeColor,
   getIdentifier,
+  formatChangeRequestFieldForDisplay,
 } from "@/lib/api/change-requests";
 import { FilePreviewLink } from "@/components/file-preview-link/FilePreviewLink";
 
@@ -55,12 +56,23 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
       .trim();
   };
 
-  // Format value for display
   const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return "-";
     if (typeof value === "boolean") return value ? "Yes" : "No";
     if (typeof value === "object") return JSON.stringify(value);
     return String(value);
+  };
+
+  const formatLeaf = (
+    dotKey: string,
+    raw: unknown,
+    uiMap: Record<string, string> | undefined,
+  ): string => {
+    const resolved = formatChangeRequestFieldForDisplay(dotKey, raw, uiMap);
+    if (resolved !== undefined) {
+      return resolved;
+    }
+    return formatValue(raw);
   };
 
   const isFileLinkKey = (key: string): boolean => {
@@ -314,7 +326,11 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                                   : "text-slate-700"
                               }`}
                             >
-                              {formatValue(currentValue)}
+                              {formatLeaf(
+                                key,
+                                currentValue,
+                                request.model_ui ?? undefined,
+                              )}
                             </div>
                             {isFileLinkKey(key) &&
                               getFileLinkValue(currentValue) && (
@@ -353,7 +369,11 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                                     : "text-emerald-700"
                                 }`}
                               >
-                                {formatValue(proposedValue)}
+                                {formatLeaf(
+                                  key,
+                                  proposedValue,
+                                  request.data_ui ?? undefined,
+                                )}
                               </div>
                               {isFileLinkKey(key) &&
                                 getFileLinkValue(proposedValue) && (
@@ -373,7 +393,11 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                       </div>
                     ) : (
                       <div className="text-sm font-medium text-slate-900 wrap-break-word">
-                        {formatValue(proposedValue)}
+                        {formatLeaf(
+                          key,
+                          proposedValue,
+                          request.data_ui ?? undefined,
+                        )}
                         {isFileLinkKey(key) &&
                           getFileLinkValue(proposedValue) && (
                             <div className="mt-2">

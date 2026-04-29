@@ -27,6 +27,7 @@ export {
   getStatusColor,
   getTypeColor,
   getIdentifier,
+  formatChangeRequestFieldForDisplay,
 } from "./types";
 
 export { rejectRequestSchema, changeRequestFiltersSchema } from "./schemas";
