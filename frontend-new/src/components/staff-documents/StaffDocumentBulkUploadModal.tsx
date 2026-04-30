@@ -16,8 +16,8 @@ import { Button } from "@/components/ui/button";
 import {
   type BulkStaffDocumentFormItem,
   type CreateBulkStaffDocumentsDTO,
-  STAFF_DOCUMENT_TYPE_OPTIONS,
   bulkStaffDocumentSchema,
+  getStaffDocumentTypeSelectEntries,
 } from "@/lib/api/staff-documents";
 import { type Staff, useStaffList } from "@/lib/api/staff";
 import { getFileUrl } from "@/lib/api";
@@ -296,12 +296,14 @@ export function StaffDocumentBulkUploadModal({
                                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
                               >
                                 <option value="">Select document type</option>
-                                {STAFF_DOCUMENT_TYPE_OPTIONS.map((option) => (
+                                {getStaffDocumentTypeSelectEntries(
+                                  doc.document_type,
+                                ).map((entry) => (
                                   <option
-                                    key={option.value}
-                                    value={option.value}
+                                    key={entry.key}
+                                    value={entry.value}
                                   >
-                                    {option.label}
+                                    {entry.label}
                                   </option>
                                 ))}
                               </Field>

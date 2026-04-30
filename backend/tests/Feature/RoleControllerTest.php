@@ -92,7 +92,24 @@ class RoleControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->putJson("/api/v1/roles/{$role->id}", $payload);
 
         $response->assertStatus(200);
-        $this->assertDatabaseHas('roles', ['id' => $role->id, 'name' => 'New Name']);
+        $this->assertDatabaseHas('roles', ['id' => $role->id, 'name' => 'New Name', 'slug' => 'old']);
+    }
+
+    public function test_cannot_update_role_slug_via_api()
+    {
+        $role = Role::create(['name' => 'Role', 'slug' => 'immutable-slug']);
+
+        $response = $this->actingAs($this->admin)->putJson("/api/v1/roles/{$role->id}", [
+            'name' => 'Renamed',
+            'slug' => 'new-slug',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseHas('roles', [
+            'id' => $role->id,
+            'slug' => 'immutable-slug',
+            'name' => 'Role',
+        ]);
     }
 
     public function test_can_delete_role()

@@ -185,6 +185,40 @@ export const STAFF_DOCUMENT_TYPE_OPTIONS: StaffDocumentTypeOption[] = [
   { value: "other", label: "Other" },
 ];
 
+export interface StaffDocumentTypeSelectEntry {
+  key: string;
+  value: string;
+  label: string;
+}
+
+/**
+ * Dropdown options from {@link STAFF_DOCUMENT_TYPE_OPTIONS}, plus `initialDocumentType`
+ * when it is missing from that list (older records/API values).
+ */
+export function getStaffDocumentTypeSelectEntries(
+  initialDocumentType?: string | null,
+): StaffDocumentTypeSelectEntry[] {
+  const entries: StaffDocumentTypeSelectEntry[] =
+    STAFF_DOCUMENT_TYPE_OPTIONS.map((o) => ({
+      key: o.value,
+      value: o.value,
+      label: o.label,
+    }));
+  const valueSet = new Set(
+    STAFF_DOCUMENT_TYPE_OPTIONS.map((o) => o.value.trim()),
+  );
+  const raw = initialDocumentType ?? "";
+  const initialTrimmed = raw.trim();
+  if (initialTrimmed.length > 0 && !valueSet.has(initialTrimmed)) {
+    entries.push({
+      key: `legacy-document-type-${raw}`,
+      value: raw,
+      label: raw,
+    });
+  }
+  return entries;
+}
+
 function requiredString(fieldName: string) {
   return z
     .string({

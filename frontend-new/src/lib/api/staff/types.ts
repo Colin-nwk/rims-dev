@@ -256,8 +256,8 @@ export interface AssignRoleDTO {
 // Staff filters for list query
 export interface StaffFilters {
   staff_status_id?: number;
-  assigned_state?: string;
-  prison?: string;
+  assigned_state?: number;
+  prison?: number;
   sex?: string;
   initial_rank?: string;
   present_rank?: string;

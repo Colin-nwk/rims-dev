@@ -309,8 +309,8 @@ class LGASeeder extends Seeder
             }
         }
 
-        // FCT (ABUJA) AREA COUNCILS
-        $fctStateId = $states['FCT']->id ?? null;
+        // FCT (ABUJA) AREA COUNCILS — StateSeeder uses "F.C.T." as the state name
+        $fctStateId = ($states['F.C.T.'] ?? $states['FCT'] ?? null)?->id;
         if ($fctStateId) {
             $fctLGAs = [
                 'Abaji', 'Bwari', 'Gwagwalada', 'Kuje', 'Municipal Area Council', 'Kwali',

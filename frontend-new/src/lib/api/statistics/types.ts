@@ -68,7 +68,7 @@ export interface AllStatistics {
 // Filters for statistics queries
 export interface StatisticsFilters {
   state_of_origin?: string;
-  assigned_state?: string;
+  assigned_state?: number;
   sex?: string;
   present_rank?: string;
   level?: string;
@@ -84,7 +84,7 @@ export interface StatisticsFilters {
   initial_rank?: string;
   present_command?: string;
   initial_command?: string;
-  prison?: string;
+  prison?: number;
   lga?: string;
   age_range?: string;
   zone?: string;

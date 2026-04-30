@@ -258,6 +258,50 @@ class Staff extends Authenticatable
         \App\Helpers\FilterHelper::applyAgeRangeFilter($query, $value);
     }
 
+    /**
+     * Filter by assigned_state (FK to states.id).
+     * Accepts a numeric id from the client, or a state name (legacy / wrong client).
+     */
+    public function filterAssignedState($query, $value): void
+    {
+        if ($value === '' || $value === null) {
+            return;
+        }
+        if (is_numeric($value)) {
+            $query->where('assigned_state', (int) $value);
+
+            return;
+        }
+        $stateId = State::query()->where('state', (string) $value)->value('id');
+        if ($stateId) {
+            $query->where('assigned_state', $stateId);
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+    }
+
+    /**
+     * Filter by prison (FK to prisons.id).
+     * Accepts a numeric id from the client, or a prison_name (legacy).
+     */
+    public function filterPrison($query, $value): void
+    {
+        if ($value === '' || $value === null) {
+            return;
+        }
+        if (is_numeric($value)) {
+            $query->where('prison', (int) $value);
+
+            return;
+        }
+        $prisonId = Prison::query()->where('prison_name', (string) $value)->value('id');
+        if ($prisonId) {
+            $query->where('prison', $prisonId);
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+    }
+
     protected function casts(): array
     {
         return [

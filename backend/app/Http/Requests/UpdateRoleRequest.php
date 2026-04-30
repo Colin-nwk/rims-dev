@@ -18,7 +18,7 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name' => 'string|max:255',
-            'slug' => 'string|max:255|unique:roles,slug,'.$this->route('role')->id,
+            'slug' => 'prohibited',
             'prison_id' => 'nullable|exists:prisons,id',
             'state_id' => 'nullable|exists:states,id',
             'zone_id' => 'nullable|exists:zones,id',

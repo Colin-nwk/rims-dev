@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Field, ErrorMessage, Form, Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import {
@@ -19,8 +19,8 @@ import {
   type UpdateStaffDocumentFormData,
   createStaffDocumentSchema,
   updateStaffDocumentSchema,
-  STAFF_DOCUMENT_TYPE_OPTIONS,
   getStaffDocumentTypeLabel,
+  getStaffDocumentTypeSelectEntries,
 } from "@/lib/api/staff-documents";
 import { getChangedFields } from "@/lib/utils";
 
@@ -79,6 +79,18 @@ export function StaffDocumentFormModalStaff({
           notes: "",
           expires_at: "",
         };
+
+  const documentTypeSelectOptions = useMemo(
+    () =>
+      getStaffDocumentTypeSelectEntries(initialValues.document_type).map(
+        (entry) => (
+          <option key={entry.key} value={entry.value}>
+            {entry.label}
+          </option>
+        ),
+      ),
+    [initialValues.document_type],
+  );
 
   const validationSchema = isEditing
     ? toFormikValidationSchema(updateStaffDocumentSchema)
@@ -206,11 +218,7 @@ export function StaffDocumentFormModalStaff({
                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
                 >
                   <option value="">Select document type</option>
-                  {STAFF_DOCUMENT_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  {documentTypeSelectOptions}
                 </Field>
                 <ErrorMessage
                   name="document_type"

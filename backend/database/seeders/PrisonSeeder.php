@@ -427,7 +427,8 @@ class PrisonSeeder extends Seeder
             34 => $states['Taraba']->id ?? null,
             35 => $states['Yobe']->id ?? null,
             36 => $states['Zamfara']->id ?? null,
-            37 => $states['FCT']->id ?? null,
+            // Must match `state` column in states table (StateSeeder uses "F.C.T.", not "FCT")
+            37 => ($states['F.C.T.'] ?? $states['FCT'] ?? null)?->id,
         ];
     }
 }

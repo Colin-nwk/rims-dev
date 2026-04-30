@@ -96,6 +96,30 @@ export const StaffQualificationFormModal: React.FC<
           end_date: "",
         };
 
+  const typeSelectOptions = useMemo(() => {
+    const activeTypes =
+      genericData?.degree_types?.filter((dt) => dt.status) ?? [];
+    const titleSet = new Set(activeTypes.map((dt) => dt.title.trim()));
+    const rawInitialType = initialValues.type ?? "";
+    const initialTrimmed = rawInitialType.trim();
+
+    const options = activeTypes.map((degreeType) => (
+      <option key={degreeType.id} value={degreeType.title}>
+        {degreeType.title}
+      </option>
+    ));
+
+    if (initialTrimmed.length > 0 && !titleSet.has(initialTrimmed)) {
+      options.push(
+        <option key={`legacy-type-${rawInitialType}`} value={rawInitialType}>
+          {rawInitialType}
+        </option>,
+      );
+    }
+
+    return options;
+  }, [genericData?.degree_types, initialValues.type]);
+
   const validationSchema = isEditing
     ? toFormikValidationSchema(updateStaffEducationSchema)
     : toFormikValidationSchema(createStaffEducationSchema);
@@ -170,7 +194,9 @@ export const StaffQualificationFormModal: React.FC<
       // Always include service_no for identification
       changedFields.service_no = serviceNo;
       onSubmit(
-        changedFields as CreateStaffEducationFormData | UpdateStaffEducationFormData,
+        changedFields as
+          | CreateStaffEducationFormData
+          | UpdateStaffEducationFormData,
         education?.id,
       );
     } else {
@@ -250,13 +276,7 @@ export const StaffQualificationFormModal: React.FC<
                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500"
                 >
                   <option value="">Select type</option>
-                  {genericData?.degree_types
-                    ?.filter((dt) => dt.status)
-                    .map((degreeType) => (
-                      <option key={degreeType.id} value={degreeType.title}>
-                        {degreeType.title}
-                      </option>
-                    ))}
+                  {typeSelectOptions}
                 </Field>
                 <ErrorMessage
                   name="type"

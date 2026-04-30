@@ -41,9 +41,9 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
   };
 
   const handleStateChange = (value: string) => {
-    const newFilters = { ...filters, assigned_state: value || undefined };
-    // Reset prison if state changes
-    if (filters.assigned_state !== value) {
+    const parsed = value === "" ? undefined : Number(value);
+    const newFilters = { ...filters, assigned_state: parsed };
+    if (filters.assigned_state !== parsed) {
       newFilters.prison = undefined;
     }
     onFiltersChange(newFilters);
@@ -78,15 +78,11 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
     }
 
     // If state is selected, further filter by that state
-    if (filters.assigned_state && states) {
-      const selectedState = states.find(
-        (state) => state.state === filters.assigned_state,
+    if (filters.assigned_state != null) {
+      const selectedStateId = Number(filters.assigned_state);
+      filtered = filtered.filter(
+        (prison) => prison.state_id === selectedStateId,
       );
-      if (selectedState) {
-        filtered = filtered.filter(
-          (prison) => prison.state_id === selectedState.id,
-        );
-      }
     }
 
     return filtered;
@@ -217,7 +213,11 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             )}
           </label>
           <select
-            value={filters.assigned_state || ""}
+            value={
+              filters.assigned_state != null
+                ? String(filters.assigned_state)
+                : ""
+            }
             onChange={(e) => handleStateChange(e.target.value)}
             disabled={isLoadingGeneric}
             className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
@@ -226,7 +226,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
               {filters.zone_id ? `All States in Selected Zone` : "All States"}
             </option>
             {filteredStates.map((state) => (
-              <option key={state.id} value={state.state}>
+              <option key={state.id} value={state.id}>
                 {state.state}
               </option>
             ))}
@@ -242,8 +242,13 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
             )}
           </label>
           <select
-            value={filters.prison || ""}
-            onChange={(e) => handleFilterChange("prison", e.target.value)}
+            value={filters.prison != null ? String(filters.prison) : ""}
+            onChange={(e) =>
+              handleFilterChange(
+                "prison",
+                e.target.value ? Number(e.target.value) : "",
+              )
+            }
             disabled={isLoadingGeneric || !filters.assigned_state}
             className="w-full px-3 py-2 text-sm transition-colors border rounded-lg border-slate-300 focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 disabled:opacity-50"
           >
@@ -253,7 +258,7 @@ export const StaffFilters: React.FC<StaffFiltersProps> = ({
                 : "Select State First"}
             </option>
             {filteredPrisons.map((prison) => (
-              <option key={prison.id} value={prison.prison_name}>
+              <option key={prison.id} value={prison.id}>
                 {prison.prison_name}
               </option>
             ))}

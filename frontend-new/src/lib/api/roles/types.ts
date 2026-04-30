@@ -61,10 +61,9 @@ export interface CreateRoleDTO {
   permissions?: number[];
 }
 
-// Update Role DTO
+// Update Role DTO (slug is immutable after create)
 export interface UpdateRoleDTO {
   name?: string;
-  slug?: string;
   prison_id?: number | null;
   state_id?: number | null;
   zone_id?: number | null;
