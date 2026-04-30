@@ -45,7 +45,7 @@ trait FilterableTrait
                 continue;
             }
 
-            if (in_array($key, $filterable) && ! is_null($value)) {
+            if (in_array($key, $filterable) && ! is_null($value) && $value !== '') {
                 $query->where($key, $value);
             }
         }

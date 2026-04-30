@@ -94,9 +94,9 @@ const RolesPermissions = () => {
   // Form submit handler
   const handleFormSubmit = (data: CreateRoleFormData) => {
     if (isEditMode && selectedRole) {
-      // Update existing role
+      const { slug: _immutableSlug, ...updatePayload } = data;
       updateRole.mutate(
-        { id: selectedRole.id, data },
+        { id: selectedRole.id, data: updatePayload },
         {
           onSuccess: () => {
             toast.success("Role updated successfully");

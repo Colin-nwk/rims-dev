@@ -278,8 +278,11 @@ const StaffDirectory = () => {
       present_rank: filters.present_rank,
       initial_rank: filters.initial_rank,
       level: filters.level?.toString(),
-      assigned_state: filters.assigned_state,
-      prison: filters.prison,
+      assigned_state:
+        filters.assigned_state != null
+          ? String(filters.assigned_state)
+          : undefined,
+      prison: filters.prison != null ? String(filters.prison) : undefined,
       zone_id: filters.zone_id?.toString(),
       age_range: filters.age_range,
       directorate_id: filters.directorate_id?.toString(),

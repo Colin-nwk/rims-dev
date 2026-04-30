@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Prison;
 use App\Models\Staff;
 use App\Models\StaffDetail;
 use App\Models\StaffEducation;
+use App\Models\State;
 use Illuminate\Support\Facades\Cache;
 
 class StatisticsService
@@ -210,7 +212,19 @@ class StatisticsService
         }
 
         if (isset($filters['assigned_state'])) {
-            $query->where('staff.assigned_state', $filters['assigned_state']);
+            $value = $filters['assigned_state'];
+            if ($value === '' || $value === null) {
+                // Skip empty
+            } elseif (is_numeric($value)) {
+                $query->where('staff.assigned_state', (int) $value);
+            } else {
+                $stateId = State::query()->where('state', (string) $value)->value('id');
+                if ($stateId) {
+                    $query->where('staff.assigned_state', $stateId);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            }
         }
 
         if (isset($filters['sex'])) {
@@ -262,7 +276,19 @@ class StatisticsService
         }
 
         if (isset($filters['prison'])) {
-            $query->where('staff.prison', $filters['prison']);
+            $value = $filters['prison'];
+            if ($value === '' || $value === null) {
+                // Skip empty
+            } elseif (is_numeric($value)) {
+                $query->where('staff.prison', (int) $value);
+            } else {
+                $prisonId = Prison::query()->where('prison_name', (string) $value)->value('id');
+                if ($prisonId) {
+                    $query->where('staff.prison', $prisonId);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            }
         }
 
         if (isset($filters['lga'])) {

@@ -32,20 +32,17 @@ export const createRoleSchema = z.object({
 
 export type CreateRoleFormData = z.infer<typeof createRoleSchema>;
 
-// Update Role Schema (all fields optional)
+/** Edit role in UI: slug is immutable after create */
+export const editRoleFormSchema = createRoleSchema.omit({ slug: true });
+
+export type EditRoleFormData = z.infer<typeof editRoleFormSchema>;
+
+// Update Role Schema (API payload; slug is not accepted on update)
 export const updateRoleSchema = z.object({
   name: z
     .string({ error: "Role name is required" })
     .min(2, "Role name must be at least 2 characters")
     .max(255, "Role name must be less than 255 characters")
-    .optional(),
-  slug: z
-    .string({ error: "Slug is required" })
-    .max(255, "Slug must be less than 255 characters")
-    .regex(
-      slugPattern,
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    )
     .optional(),
   prison_id: z.number().int().positive().nullable().optional(),
   state_id: z.number().int().positive().nullable().optional(),

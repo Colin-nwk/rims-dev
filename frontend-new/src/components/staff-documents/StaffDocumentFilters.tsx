@@ -3,7 +3,7 @@ import { Filter, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   type StaffDocumentFilters as StaffDocumentFiltersType,
-  STAFF_DOCUMENT_TYPE_OPTIONS,
+  getStaffDocumentTypeSelectEntries,
   getStaffDocumentStatusLabel,
   getStaffDocumentTypeLabel,
 } from "@/lib/api/staff-documents";
@@ -35,6 +35,16 @@ export function StaffDocumentFilters({
   ) {
     onFiltersChange({ ...filters, [key]: value || undefined });
   }
+
+  const documentTypeFilterOptions = React.useMemo(
+    () =>
+      getStaffDocumentTypeSelectEntries(filters.document_type).map((entry) => (
+        <option key={entry.key} value={entry.value}>
+          {entry.label}
+        </option>
+      )),
+    [filters.document_type],
+  );
 
   const hasActiveFilters =
     !!filters.search ||
@@ -115,11 +125,7 @@ export function StaffDocumentFilters({
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-ncos-green-500 focus:border-ncos-green-500 transition-colors text-sm"
               >
                 <option value="">All Types</option>
-                {STAFF_DOCUMENT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
+                {documentTypeFilterOptions}
               </select>
             </div>
 

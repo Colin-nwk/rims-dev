@@ -8,6 +8,7 @@ import {
   type Role,
   type CreateRoleFormData,
   createRoleSchema,
+  editRoleFormSchema,
   generateSlug,
 } from "@/lib/api/roles";
 import { useGenericData } from "@/lib/api/statistics";
@@ -71,7 +72,9 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
     >
       <Formik
         initialValues={initialValues}
-        validationSchema={toFormikValidationSchema(createRoleSchema)}
+        validationSchema={toFormikValidationSchema(
+          isEditMode ? editRoleFormSchema : createRoleSchema,
+        )}
         onSubmit={handleSubmit}
         enableReinitialize
       >
@@ -103,26 +106,29 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
               />
             </div>
 
-            {/* Slug Field */}
-            <div>
-              <label
-                htmlFor="slug"
-                className="block mb-1.5 text-sm font-medium text-slate-700"
-              >
-                Slug <span className="text-red-500">*</span>
-              </label>
-              <Field
-                as={Input}
-                id="slug"
-                name="slug"
-                placeholder="e.g. finance-admin"
-                error={touched.slug && errors.slug ? errors.slug : undefined}
-                disabled={isLoading}
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Unique identifier using lowercase letters, numbers, and hyphens
-              </p>
-            </div>
+            {/* Slug only when creating — immutable after the role exists */}
+            {!isEditMode && (
+              <div>
+                <label
+                  htmlFor="slug"
+                  className="block mb-1.5 text-sm font-medium text-slate-700"
+                >
+                  Slug <span className="text-red-500">*</span>
+                </label>
+                <Field
+                  as={Input}
+                  id="slug"
+                  name="slug"
+                  placeholder="e.g. finance-admin"
+                  error={touched.slug && errors.slug ? errors.slug : undefined}
+                  disabled={isLoading}
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  Unique identifier using lowercase letters, numbers, and
+                  hyphens. Cannot be changed after the role is created.
+                </p>
+              </div>
+            )}
 
             {/* Scopeless Toggle */}
             <div className="flex items-start gap-3 p-4 border rounded-lg bg-slate-50 border-slate-200">

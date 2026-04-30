@@ -144,7 +144,8 @@ const Statistics: React.FC = () => {
       | "directorate_id"
       | "staff_status_id"
       | "work_distribution_id"
-      | "training_institute_id",
+      | "training_institute_id"
+      | "prison",
     raw: string,
   ) => {
     setFilters((prev) => ({
@@ -170,9 +171,9 @@ const Statistics: React.FC = () => {
     setFilters((prev) => {
       const next: StatisticsFilters = {
         ...prev,
-        assigned_state: value || undefined,
+        assigned_state: value ? Number(value) : undefined,
       };
-      if (prev.assigned_state !== value) {
+      if (prev.assigned_state !== next.assigned_state) {
         next.prison = undefined;
       }
       return next;
@@ -206,15 +207,11 @@ const Statistics: React.FC = () => {
         stateIdsInZone.includes(prison.state_id),
       );
     }
-    if (filters.assigned_state && states) {
-      const selectedState = states.find(
-        (state) => state.state === filters.assigned_state,
+    if (filters.assigned_state != null) {
+      const selectedStateId = Number(filters.assigned_state);
+      filtered = filtered.filter(
+        (prison) => prison.state_id === selectedStateId,
       );
-      if (selectedState) {
-        filtered = filtered.filter(
-          (prison) => prison.state_id === selectedState.id,
-        );
-      }
     }
     return filtered;
   }, [genericData, filters.zone_id, filters.assigned_state]);
@@ -383,7 +380,11 @@ const Statistics: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select
-                      value={filters.assigned_state || ""}
+                      value={
+                        filters.assigned_state != null
+                          ? String(filters.assigned_state)
+                          : ""
+                      }
                       onChange={(e) =>
                         handleAssignedStateChange(e.target.value)
                       }
@@ -393,7 +394,7 @@ const Statistics: React.FC = () => {
                         {filters.zone_id ? "All States in Zone" : "All States"}
                       </option>
                       {filteredStates.map((state) => (
-                        <option key={state.id} value={state.state}>
+                        <option key={`assigned-${state.id}`} value={state.id}>
                           {state.state}
                         </option>
                       ))}
@@ -531,9 +532,9 @@ const Statistics: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select
-                      value={filters.prison || ""}
+                      value={filters.prison != null ? String(filters.prison) : ""}
                       onChange={(e) =>
-                        handleFilterChange("prison", e.target.value)
+                        handleNumericFilterChange("prison", e.target.value)
                       }
                       disabled={!filters.assigned_state}
                       className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 pr-8 text-sm focus:border-ncos-green-500 focus:outline-none focus:ring-1 focus:ring-ncos-green-500 disabled:cursor-not-allowed disabled:opacity-50"

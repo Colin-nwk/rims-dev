@@ -30,6 +30,7 @@ export { groupPermissions, getScopeDescription, generateSlug } from "./types";
 
 export {
   createRoleSchema,
+  editRoleFormSchema,
   updateRoleSchema,
   syncPermissionsSchema,
   permissionActionSchema,
@@ -37,6 +38,7 @@ export {
 
 export type {
   CreateRoleFormData,
+  EditRoleFormData,
   UpdateRoleFormData,
   SyncPermissionsFormData,
   PermissionActionFormData,
