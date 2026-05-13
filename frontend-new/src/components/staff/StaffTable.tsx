@@ -22,10 +22,10 @@ import {
   Trash2,
   IdCard,
   UserCog,
-  GraduationCap,
+  // GraduationCap,
   History,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 // Separate component for the select all checkbox to properly use hooks
 const SelectAllCheckbox: React.FC<{ table: Table<Staff> }> = ({ table }) => {
@@ -170,45 +170,30 @@ export const StaffTable: React.FC<StaffTableProps> = ({
       ),
     },
 
-    {
-      id: "qualifications",
-      header: "Qualifications",
-      cell: ({ row }) => {
-        const educationCount = row.original.education?.length || 0;
-        if (educationCount > 0) {
-          return (
-            <Link
-              to={`/qualifications?service_no=${row.original.service_no}`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
-            >
-              <GraduationCap className="w-3.5 h-3.5" />
-              View ({educationCount})
-            </Link>
-          );
-        }
-        return (
-          <span className="text-xs text-slate-400 italic">
-            No Qualifications
-          </span>
-        );
-      },
-      enableSorting: false,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.original.status === 1
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {row.original.status === 1 ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
+    // {
+    //   id: "qualifications",
+    //   header: "Qualifications",
+    //   cell: ({ row }) => {
+    //     const educationCount = row.original.education?.length || 0;
+    //     if (educationCount > 0) {
+    //       return (
+    //         <Link
+    //           to={`/qualifications?service_no=${row.original.service_no}`}
+    //           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
+    //         >
+    //           <GraduationCap className="w-3.5 h-3.5" />
+    //           View ({educationCount})
+    //         </Link>
+    //       );
+    //     }
+    //     return (
+    //       <span className="text-xs text-slate-400 italic">
+    //         No Qualifications
+    //       </span>
+    //     );
+    //   },
+    //   enableSorting: false,
+    // },
     {
       id: "career",
       header: "Career",
