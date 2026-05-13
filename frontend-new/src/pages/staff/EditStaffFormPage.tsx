@@ -449,9 +449,18 @@ const BasicInfoTab: React.FC<{
   formik: FormikProps<EditStaffFormValues>;
   genericData: ReturnType<typeof useGenericData>["data"];
   isLoadingGeneric: boolean;
-}> = ({ formik, genericData, isLoadingGeneric }) => {
+  /** Staff users may only edit present rank, training institute, and directorate here */
+  restrictBasicInfoForStaffUser: boolean;
+}> = ({
+  formik,
+  genericData,
+  isLoadingGeneric,
+  restrictBasicInfoForStaffUser,
+}) => {
   const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
     formik;
+
+  const basicInfoLocked = restrictBasicInfoForStaffUser;
 
   return (
     <div className="space-y-6">
@@ -471,6 +480,7 @@ const BasicInfoTab: React.FC<{
               error={touched.surname ? errors.surname : undefined}
               placeholder="Surname"
               required
+              disabled={basicInfoLocked}
             />
             <Input
               label="First Name"
@@ -481,6 +491,7 @@ const BasicInfoTab: React.FC<{
               error={touched.first_name ? errors.first_name : undefined}
               placeholder="First Name"
               required
+              disabled={basicInfoLocked}
             />
             <Input
               label="Other Names"
@@ -490,6 +501,7 @@ const BasicInfoTab: React.FC<{
               onBlur={handleBlur}
               error={touched.other_names ? errors.other_names : undefined}
               placeholder="Other Names"
+              disabled={basicInfoLocked}
             />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -500,6 +512,7 @@ const BasicInfoTab: React.FC<{
               onChange={handleChange}
               onBlur={handleBlur}
               error={touched.sex ? (errors.sex as string) : undefined}
+              disabled={basicInfoLocked}
             >
               <option value="">Select Gender</option>
               {sexOptions.map((option) => (
@@ -516,6 +529,7 @@ const BasicInfoTab: React.FC<{
               onChange={handleChange}
               onBlur={handleBlur}
               error={touched.dob ? errors.dob : undefined}
+              disabled={basicInfoLocked}
             />
             <Input
               label="Phone Number"
@@ -525,6 +539,7 @@ const BasicInfoTab: React.FC<{
               onBlur={handleBlur}
               error={touched.phone_number ? errors.phone_number : undefined}
               placeholder="08012345678"
+              disabled={basicInfoLocked}
             />
           </div>
           <Input
@@ -536,6 +551,7 @@ const BasicInfoTab: React.FC<{
             onBlur={handleBlur}
             error={touched.email ? errors.email : undefined}
             placeholder="email@example.com"
+            disabled={basicInfoLocked}
           />
         </div>
       </div>
@@ -566,6 +582,7 @@ const BasicInfoTab: React.FC<{
               onBlur={handleBlur}
               error={touched.ippis ? errors.ippis : undefined}
               placeholder="e.g., 123456789"
+              disabled={basicInfoLocked}
             />
             <Input
               label="File Number"
@@ -575,6 +592,7 @@ const BasicInfoTab: React.FC<{
               onBlur={handleBlur}
               error={touched.file_no ? errors.file_no : undefined}
               placeholder="File No."
+              disabled={basicInfoLocked}
             />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -587,6 +605,7 @@ const BasicInfoTab: React.FC<{
               error={touched.department ? errors.department : undefined}
               placeholder="e.g., Administration"
               required
+              disabled={basicInfoLocked}
             />
             <Input
               label="Duty / Role"
@@ -596,6 +615,7 @@ const BasicInfoTab: React.FC<{
               onBlur={handleBlur}
               error={touched.duty ? errors.duty : undefined}
               placeholder="e.g., Registry Officer"
+              disabled={basicInfoLocked}
             />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -611,7 +631,7 @@ const BasicInfoTab: React.FC<{
                 );
               }}
               onBlur={handleBlur}
-              disabled={isLoadingGeneric}
+              disabled={basicInfoLocked || isLoadingGeneric}
             >
               <option value="">Not specified</option>
               {genericData?.work_distributions?.map((item) => (
@@ -674,7 +694,7 @@ const BasicInfoTab: React.FC<{
                 );
               }}
               onBlur={handleBlur}
-              disabled={isLoadingGeneric}
+              disabled={basicInfoLocked || isLoadingGeneric}
             >
               <option value="">Not specified</option>
               {genericData?.statuses?.map((item) => (
@@ -709,7 +729,7 @@ const BasicInfoTab: React.FC<{
               onChange={handleChange}
               onBlur={handleBlur}
               error={touched.initial_rank ? errors.initial_rank : undefined}
-              disabled={isLoadingGeneric}
+              disabled={basicInfoLocked || isLoadingGeneric}
             >
               <option value="">Select Initial Rank</option>
               {genericData?.rankings?.map((rank) => (
@@ -728,7 +748,7 @@ const BasicInfoTab: React.FC<{
               }}
               onBlur={handleBlur}
               error={touched.level ? (errors.level as string) : undefined}
-              disabled={isLoadingGeneric}
+              disabled={basicInfoLocked || isLoadingGeneric}
             >
               <option value="">Select Level</option>
               {genericData?.levels?.map((level) => (
@@ -749,8 +769,17 @@ const PostingOriginTab: React.FC<{
   formik: FormikProps<EditStaffFormValues>;
   genericData: ReturnType<typeof useGenericData>["data"];
   isLoadingGeneric: boolean;
-}> = ({ formik, genericData, isLoadingGeneric }) => {
+  /** Staff users may only edit Current Posting; Origin stays read-only */
+  restrictOriginFieldsForStaffUser: boolean;
+}> = ({
+  formik,
+  genericData,
+  isLoadingGeneric,
+  restrictOriginFieldsForStaffUser,
+}) => {
   const { values, errors, touched, handleChange, handleBlur } = formik;
+
+  const originLocked = restrictOriginFieldsForStaffUser;
 
   const filteredLGAs = React.useMemo(() => {
     const lgas = genericData?.lgas;
@@ -787,7 +816,7 @@ const PostingOriginTab: React.FC<{
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.state_of_origin ? errors.state_of_origin : undefined}
-          disabled={isLoadingGeneric}
+          disabled={originLocked || isLoadingGeneric}
         >
           <option value="">Select State of Origin</option>
           {genericData?.states?.map((state) => (
@@ -803,7 +832,9 @@ const PostingOriginTab: React.FC<{
           onChange={handleChange}
           onBlur={handleBlur}
           error={touched.lga ? errors.lga : undefined}
-          disabled={isLoadingGeneric || !values.state_of_origin}
+          disabled={
+            originLocked || isLoadingGeneric || !values.state_of_origin
+          }
         >
           <option value="">
             {values.state_of_origin ? "Select LGA" : "Select State First"}
@@ -907,9 +938,13 @@ const PostingOriginTab: React.FC<{
 // Tab 3: Identity & Docs
 const IdentityDocsTab: React.FC<{
   formik: FormikProps<EditStaffFormValues>;
-}> = ({ formik }) => {
+  /** Staff users may only edit photo, NIN, and BVN here */
+  restrictIdentityDocsForStaffUser: boolean;
+}> = ({ formik, restrictIdentityDocsForStaffUser }) => {
   const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
     formik;
+
+  const identityDocsLocked = restrictIdentityDocsForStaffUser;
 
   return (
     <div className="space-y-4">
@@ -945,6 +980,7 @@ const IdentityDocsTab: React.FC<{
           onBlur={handleBlur}
           error={touched.details?.ippis ? errors.details?.ippis : undefined}
           placeholder="IPPIS Number"
+          disabled={identityDocsLocked}
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -958,6 +994,7 @@ const IdentityDocsTab: React.FC<{
             touched.details?.pfa_name ? errors.details?.pfa_name : undefined
           }
           placeholder="Pension Fund Administrator"
+          disabled={identityDocsLocked}
         />
         <Input
           label="Pension PIN"
@@ -971,6 +1008,7 @@ const IdentityDocsTab: React.FC<{
               : undefined
           }
           placeholder="Pension PIN"
+          disabled={identityDocsLocked}
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -986,6 +1024,7 @@ const IdentityDocsTab: React.FC<{
               ? errors.date_of_first_appointment
               : undefined
           }
+          disabled={identityDocsLocked}
         />
         <Input
           label="Present Appointment Date"
@@ -999,6 +1038,7 @@ const IdentityDocsTab: React.FC<{
               ? errors.present_appointment_date
               : undefined
           }
+          disabled={identityDocsLocked}
         />
       </div>
     </div>
@@ -1777,6 +1817,8 @@ const EditStaffFormPage: React.FC = () => {
   const isOwnPassword =
     user && isStaffUser(user) && user.service_no === serviceNo;
 
+  const restrictBasicInfoForStaffUser = Boolean(user && isStaffUser(user));
+
   const { data: staffData, isLoading: isLoadingStaff } = useStaff(
     serviceNo || "",
     !!serviceNo,
@@ -2047,6 +2089,7 @@ const EditStaffFormPage: React.FC = () => {
                     formik={formik}
                     genericData={genericData}
                     isLoadingGeneric={isLoadingGeneric}
+                    restrictBasicInfoForStaffUser={restrictBasicInfoForStaffUser}
                   />
                 )}
                 {activeTab === "posting" && (
@@ -2054,10 +2097,18 @@ const EditStaffFormPage: React.FC = () => {
                     formik={formik}
                     genericData={genericData}
                     isLoadingGeneric={isLoadingGeneric}
+                    restrictOriginFieldsForStaffUser={
+                      restrictBasicInfoForStaffUser
+                    }
                   />
                 )}
                 {activeTab === "identity" && (
-                  <IdentityDocsTab formik={formik} />
+                  <IdentityDocsTab
+                    formik={formik}
+                    restrictIdentityDocsForStaffUser={
+                      restrictBasicInfoForStaffUser
+                    }
+                  />
                 )}
                 {activeTab === "physical" && (
                   <PhysicalMedicalTab
