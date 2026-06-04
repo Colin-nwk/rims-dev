@@ -103,6 +103,8 @@ export interface ConfirmServiceNumberResponse {
 // Set password request payload (Step 2)
 export interface SetPasswordRequest {
   service_no: string;
+  file_no: string;
+  ippis: string;
   password: string;
   password_confirmation: string;
 }

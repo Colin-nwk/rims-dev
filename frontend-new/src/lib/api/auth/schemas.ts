@@ -180,6 +180,8 @@ export type ConfirmServiceNumberFormData = z.infer<typeof confirmServiceNumberSc
 export const setPasswordSchema = z
   .object({
     service_no: z.string(),
+    file_no: z.string(),
+    ippis: z.string(),
     password: z
       .string({ error: "Password is required" })
       .min(8, "Password must be at least 8 characters")
