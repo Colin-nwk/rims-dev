@@ -5,9 +5,9 @@ namespace Tests\Feature\Controllers;
 use App\Models\Staff;
 use App\Notifications\PasswordResetNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
-use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class StaffPasswordResetTest extends TestCase
@@ -35,6 +35,10 @@ class StaffPasswordResetTest extends TestCase
             [$staff],
             PasswordResetNotification::class
         );
+
+        $this->assertDatabaseHas('staff_password_reset_tokens', [
+            'email' => 'SVC001',
+        ]);
     }
 
     public function test_forgot_password_fails_if_service_no_and_email_mismatch()
@@ -55,6 +59,10 @@ class StaffPasswordResetTest extends TestCase
         $response->assertStatus(200);
 
         NotificationFacade::assertNothingSent();
+
+        $this->assertDatabaseMissing('staff_password_reset_tokens', [
+            'email' => 'SVC001',
+        ]);
     }
 
     public function test_reset_password_works_with_valid_token()
@@ -64,8 +72,12 @@ class StaffPasswordResetTest extends TestCase
             'password' => Hash::make('oldpassword'),
         ]);
 
-        // Manually create token in new table
-        $token = Password::broker('staff')->createToken($staff);
+        $token = 'valid-reset-token';
+        DB::table('staff_password_reset_tokens')->insert([
+            'email' => $staff->service_no,
+            'token' => Hash::make($token),
+            'created_at' => now(),
+        ]);
 
         $response = $this->postJson('/api/v1/staff/reset-password', [
             'service_no' => 'SVC001',
@@ -79,6 +91,9 @@ class StaffPasswordResetTest extends TestCase
 
         $staff->refresh();
         $this->assertTrue(Hash::check('newpassword123', $staff->password));
+        $this->assertDatabaseMissing('staff_password_reset_tokens', [
+            'email' => 'SVC001',
+        ]);
     }
 
     public function test_reset_password_fails_with_invalid_token()
@@ -100,5 +115,40 @@ class StaffPasswordResetTest extends TestCase
 
         $staff->refresh();
         $this->assertTrue(Hash::check('oldpassword', $staff->password));
+    }
+
+    public function test_reset_password_token_is_bound_to_service_number_not_shared_email()
+    {
+        $staff = Staff::factory()->create([
+            'service_no' => 'SVC001',
+            'email' => 'shared@test.com',
+            'password' => Hash::make('oldpassword'),
+        ]);
+
+        $otherStaff = Staff::factory()->create([
+            'service_no' => 'SVC002',
+            'email' => 'shared@test.com',
+            'password' => Hash::make('otherpassword'),
+        ]);
+
+        $token = 'service-one-token';
+        DB::table('staff_password_reset_tokens')->insert([
+            'email' => $staff->service_no,
+            'token' => Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/v1/staff/reset-password', [
+            'service_no' => 'SVC002',
+            'token' => $token,
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('status', 'Error');
+
+        $otherStaff->refresh();
+        $this->assertTrue(Hash::check('otherpassword', $otherStaff->password));
     }
 }

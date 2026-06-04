@@ -16,6 +16,7 @@ use App\Http\Controllers\V1\StaffPostingController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
+use App\Http\Middleware\EnsureAuthenticatedAccountIsActive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -65,7 +66,7 @@ Route::post('complaints/public', [ComplaintController::class, 'storePublic'])->m
 // PROTECTED ROUTES (Sanctum Auth)
 // ==============================================================================
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', EnsureAuthenticatedAccountIsActive::class])->group(function () {
 
     // --- Authentication & Profile ---
     Route::post('logout', [AuthController::class, 'logout']);

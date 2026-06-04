@@ -83,4 +83,38 @@ class AccountStatusTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_deactivated_staff_existing_token_is_blocked()
+    {
+        $staff = Staff::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 1,
+        ]);
+        $token = $staff->createToken('test')->plainTextToken;
+
+        $staff->update(['status' => 0]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/user');
+
+        $response->assertStatus(403)
+            ->assertJson(['message' => 'Account is deactivated']);
+    }
+
+    public function test_deactivated_user_existing_token_is_blocked()
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 1,
+        ]);
+        $token = $user->createToken('test')->plainTextToken;
+
+        $user->update(['status' => 0]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/user');
+
+        $response->assertStatus(403)
+            ->assertJson(['message' => 'Account is deactivated']);
+    }
 }
