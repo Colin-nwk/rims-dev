@@ -169,14 +169,16 @@ class StaffAuthController extends Controller
 
     public function forgotPassword(StaffForgotPasswordRequest $request): JsonResponse
     {
-        $staff = Staff::where('service_no', $request->service_no)
-            ->where('email', $request->email)
-            ->first();
+        $staff = Staff::where('service_no', $request->service_no)->first();
 
-        if ($staff) {
+        if ($staff && blank($staff->email)) {
+            return $this->errorResponse('No email address is set for this staff account.', 422);
+        }
+
+        if ($staff && $staff->email === $request->email) {
             $token = Str::random(64);
             DB::table('staff_password_reset_tokens')->updateOrInsert(
-                ['email' => $staff->service_no],
+                ['email' => $staff->email],
                 [
                     'token' => Hash::make($token),
                     'created_at' => now(),
@@ -198,8 +200,12 @@ class StaffAuthController extends Controller
             return $this->errorResponse('Invalid credentials.', 422);
         }
 
+        if (blank($staff->email)) {
+            return $this->errorResponse('No email address is set for this staff account.', 422);
+        }
+
         $resetRecord = DB::table('staff_password_reset_tokens')
-            ->where('email', $staff->service_no)
+            ->where('email', $staff->email)
             ->first();
 
         $tokenValid = $resetRecord
@@ -215,7 +221,7 @@ class StaffAuthController extends Controller
         ])->save();
 
         DB::table('staff_password_reset_tokens')
-            ->where('email', $staff->service_no)
+            ->where('email', $staff->email)
             ->delete();
 
         return $this->successResponse(null, 'Password has been reset successfully.');

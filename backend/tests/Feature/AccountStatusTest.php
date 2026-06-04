@@ -28,7 +28,11 @@ class AccountStatusTest extends TestCase
         ]);
 
         $response->assertStatus(403)
-            ->assertJson(['message' => 'Account is deactivated']);
+            ->assertJson([
+                'status' => 'Error',
+                'message' => 'Account is deactivated',
+                'data' => null,
+            ]);
     }
 
     public function test_staff_can_login_if_status_is_active()
@@ -64,7 +68,11 @@ class AccountStatusTest extends TestCase
         ]);
 
         $response->assertStatus(403)
-            ->assertJson(['message' => 'Account is deactivated']);
+            ->assertJson([
+                'status' => 'Error',
+                'message' => 'Account is deactivated',
+                'data' => null,
+            ]);
     }
 
     public function test_user_can_login_if_status_is_active()
