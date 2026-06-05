@@ -10,8 +10,9 @@ use App\Notifications\PasswordResetNotification;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class StaffAuthController extends Controller
 {
@@ -79,6 +80,8 @@ class StaffAuthController extends Controller
             return $this->errorResponse('You are not assigned to this state', 403);
         }
 
+        $staff->update(['last_login' => now()]);
+
         $deviceName = $request->userAgent() ?? 'Unknown Device';
         $tokenInstance = $staff->createToken($deviceName);
         $token = $tokenInstance->plainTextToken;
@@ -124,10 +127,19 @@ class StaffAuthController extends Controller
     {
         $request->validate([
             'service_no' => 'required|string|exists:staff,service_no',
+            'file_no' => 'required|string',
+            'ippis' => 'required|string',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $staff = Staff::where('service_no', $request->service_no)->first();
+        $staff = Staff::where('service_no', $request->service_no)
+            ->where('file_no', $request->file_no)
+            ->where('ippis', $request->ippis)
+            ->first();
+
+        if (! $staff) {
+            return $this->errorResponse('Service number, file number and IPPIS do not match.', 404);
+        }
 
         if ($staff->password) {
             return $this->errorResponse('Password already set. Please use login or reset password.', 400);
@@ -157,14 +169,22 @@ class StaffAuthController extends Controller
 
     public function forgotPassword(StaffForgotPasswordRequest $request): JsonResponse
     {
-        $staff = Staff::where('service_no', $request->service_no)
-            ->where('email', $request->email)
-            ->first();
+        $staff = Staff::where('service_no', $request->service_no)->first();
 
-        if ($staff) {
-            /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
-            $broker = Password::broker('staff');
-            $token = $broker->createToken($staff);
+        if ($staff && blank($staff->email)) {
+            return $this->errorResponse('No email address is set for this staff account.', 422);
+        }
+
+        if ($staff && $staff->email === $request->email) {
+            $token = Str::random(64);
+            DB::table('staff_password_reset_tokens')->updateOrInsert(
+                ['email' => $staff->email],
+                [
+                    'token' => Hash::make($token),
+                    'created_at' => now(),
+                ]
+            );
+
             $resetUrl = config('app.frontend_url').'/staff/reset-password';
             $staff->notify(new PasswordResetNotification($token, $resetUrl, 'staff'));
         }
@@ -180,9 +200,17 @@ class StaffAuthController extends Controller
             return $this->errorResponse('Invalid credentials.', 422);
         }
 
-        /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
-        $broker = Password::broker('staff');
-        $tokenValid = $broker->tokenExists($staff, $request->token);
+        if (blank($staff->email)) {
+            return $this->errorResponse('No email address is set for this staff account.', 422);
+        }
+
+        $resetRecord = DB::table('staff_password_reset_tokens')
+            ->where('email', $staff->email)
+            ->first();
+
+        $tokenValid = $resetRecord
+            && Hash::check($request->token, $resetRecord->token)
+            && now()->diffInMinutes($resetRecord->created_at) <= config('auth.passwords.staff.expire', 60);
 
         if (! $tokenValid) {
             return $this->errorResponse('This password reset token is invalid or has expired.', 422);
@@ -192,7 +220,9 @@ class StaffAuthController extends Controller
             'password' => Hash::make($request->password),
         ])->save();
 
-        $broker->deleteToken($staff);
+        DB::table('staff_password_reset_tokens')
+            ->where('email', $staff->email)
+            ->delete();
 
         return $this->successResponse(null, 'Password has been reset successfully.');
     }

@@ -20,6 +20,8 @@ type Step = "confirm" | "password";
 
 interface ConfirmedStaff {
   service_no: string;
+  file_no: string;
+  ippis: string;
   first_name: string;
   surname: string;
 }
@@ -45,6 +47,8 @@ export default function Register() {
 
   const passwordInitialValues: SetPasswordFormData = {
     service_no: confirmedStaff?.service_no || "",
+    file_no: confirmedStaff?.file_no || "",
+    ippis: confirmedStaff?.ippis || "",
     password: "",
     password_confirmation: "",
   };
@@ -59,6 +63,8 @@ export default function Register() {
         toast.success("Service number confirmed! Please set your password.");
         setConfirmedStaff({
           service_no: response.data?.service_no || values.service_no,
+          file_no: values.file_no,
+          ippis: values.ippis,
           first_name: response.data?.first_name || "",
           surname: response.data?.surname || "",
         });
@@ -82,7 +88,12 @@ export default function Register() {
     if (!confirmedStaff) return;
 
     setPassword(
-      { ...values, service_no: confirmedStaff.service_no },
+      {
+        ...values,
+        service_no: confirmedStaff.service_no,
+        file_no: confirmedStaff.file_no,
+        ippis: confirmedStaff.ippis,
+      },
       {
         onSuccess: () => {
           toast.success(
@@ -254,6 +265,10 @@ export default function Register() {
                       </p>
                       <p className="text-xs text-slate-500">
                         Service No: {confirmedStaff.service_no}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        File No: {confirmedStaff.file_no} - IPPIS:{" "}
+                        {confirmedStaff.ippis}
                       </p>
                     </div>
                   </div>

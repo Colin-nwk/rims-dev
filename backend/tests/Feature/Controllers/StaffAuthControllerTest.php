@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Staff;
+use App\Models\State;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -105,12 +106,16 @@ class StaffAuthControllerTest extends TestCase
     {
         Staff::factory()->create([
             'service_no' => 'SETPWD001',
+            'file_no' => 'FILE001',
+            'ippis' => 'IPPIS001',
             'password' => null,
             'status' => 0,
         ]);
 
         $response = $this->postJson('/api/v1/staff/set-password', [
             'service_no' => 'SETPWD001',
+            'file_no' => 'FILE001',
+            'ippis' => 'IPPIS001',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
@@ -131,11 +136,15 @@ class StaffAuthControllerTest extends TestCase
     {
         Staff::factory()->create([
             'service_no' => 'HASPASS001',
+            'file_no' => 'FILE002',
+            'ippis' => 'IPPIS002',
             'password' => Hash::make('existingpassword'),
         ]);
 
         $response = $this->postJson('/api/v1/staff/set-password', [
             'service_no' => 'HASPASS001',
+            'file_no' => 'FILE002',
+            'ippis' => 'IPPIS002',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
@@ -148,17 +157,49 @@ class StaffAuthControllerTest extends TestCase
     {
         Staff::factory()->create([
             'service_no' => 'CONFIRM001',
+            'file_no' => 'FILE003',
+            'ippis' => 'IPPIS003',
             'password' => null,
         ]);
 
         $response = $this->postJson('/api/v1/staff/set-password', [
             'service_no' => 'CONFIRM001',
+            'file_no' => 'FILE003',
+            'ippis' => 'IPPIS003',
             'password' => 'newpassword123',
             'password_confirmation' => 'mismatch',
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_set_password_requires_matching_staff_identity()
+    {
+        Staff::factory()->create([
+            'service_no' => 'IDENTITY001',
+            'file_no' => 'FILE004',
+            'ippis' => 'IPPIS004',
+            'password' => null,
+            'status' => 0,
+        ]);
+
+        $response = $this->postJson('/api/v1/staff/set-password', [
+            'service_no' => 'IDENTITY001',
+            'file_no' => 'WRONG-FILE',
+            'ippis' => 'IPPIS004',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertStatus(404)
+            ->assertJsonPath('status', 'Error');
+
+        $this->assertDatabaseHas('staff', [
+            'service_no' => 'IDENTITY001',
+            'password' => null,
+            'status' => 0,
+        ]);
     }
 
     public function test_staff_login_with_no_roles_returns_empty_arrays()
@@ -181,6 +222,28 @@ class StaffAuthControllerTest extends TestCase
                     'permissions' => [],
                 ],
             ]);
+    }
+
+    public function test_state_login_updates_last_login()
+    {
+        $state = State::factory()->create();
+        $staff = Staff::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 1,
+            'assigned_state' => $state->id,
+            'last_login' => null,
+        ]);
+
+        $response = $this->postJson('/api/v1/staff/state/login', [
+            'service_no' => $staff->service_no,
+            'password' => 'password',
+            'state' => $state->id,
+        ]);
+
+        $response->assertStatus(200);
+
+        $staff->refresh();
+        $this->assertNotNull($staff->last_login);
     }
 
     public function test_staff_can_logout()
