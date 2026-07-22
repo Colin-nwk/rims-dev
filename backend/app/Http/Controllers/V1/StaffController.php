@@ -12,6 +12,7 @@ use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class StaffController extends Controller
 {
@@ -250,6 +251,33 @@ class StaffController extends Controller
             'station' => $staff->station,
             'updated_at' => $staff->updated_at,
         ]);
+    }
+
+    /**
+     * Serve staff photo with CORS headers for ID card generation
+     * This endpoint serves photos through Laravel so CORS middleware is applied
+     */
+    public function servePhoto(string $path)
+    {
+        // Sanitize path to prevent directory traversal
+        $path = str_replace(['..', '//'], '', $path);
+
+        // Only allow serving from photos directory
+        if (!str_starts_with($path, 'photos/')) {
+            $path = 'photos/' . $path;
+        }
+
+        // Check if file exists in public storage
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'Photo not found');
+        }
+
+        $file = Storage::disk('public')->get($path);
+        $mimeType = Storage::disk('public')->mimeType($path);
+
+        return response($file, 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Cache-Control', 'public, max-age=31536000');
     }
 
     public function assignRole(Request $request, Staff $staff)

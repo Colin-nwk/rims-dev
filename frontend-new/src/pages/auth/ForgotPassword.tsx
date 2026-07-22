@@ -150,15 +150,27 @@ export default function ForgotPassword() {
                   {...getFieldProps("service_no")}
                 />
 
-                <Input
-                  label="Email Address"
-                  type="email"
-                  placeholder="email@example.com"
-                  error={touched.email ? errors.email : undefined}
-                  disabled={isUserPending || isStaffPending || isSubmitting}
-                  autoComplete="email"
-                  {...getFieldProps("email")}
-                />
+                <div>
+                  <Input
+                    label="Email Address"
+                    type="email"
+                    placeholder="email@example.com"
+                    error={touched.email ? errors.email : undefined}
+                    disabled={isUserPending || isStaffPending || isSubmitting}
+                    autoComplete="email"
+                    {...getFieldProps("email")}
+                  />
+                  <p className="mt-2 text-xs text-slate-500">
+                    Don't have an email address registered?{" "}
+                    <a
+                      href="/complaint"
+                      className="font-semibold text-ncos-green-900 hover:text-gold-600 hover:underline"
+                    >
+                      Submit a request
+                    </a>{" "}
+                    to the admin for password reset assistance.
+                  </p>
+                </div>
 
                 {/* Submit Button */}
                 <Button

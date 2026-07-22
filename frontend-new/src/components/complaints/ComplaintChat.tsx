@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Trash2,
   PanelLeftOpen,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,8 @@ interface ComplaintChatProps {
   canManage?: boolean;
   isListCollapsed?: boolean;
   onToggleList?: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 export const ComplaintChat: React.FC<ComplaintChatProps> = ({
@@ -45,6 +48,8 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
   canManage = false,
   isListCollapsed = false,
   onToggleList,
+  onRefresh,
+  isRefreshing = false,
 }) => {
   const [messageText, setMessageText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -121,6 +126,21 @@ export const ComplaintChat: React.FC<ComplaintChatProps> = ({
             >
               <PanelLeftOpen className="w-4 h-4" />
               <span className="text-xs font-medium">Show List</span>
+            </Button>
+          )}
+
+          {/* Refresh Button */}
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 border-ncos-green-500 text-ncos-green-700 hover:bg-ncos-green-50"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              title="Refresh messages"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline text-xs font-medium">Refresh</span>
             </Button>
           )}
 

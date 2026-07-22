@@ -65,10 +65,12 @@ const Complaints: React.FC = () => {
     15, // Standard page size
   );
 
-  const { data: selectedComplaint, isLoading: isLoadingDetail } = useComplaint(
-    selectedId || 0,
-    !!selectedId,
-  );
+  const {
+    data: selectedComplaint,
+    isLoading: isLoadingDetail,
+    refetch: refetchComplaint,
+    isRefetching: isRefetchingComplaint,
+  } = useComplaint(selectedId || 0, !!selectedId);
 
   // Mutations
   const createComplaint = useCreateComplaint();
@@ -355,6 +357,8 @@ const Complaints: React.FC = () => {
               canManage={canManageComplaints}
               isListCollapsed={isListCollapsed}
               onToggleList={handleToggleCollapse}
+              onRefresh={() => refetchComplaint()}
+              isRefreshing={isRefetchingComplaint}
             />
           )}
         </div>

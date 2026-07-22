@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import html2canvas from "html2canvas";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getFileUrl } from "@/lib/api/apiClient";
 import { StaffIDCardData } from "@/lib/api/staff";
 
 interface StaffIDCardProps {
@@ -11,6 +10,23 @@ interface StaffIDCardProps {
   onClose: () => void;
   staffData: StaffIDCardData | null;
 }
+
+// Helper to convert image URL to base64 data URL for html2canvas compatibility
+const imageToBase64 = async (url: string): Promise<string | null> => {
+  try {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
 
 // Color constants (hex values for html2canvas compatibility)
 const COLORS = {
@@ -35,14 +51,16 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
 
-  // Generate QR code when modal opens
+  // Generate QR code and convert photo to base64 when modal opens
   useEffect(() => {
     if (!isOpen || !staffData) return;
 
     let isMounted = true;
     const verificationUrl = `${window.location.origin}/staff/${staffData.service_no}`;
 
+    // Generate QR code
     QRCode.toDataURL(verificationUrl, {
       width: 400,
       margin: 2,
@@ -58,9 +76,23 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
         console.error("Error generating QR code", err);
       });
 
+    // Convert photo to base64 for html2canvas compatibility
+    // Use the API endpoint which has CORS headers properly configured
+    if (staffData.photo) {
+      const BASE_URL = import.meta.env.VITE_API_URL || "";
+      const photoPath = staffData.photo.replace(/^photos\//, "");
+      const photoUrl = `${BASE_URL}/staff/photo/photos/${photoPath}`;
+      imageToBase64(photoUrl).then((base64) => {
+        if (isMounted) {
+          setPhotoBase64(base64);
+        }
+      });
+    }
+
     return () => {
       isMounted = false;
       setQrCodeUrl("");
+      setPhotoBase64(null);
     };
   }, [staffData, isOpen]);
 
@@ -232,18 +264,14 @@ export const StaffIDCard: React.FC<StaffIDCardProps> = ({
                   boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
-                {staffData.photo ? (
+                {photoBase64 ? (
                   <img
-                    src={getFileUrl(staffData.photo, staffData.updated_at)}
+                    src={photoBase64}
                     alt={fullName}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                      // Hide img on error, will show initials fallback
-                      (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
                 ) : (
