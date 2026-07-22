@@ -8,6 +8,7 @@ const staffDocumentTypes = [
   "appointment_letter",
   "promotion_letter",
   "transfer_letter",
+  "service_file",
   "other",
 ] as const;
 
@@ -165,6 +166,7 @@ export const STAFF_DOCUMENT_TYPE_LABELS: Record<StaffDocumentType, string> = {
   appointment_letter: "Appointment Letter",
   promotion_letter: "Promotion Letter",
   transfer_letter: "Transfer Letter",
+  service_file: "Service File",
   other: "Other",
 };
 
@@ -182,6 +184,7 @@ export const STAFF_DOCUMENT_TYPE_OPTIONS: StaffDocumentTypeOption[] = [
   { value: "appointment_letter", label: "Appointment Letter" },
   { value: "promotion_letter", label: "Promotion Letter" },
   { value: "transfer_letter", label: "Transfer Letter" },
+  { value: "service_file", label: "Service File" },
   { value: "other", label: "Other" },
 ];
 
