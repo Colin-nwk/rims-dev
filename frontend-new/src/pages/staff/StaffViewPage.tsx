@@ -85,30 +85,40 @@ export default function StaffViewPage() {
                 View Staff Record
               </h1>
               <p className="text-slate-600">Read-only staff profile details.</p>
-              <p className="text-slate-600">
-                {fullName} ({staff.service_no})
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <span
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                    staff.status === 1
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {staff.status === 1 ? (
-                    <CheckCircle className="w-3 h-3" />
-                  ) : (
-                    <XCircle className="w-3 h-3" />
-                  )}
-                  {statusLabel}
-                </span>
-                {Boolean(staff.is_verified) && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <Shield className="w-3 h-3" />
-                    Verified
-                  </span>
-                )}
+
+              <div className="flex items-center gap-2">
+                <StaffPhoto staff={staff} hideText={true} />
+                <div>
+                  <p className="text-slate-600">
+                    {fullName} ({staff.service_no})
+                  </p>
+                  <p className="text-sm font-medium text-slate-600">
+                    Date of First Appointment:{" "}
+                    {formatValue(formatDate(staff.date_of_first_appointment))}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        staff.status === 1
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {staff.status === 1 ? (
+                        <CheckCircle className="w-3 h-3" />
+                      ) : (
+                        <XCircle className="w-3 h-3" />
+                      )}
+                      {statusLabel}
+                    </span>
+                    {Boolean(staff.is_verified) && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Shield className="w-3 h-3" />
+                        Verified
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
             <div className="shrink-0">
@@ -533,14 +543,16 @@ function ReviewTabView({ staff, genericData }: StaffViewTabProps) {
   );
 }
 
-function StaffPhoto({ staff }: StaffPhotoProps) {
+function StaffPhoto({ staff, hideText = false }: StaffPhotoProps) {
   const photoUrl = staff.photo ? getFileUrl(staff.photo, staff.updated_at) : "";
   const initials = getInitials(staff.first_name, staff.surname);
   const fullName = getStaffFullName(staff);
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-slate-700">Staff Photo</p>
+      {hideText ? null : (
+        <p className="text-sm font-medium text-slate-700">Staff Photo</p>
+      )}
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center w-24 h-24 overflow-hidden border-2 rounded-lg border-slate-200 bg-slate-50">
           {photoUrl ? (
@@ -562,10 +574,12 @@ function StaffPhoto({ staff }: StaffPhotoProps) {
             {initials}
           </div>
         </div>
-        <div className="text-xs text-slate-500">
-          <p>Photo is view-only</p>
-          <p>Use edit to update</p>
-        </div>
+        {hideText ? null : (
+          <div className="text-xs text-slate-500">
+            <p>Photo is view-only</p>
+            <p>Use edit to update</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -649,6 +663,7 @@ interface EducationTabViewProps {
 
 interface StaffPhotoProps {
   staff: Staff;
+  hideText?: boolean;
 }
 
 interface InfoFieldProps {
