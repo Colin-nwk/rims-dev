@@ -56,6 +56,9 @@ Route::get('generic-data', [GenericController::class, 'getGenericData']);
 // Staff ID Card - Public access (for QR code scanning)
 Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
 
+// Staff Photo - Public access (serves photos with CORS headers for ID card generation)
+Route::get('staff/photo/{path}', [StaffController::class, 'servePhoto'])->where('path', '.*');
+
 // Staff Education Certificate Viewer - Public access (for viewing certificates)
 Route::get('staff-education/{staffEducation}/certificate', [\App\Http\Controllers\V1\StaffEducationController::class, 'viewCertificate']);
 

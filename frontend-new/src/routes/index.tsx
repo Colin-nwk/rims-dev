@@ -6,6 +6,7 @@ import {
   StaffOnlyRoute,
 } from "./guards";
 import { ROUTES } from "./constants";
+import { RedirectWithQuery } from "./RedirectWithQuery";
 
 // Auth pages
 import AdminLogin from "@/pages/auth/AdminLogin";
@@ -44,6 +45,12 @@ export const routes = [
   {
     path: "/health",
     element: <HealthCheck />,
+  },
+  // Redirect /staff/reset-password to /reset-password
+  // This must be before /staff/:serviceNo to take precedence
+  {
+    path: "/staff/reset-password",
+    element: <RedirectWithQuery to="/reset-password" />,
   },
   {
     path: ROUTES.STAFF_PROFILE,
