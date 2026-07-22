@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import html2canvas from "html2canvas";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getFileUrl } from "@/lib/api/apiClient";
 import { StaffIDCardData } from "@/lib/api/staff";
 
 interface StaffIDCardProps {
