@@ -8,6 +8,7 @@ use App\Http\Requests\StaffReportRequest;
 use App\Models\Staff;
 use App\Services\StaffReportColumnRegistry;
 use App\Services\StaffReportCriteria;
+use App\Services\StaffReportExportService;
 use App\Services\StaffReportScopeResolver;
 use App\Services\StaffReportService;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +23,7 @@ class StaffReportController extends Controller
         private readonly StaffReportService $reports,
         private readonly StaffReportScopeResolver $scopes,
         private readonly StaffReportColumnRegistry $columns,
+        private readonly StaffReportExportService $exports,
     ) {}
 
     public function query(StaffReportRequest $request): JsonResponse
@@ -90,35 +92,24 @@ class StaffReportController extends Controller
         $definitions = $this->columns->all();
         $fileName = trim((string) $request->validated('file_name', 'staff-report')) ?: 'staff-report';
 
+        $format = $request->validated('format');
+
         Log::info('Staff report export started', [
             'actor_id' => $request->user()->getAuthIdentifier(),
             'actor_type' => $request->user()::class,
             'criteria_hash' => hash('sha256', json_encode($criteria->filters())),
             'scope' => $scope['label'],
             'columns' => $columns,
-            'format' => 'csv',
+            'format' => $format,
         ]);
 
-        return response()->streamDownload(function () use ($criteria, $scope, $columns, $definitions): void {
-            $output = fopen('php://output', 'wb');
-            fputcsv($output, array_map(fn (string $column) => $definitions[$column]['label'], $columns));
-
-            foreach ($this->reports->exportRows($criteria, $scope) as $staff) {
-                $row = array_map(function (string $column) use ($staff): string|int|null {
-                    $value = $this->columns->value($staff, $column);
-                    if (is_string($value) && preg_match('/^[=+\-@]/', $value) === 1) {
-                        return "'{$value}";
-                    }
-
-                    return $value;
-                }, $columns);
-                fputcsv($output, $row);
-            }
-
-            fclose($output);
-        }, "{$fileName}.csv", [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Cache-Control' => 'no-store, private',
-        ]);
+        return $this->exports->download(
+            $format,
+            $fileName,
+            $columns,
+            $definitions,
+            fn (): \Generator => $this->reports->exportRows($criteria, $scope),
+            $this->columns,
+        );
     }
 }

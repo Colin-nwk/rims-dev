@@ -19,10 +19,20 @@ export type StaffReportCriteria = {
   state_ids?: number[];
   prison_ids?: number[];
   departments?: string[];
+  blood_groups?: string[];
+  genotypes?: string[];
+  marital_statuses?: string[];
+  age?: { min?: number; max?: number };
+  missing_fields?: string[];
   appointment_date?: { from?: string; to?: string };
+  date_of_birth?: { from?: string; to?: string };
+  record_created?: { from?: string; to?: string };
+  last_login?: { from?: string; to?: string };
   has_email?: boolean;
   has_photo?: boolean;
   never_logged_in?: boolean;
+  verified?: boolean;
+  has_education?: boolean;
 };
 
 export type StaffReportRequest = {
@@ -146,6 +156,10 @@ export type StaffReportOptions = {
   zones: ReportOption[];
   states: ReportOption[];
   prisons: ReportOption[];
+  blood_groups: ReportOption[];
+  genotypes: ReportOption[];
+  marital_statuses: ReportOption[];
+  missing_fields: ReportOption[];
   columns: StaffReportColumn[];
   formats: ReportOption[];
 };

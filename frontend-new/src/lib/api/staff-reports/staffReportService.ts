@@ -69,13 +69,15 @@ export function useExportStaffReport() {
     mutationFn: async ({
       request,
       columns,
+      format,
     }: {
       request: StaffReportRequest;
       columns: string[];
+      format: "pdf" | "word" | "document";
     }) => {
       const response = await apiClient.post<Blob>(
         "/staff-reports/export",
-        { ...request, format: "csv", columns, file_name: "staff-report" },
+        { ...request, format, columns, file_name: "staff-report" },
         { responseType: "blob" },
       );
       return response.data;

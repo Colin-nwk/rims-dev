@@ -22,6 +22,7 @@ class StaffReportCriteria
             'statuses', 'staff_status_ids', 'sex', 'directorate_ids',
             'work_distribution_ids', 'training_institute_ids', 'rank_ids',
             'levels', 'zone_ids', 'state_ids', 'prison_ids', 'departments',
+            'blood_groups', 'genotypes', 'marital_statuses', 'missing_fields',
         ];
 
         foreach ($listKeys as $key) {

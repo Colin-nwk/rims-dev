@@ -41,15 +41,34 @@ class StaffReportRequest extends FormRequest
             'criteria.prison_ids.*' => ['integer', 'distinct', 'exists:prisons,id'],
             'criteria.departments' => ['sometimes', 'array', 'max:100'],
             'criteria.departments.*' => ['string', 'max:100', 'distinct'],
+            'criteria.blood_groups' => ['sometimes', 'array', 'max:20'],
+            'criteria.blood_groups.*' => ['string', 'max:20', 'distinct'],
+            'criteria.genotypes' => ['sometimes', 'array', 'max:20'],
+            'criteria.genotypes.*' => ['string', 'max:20', 'distinct'],
+            'criteria.marital_statuses' => ['sometimes', 'array', 'max:20'],
+            'criteria.marital_statuses.*' => ['string', 'max:50', 'distinct'],
+            'criteria.age' => ['sometimes', 'array'],
+            'criteria.age.min' => ['nullable', 'integer', 'between:15,100'],
+            'criteria.age.max' => ['nullable', 'integer', 'between:15,100'],
+            'criteria.missing_fields' => ['sometimes', 'array', 'max:20'],
+            'criteria.missing_fields.*' => ['string', 'distinct', 'in:email,phone_number,photo,date_of_birth,rank,department,directorate,work_distribution,training_institute,zone,custodial_centre,staff_status,last_login,blood_group,genotype,nin,bvn,pension_pin,bank_account,education'],
             'criteria.appointment_date' => ['sometimes', 'array'],
             'criteria.appointment_date.from' => ['nullable', 'date_format:Y-m-d'],
             'criteria.appointment_date.to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:criteria.appointment_date.from'],
+            'criteria.date_of_birth' => ['sometimes', 'array'],
+            'criteria.date_of_birth.from' => ['nullable', 'date_format:Y-m-d'],
+            'criteria.date_of_birth.to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:criteria.date_of_birth.from'],
+            'criteria.record_created' => ['sometimes', 'array'],
+            'criteria.record_created.from' => ['nullable', 'date_format:Y-m-d'],
+            'criteria.record_created.to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:criteria.record_created.from'],
             'criteria.last_login' => ['sometimes', 'array'],
             'criteria.last_login.from' => ['nullable', 'date'],
             'criteria.last_login.to' => ['nullable', 'date', 'after_or_equal:criteria.last_login.from'],
             'criteria.has_email' => ['nullable', 'boolean'],
             'criteria.has_photo' => ['nullable', 'boolean'],
             'criteria.never_logged_in' => ['nullable', 'boolean'],
+            'criteria.verified' => ['nullable', 'boolean'],
+            'criteria.has_education' => ['nullable', 'boolean'],
             'include' => ['sometimes', 'array', 'min:1', 'max:2'],
             'include.*' => ['string', 'distinct', 'in:summary,details'],
             'page' => ['sometimes', 'array'],
@@ -69,14 +88,21 @@ class StaffReportRequest extends FormRequest
                 'search', 'statuses', 'staff_status_ids', 'sex', 'directorate_ids',
                 'work_distribution_ids', 'training_institute_ids', 'rank_ids',
                 'levels', 'zone_ids', 'state_ids', 'prison_ids', 'departments',
-                'appointment_date', 'last_login', 'has_email', 'has_photo',
-                'never_logged_in',
+                'blood_groups', 'genotypes', 'marital_statuses', 'age', 'missing_fields',
+                'appointment_date', 'date_of_birth', 'record_created', 'last_login',
+                'has_email', 'has_photo', 'never_logged_in', 'verified', 'has_education',
             ];
 
             foreach (array_keys((array) $this->input('criteria', [])) as $key) {
                 if (! in_array($key, $allowed, true)) {
                     $validator->errors()->add("criteria.{$key}", 'This report filter is not supported.');
                 }
+            }
+
+            $minimumAge = $this->input('criteria.age.min');
+            $maximumAge = $this->input('criteria.age.max');
+            if ($minimumAge !== null && $maximumAge !== null && (int) $maximumAge < (int) $minimumAge) {
+                $validator->errors()->add('criteria.age.max', 'The maximum age must be greater than or equal to the minimum age.');
             }
         }];
     }

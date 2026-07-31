@@ -27,11 +27,11 @@ export function StaffReportTable({ details, isFetching, sortField, sortDirection
     <div className={`space-y-3 transition-opacity ${isFetching ? "opacity-60" : ""}`} aria-busy={isFetching}>
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600"><tr>
               <th className="px-4 py-3">{sortButton("service_no", "Service no.")}</th>
               <th className="px-4 py-3">{sortButton("full_name", "Staff")}</th>
-              <th className="px-4 py-3">Rank / level</th><th className="px-4 py-3">Organization</th><th className="px-4 py-3">Location</th><th className="px-4 py-3">{sortButton("status", "Status")}</th><th className="px-4 py-3 text-right">Action</th>
+              <th className="px-4 py-3">Rank / level</th><th className="px-4 py-3">Organization</th><th className="px-4 py-3">{sortButton("status", "Status")}</th><th className="px-4 py-3 text-right">Action</th>
             </tr></thead>
             <tbody className="divide-y divide-slate-100">
               {details.rows.map((row) => (
@@ -40,7 +40,6 @@ export function StaffReportTable({ details, isFetching, sortField, sortDirection
                   <td className="px-4 py-3"><p className="font-semibold text-slate-900">{row.identity.full_name}</p><p className="text-xs text-slate-500">{row.identity.work_email || "No work email"}</p></td>
                   <td className="px-4 py-3"><p className="text-slate-800">{row.employment.present_rank || "Unassigned"}</p><p className="text-xs text-slate-500">Level {row.employment.level ?? "—"}</p></td>
                   <td className="px-4 py-3"><p>{row.organization.directorate || row.organization.department || "Unassigned"}</p><p className="text-xs text-slate-500">{row.organization.work_distribution}</p></td>
-                  <td className="px-4 py-3"><p>{row.location.state || "Unassigned"}</p><p className="text-xs text-slate-500">{row.location.prison || row.location.station}</p></td>
                   <td className="px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.employment.account_status === "active" ? "bg-emerald-100 text-emerald-700" : row.employment.account_status === "suspended" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>{row.employment.account_status}</span></td>
                   <td className="px-4 py-3 text-right"><button onClick={() => onView(row)} className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-ncos-green-700 hover:bg-ncos-green-50" aria-label={`View ${row.identity.full_name}`}><Eye className="h-4 w-4" /> View</button></td>
                 </tr>

@@ -6,6 +6,7 @@ use App\Models\Directorate;
 use App\Models\Prison;
 use App\Models\Ranking;
 use App\Models\Staff;
+use App\Models\StaffDetail;
 use App\Models\State;
 use App\Models\Status;
 use App\Models\TrainingInstitute;
@@ -16,6 +17,29 @@ use Illuminate\Database\Eloquent\Builder;
 
 class StaffReportService
 {
+    private const MISSING_FIELD_OPTIONS = [
+        'email' => 'Work email',
+        'phone_number' => 'Phone number',
+        'photo' => 'Photo',
+        'date_of_birth' => 'Date of birth',
+        'rank' => 'Present rank',
+        'department' => 'Department',
+        'directorate' => 'Directorate',
+        'work_distribution' => 'Work distribution',
+        'training_institute' => 'Training institute',
+        'zone' => 'Zone',
+        'custodial_centre' => 'Custodial centre',
+        'staff_status' => 'Staff status',
+        'last_login' => 'Last login',
+        'blood_group' => 'Blood group',
+        'genotype' => 'Genotype',
+        'nin' => 'NIN',
+        'bvn' => 'BVN',
+        'pension_pin' => 'Pension PIN',
+        'bank_account' => 'Bank account',
+        'education' => 'Education record',
+    ];
+
     private const RELATIONSHIPS = [
         'assignedState:id,state,zone_id',
         'prisonRelation:id,prison_name,state_id',
@@ -73,12 +97,36 @@ class StaffReportService
         $this->applyListFilter($query, $filters, 'training_institute_ids', 'staff.training_institute_id');
         $this->applyListFilter($query, $filters, 'rank_ids', 'staff.present_rank');
         $this->applyListFilter($query, $filters, 'levels', 'staff.level');
-        $this->applyListFilter($query, $filters, 'zone_ids', 'staff.zone_id');
+        if (($filters['zone_ids'] ?? []) !== []) {
+            $zoneIds = $filters['zone_ids'];
+            $query->where(function (Builder $zones) use ($zoneIds): void {
+                $zones->whereIn('staff.zone_id', $zoneIds)
+                    ->orWhereHas('assignedState', fn (Builder $state) => $state->whereIn('zone_id', $zoneIds))
+                    ->orWhereHas('prisonRelation.state', fn (Builder $state) => $state->whereIn('zone_id', $zoneIds));
+            });
+        }
         $this->applyListFilter($query, $filters, 'state_ids', 'staff.assigned_state');
         $this->applyListFilter($query, $filters, 'prison_ids', 'staff.prison');
         $this->applyListFilter($query, $filters, 'departments', 'staff.department');
 
+        $this->applyDetailListFilter($query, $filters, 'blood_groups', 'blood_group');
+        $this->applyDetailListFilter($query, $filters, 'genotypes', 'genotype');
+        $this->applyDetailListFilter($query, $filters, 'marital_statuses', 'marital_status');
+
+        if (isset($filters['age']['min'])) {
+            $query->whereDate('staff.dob', '<=', today()->subYears((int) $filters['age']['min']));
+        }
+        if (isset($filters['age']['max'])) {
+            $query->whereDate('staff.dob', '>', today()->subYears((int) $filters['age']['max'] + 1));
+        }
+
+        foreach ($filters['missing_fields'] ?? [] as $field) {
+            $this->applyMissingField($query, $field);
+        }
+
         $this->applyDateRange($query, $filters['appointment_date'] ?? null, 'staff.date_of_first_appointment');
+        $this->applyDateRange($query, $filters['date_of_birth'] ?? null, 'staff.dob');
+        $this->applyDateRange($query, $filters['record_created'] ?? null, 'staff.created_at');
         $this->applyDateRange($query, $filters['last_login'] ?? null, 'staff.last_login');
 
         if (array_key_exists('has_email', $filters)) {
@@ -89,6 +137,12 @@ class StaffReportService
         }
         if (($filters['never_logged_in'] ?? false) === true) {
             $query->whereNull('staff.last_login');
+        }
+        if (array_key_exists('verified', $filters)) {
+            $query->where('staff.is_verified', (bool) $filters['verified']);
+        }
+        if (array_key_exists('has_education', $filters)) {
+            $filters['has_education'] ? $query->whereHas('education') : $query->whereDoesntHave('education');
         }
 
         return $query;
@@ -141,6 +195,16 @@ class StaffReportService
     {
         $population = $this->scopeResolver->apply(Staff::query(), $scope);
         $ids = fn (string $column) => (clone $population)->whereNotNull($column)->distinct()->pluck($column);
+        $detailValues = fn (string $column) => StaffDetail::query()
+            ->whereIn('service_no', (clone $population)->select('staff.service_no'))
+            ->whereNotNull($column)
+            ->where($column, '!=', '')
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column)
+            ->map(fn ($value) => ['id' => $value, 'name' => $value])
+            ->values()
+            ->all();
 
         return [
             'statuses' => [
@@ -151,16 +215,25 @@ class StaffReportService
             'sex' => $ids('sex')->sort()->values()->map(fn ($value) => ['id' => $value, 'name' => $value])->all(),
             'departments' => $ids('department')->sort()->values()->map(fn ($value) => ['id' => $value, 'name' => $value])->all(),
             'levels' => $ids('level')->sort()->values()->map(fn ($value) => ['id' => (int) $value, 'name' => (string) $value])->all(),
-            'staff_statuses' => Status::query()->whereIn('id', $ids('staff_status_id'))->orderBy('name')->get(['id', 'name']),
-            'directorates' => Directorate::query()->whereIn('id', $ids('directorate_id'))->orderBy('name')->get(['id', 'name']),
-            'work_distributions' => WorkDistribution::query()->whereIn('id', $ids('work_distribution_id'))->orderBy('name')->get(['id', 'name']),
-            'training_institutes' => TrainingInstitute::query()->whereIn('id', $ids('training_institute_id'))->orderBy('name')->get(['id', 'name']),
+            'staff_statuses' => Status::query()->orderBy('name')->get(['id', 'name']),
+            'directorates' => Directorate::query()->orderBy('name')->get(['id', 'name']),
+            'work_distributions' => WorkDistribution::query()->orderBy('name')->get(['id', 'name']),
+            'training_institutes' => TrainingInstitute::query()->orderBy('name')->get(['id', 'name']),
             'rankings' => Ranking::query()->whereIn('id', $ids('present_rank'))->orderBy('title')->get(['id', 'title as name']),
-            'zones' => Zone::query()->whereIn('id', $ids('zone_id'))->orderBy('zone')->get(['id', 'zone as name']),
+            'zones' => Zone::query()->orderBy('zone')->get(['id', 'zone as name']),
             'states' => State::query()->whereIn('id', $ids('assigned_state'))->orderBy('state')->get(['id', 'state as name', 'zone_id']),
             'prisons' => Prison::query()->whereIn('id', $ids('prison'))->orderBy('prison_name')->get(['id', 'prison_name as name', 'state_id']),
+            'blood_groups' => $detailValues('blood_group'),
+            'genotypes' => $detailValues('genotype'),
+            'marital_statuses' => $detailValues('marital_status'),
+            'missing_fields' => collect(self::MISSING_FIELD_OPTIONS)->map(fn ($name, $id) => ['id' => $id, 'name' => $name])->values()->all(),
             'columns' => collect($columns->all())->map(fn ($definition, $key) => ['key' => $key, ...$definition])->values()->all(),
-            'formats' => [['id' => 'csv', 'name' => 'CSV']],
+            'formats' => [
+                ['id' => 'pdf', 'name' => 'PDF'],
+                ['id' => 'word', 'name' => 'Word'],
+                ['id' => 'image', 'name' => 'Image'],
+                ['id' => 'document', 'name' => 'Document'],
+            ],
         ];
     }
 
@@ -295,6 +368,60 @@ class StaffReportService
     {
         if (($filters[$key] ?? []) !== []) {
             $query->whereIn($column, $filters[$key]);
+        }
+    }
+
+    private function applyDetailListFilter(Builder $query, array $filters, string $key, string $column): void
+    {
+        if (($filters[$key] ?? []) !== []) {
+            $query->whereHas('details', fn (Builder $details) => $details->whereIn($column, $filters[$key]));
+        }
+    }
+
+    private function applyMissingField(Builder $query, string $field): void
+    {
+        $staffColumns = [
+            'email' => 'staff.email',
+            'phone_number' => 'staff.phone_number',
+            'photo' => 'staff.photo',
+            'date_of_birth' => 'staff.dob',
+            'rank' => 'staff.present_rank',
+            'department' => 'staff.department',
+            'directorate' => 'staff.directorate_id',
+            'work_distribution' => 'staff.work_distribution_id',
+            'training_institute' => 'staff.training_institute_id',
+            'zone' => 'staff.zone_id',
+            'custodial_centre' => 'staff.prison',
+            'staff_status' => 'staff.staff_status_id',
+            'last_login' => 'staff.last_login',
+        ];
+        $detailColumns = [
+            'blood_group' => 'blood_group',
+            'genotype' => 'genotype',
+            'nin' => 'nin',
+            'bvn' => 'bvn',
+            'pension_pin' => 'pension_pin',
+            'bank_account' => 'account_number',
+        ];
+
+        if (isset($staffColumns[$field])) {
+            $this->applyPresenceFilter($query, $staffColumns[$field], false);
+
+            return;
+        }
+
+        if (isset($detailColumns[$field])) {
+            $column = $detailColumns[$field];
+            $query->where(function (Builder $missing) use ($column): void {
+                $missing->whereDoesntHave('details')
+                    ->orWhereHas('details', fn (Builder $details) => $details->whereNull($column)->orWhere($column, ''));
+            });
+
+            return;
+        }
+
+        if ($field === 'education') {
+            $query->whereDoesntHave('education');
         }
     }
 
