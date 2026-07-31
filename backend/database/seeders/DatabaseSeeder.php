@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
 
             // Main data seeders
             // StaffSeeder::class,
-            SqlStaffSeeder::class,
+            // SqlStaffSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
