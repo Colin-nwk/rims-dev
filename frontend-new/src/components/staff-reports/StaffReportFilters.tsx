@@ -50,6 +50,10 @@ function countFilters(criteria: StaffReportCriteria, keys?: Array<keyof StaffRep
   return (keys ?? Object.keys(criteria) as Array<keyof StaffReportCriteria>).filter((key) => hasFilterValue(criteria[key])).length;
 }
 
+function serializeCriteria(criteria: StaffReportCriteria) {
+  return JSON.stringify(Object.entries(criteria).sort(([left], [right]) => left.localeCompare(right)));
+}
+
 function FilterGroup({ title, count, children, open = false }: { title: string; count: number; children: React.ReactNode; open?: boolean }) {
   return <details open={open} className="group border-b border-slate-100 pb-3"><summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-1 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 marker:hidden hover:text-slate-900"><span className="flex-1">{title}</span>{count > 0 ? <span className="rounded-full bg-ncos-green-100 px-2 py-0.5 text-[11px] text-ncos-green-800">{count}</span> : null}<ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" /></summary><div className="space-y-3 px-1 pt-2">{children}</div></details>;
 }
@@ -59,7 +63,7 @@ export function StaffReportFilters({ draft, applied, options, onChange, onApply,
   const setString = (key: keyof StaffReportCriteria, value: string) => onChange({ ...draft, [key]: value ? [value] : undefined });
   const setBoolean = (key: keyof StaffReportCriteria, value?: boolean) => onChange({ ...draft, [key]: value });
   const activeCount = countFilters(draft);
-  const hasChanges = JSON.stringify(draft) !== JSON.stringify(applied);
+  const hasChanges = serializeCriteria(draft) !== serializeCriteria(applied);
   const employmentCount = countFilters(draft, ["statuses", "staff_status_ids", "rank_ids", "levels", "sex", "age", "appointment_date", "date_of_birth"]);
   const personalCount = countFilters(draft, ["blood_groups", "genotypes", "marital_statuses"]);
   const organizationCount = countFilters(draft, ["directorate_ids", "departments", "work_distribution_ids", "training_institute_ids", "zone_ids", "prison_ids"]);

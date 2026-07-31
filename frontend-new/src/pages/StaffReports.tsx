@@ -64,7 +64,13 @@ export default function StaffReports() {
   const resultCount = report?.data.summary?.total_staff ?? report?.data.details?.pagination.total ?? 0;
   const appliedFilters = useMemo(() => describeFilters(applied, options), [applied, options]);
 
-  const apply = () => { setApplied(draft); setPage(1); };
+  const apply = () => {
+    const search = draft.search?.trim();
+    const next = { ...draft, search: search || undefined };
+    setDraft(next);
+    setApplied(next);
+    setPage(1);
+  };
   const reset = () => { setDraft({}); setApplied({}); setPage(1); };
   const removeFilter = (key: keyof StaffReportCriteria) => {
     setApplied((current) => { const next = { ...current }; delete next[key]; return next; });
