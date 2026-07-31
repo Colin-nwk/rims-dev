@@ -101,6 +101,7 @@ export function ProtectedRoute({
     isAuthenticated,
     isLoading,
     hasAnyRole,
+    hasPermission,
     hasAnyPermission,
     hasAllPermissions,
   } = useAuth();
@@ -112,12 +113,16 @@ export function ProtectedRoute({
   // Filter navigation items based on user type
   const filterNavItems = (items: NavItem[]): NavItem[] => {
     if (!user) return items;
+    const permittedItems = items.filter(
+      (item) =>
+        !item.requiredPermission || hasPermission(item.requiredPermission),
+    );
     if (isStaffUser(user)) {
       // Staff users only see non-admin items
-      return items.filter((item) => !item.adminOnly);
+      return permittedItems.filter((item) => !item.adminOnly);
     }
     // Admin users see all items except staff only
-    return items.filter((item) => !item.staffOnly);
+    return permittedItems.filter((item) => !item.staffOnly);
   };
 
   const filteredMainNav = filterNavItems(mainNavItems);
@@ -157,6 +162,18 @@ export function ProtectedRoute({
       {children ? children : <Outlet />}
     </MainLayout>
   );
+}
+
+export function PermissionRoute({
+  permission,
+  children,
+}: {
+  permission: string;
+  children: React.ReactNode;
+}) {
+  const { hasPermission } = useAuth();
+
+  return hasPermission(permission) ? <>{children}</> : <UnauthorizedAccess />;
 }
 
 interface GuestRouteProps {

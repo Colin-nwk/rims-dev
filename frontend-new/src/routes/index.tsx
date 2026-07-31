@@ -4,6 +4,7 @@ import {
   GuestRoute,
   AdminOnlyRoute,
   StaffOnlyRoute,
+  PermissionRoute,
 } from "./guards";
 import { ROUTES } from "./constants";
 import { RedirectWithQuery } from "./RedirectWithQuery";
@@ -31,6 +32,7 @@ import AdminUsers from "@/pages/AdminUsers";
 import Approvals from "@/pages/Approvals";
 import ChangeRequests from "@/pages/ChangeRequests";
 import Statistics from "@/pages/Statistics";
+import StaffReports from "@/pages/StaffReports";
 import RolesPermissions from "@/pages/RolesPermissions";
 import Profile from "@/pages/Profile";
 import StaffPostings from "@/pages/StaffPostings";
@@ -171,6 +173,14 @@ export const routes = [
           {
             path: ROUTES.STATISTICS,
             element: <Statistics />,
+          },
+          {
+            path: ROUTES.STAFF_REPORTS,
+            element: (
+              <PermissionRoute permission="report.view">
+                <StaffReports />
+              </PermissionRoute>
+            ),
           },
           {
             path: ROUTES.ROLES_PERMISSIONS,
