@@ -12,18 +12,19 @@ class TrainingInstituteSeeder extends Seeder
     public function run(): void
     {
         $trainingInstitutes = [
-            'Correctional academy Ijebu Igbo',
-            'Correctional staff college Barnawi Kaduna',
-            'Correctional training college Kirikiri Lagos',
-            'Correctional training college Enugu',
-            'Arm squad training school Owerri',
-            'Correctional training school Kaduna',
-            'Correctional training college Kebbi',
-            'Borstal Kaduna',
-            'Borstal Kwara',
-            'Borstal Enugu',
-            'Borstal Gwagwalada',
-            'Borstal Igomu Abeokuta',
+            'Correctional academy Ijebu Igbo',                  // 1
+            'Correctional staff college Barnawi Kaduna',        // 2
+            'Correctional training college Kirikiri Lagos',     // 3
+            'Correctional training college Enugu',              // 4
+            'Arm squad training school Owerri',                 // 5
+            'Correctional training school Kaduna',              // 6
+            'Correctional training college Kebbi',              // 7
+            'Borstal Kaduna',                                   // 8
+            'Borstal Kwara',                                    // 9
+            'Borstal Enugu',                                    // 10
+            'Borstal Gwagwalada',                               // 11
+            'Borstal Igomu Abeokuta',                           // 12
+            'Borstal Kurmawa Kano',                             // 13
         ];
 
         foreach ($trainingInstitutes as $trainingInstitute) {
