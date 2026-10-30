@@ -23,6 +23,7 @@ export const ROUTES = {
   APPROVALS: "/approvals",
   CHANGE_REQUESTS: "/change-requests",
   STATISTICS: "/statistics",
+  STAFF_REPORTS: "/staff-reports",
   ROLES_PERMISSIONS: "/admin/roles",
   PROFILE: "/profile",
   PROFILE_EDIT: "/profile/edit",

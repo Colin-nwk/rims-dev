@@ -347,6 +347,11 @@ class Staff extends Authenticatable
         return $this->belongsTo(State::class, 'assigned_state');
     }
 
+    public function prisonRelation()
+    {
+        return $this->belongsTo(Prison::class, 'prison');
+    }
+
     public function initialCommand()
     {
         return $this->belongsTo(State::class, 'initial_command');

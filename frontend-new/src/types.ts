@@ -11,6 +11,7 @@ export type NavItem = {
   mobileOnly?: boolean;
   adminOnly?: boolean;
   staffOnly?: boolean;
+  requiredPermission?: string;
   badge?: number | string;
 };
 

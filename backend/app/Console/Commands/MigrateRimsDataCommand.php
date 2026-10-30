@@ -7,31 +7,22 @@ use Illuminate\Console\Command;
 
 class MigrateRimsDataCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:migrate-rims-data-command 
-                            {--limit= : Number of records to migrate per batch}
-                            {--offset=0 : Starting offset for migration}
-                            {--batch-size=1000 : Number of records to process in each batch}
-                            {--dry-run : Run without actually migrating data}
+    protected $signature = 'app:migrate-rims-data-command
+                            {--limit= : Maximum number of source records to scan}
+                            {--offset=0 : Starting source offset}
+                            {--batch-size=1000 : Number of records to process per keyset batch}
+                            {--active-only : Only migrate legacy rows where deleted = 0}
+                            {--education-only : Import only staff education from the SQL dump}
+                            {--education-sql=rims-staff.sql : SQL dump containing the staff_education data}
+                            {--skip-education : Skip staff education import}
+                            {--dry-run : Validate and map records without writing data}
                             {--stats : Show migration statistics only}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Migrate staff data from old RIMS database to new structure';
 
-    protected $migrationService;
+    protected RimsMigrationService $migrationService;
 
-    /**
-     * Execute the console command.
-     */
-    public function handle(RimsMigrationService $migrationService)
+    public function handle(RimsMigrationService $migrationService): int
     {
         $this->migrationService = $migrationService;
 
@@ -41,146 +32,135 @@ class MigrateRimsDataCommand extends Command
             return self::SUCCESS;
         }
 
+        $limit = $this->option('limit');
+        $offset = (int) $this->option('offset');
+        $requestedBatchSize = (int) $this->option('batch-size');
+        $includeDeleted = ! $this->option('active-only');
+
+        if ($requestedBatchSize < 1 || $offset < 0 || ($limit !== null && (int) $limit < 1)) {
+            $this->error('Batch size and limit must be positive, and offset cannot be negative.');
+
+            return self::FAILURE;
+        }
+
+        $batchSize = min($requestedBatchSize, 1000);
+        if ($requestedBatchSize > $batchSize) {
+            $this->warn('Batch size capped at 1,000 to stay below the database placeholder limit.');
+        }
+
         if ($this->option('dry-run')) {
-            $this->warn('🔍 DRY RUN MODE - No data will be migrated');
+            $this->warn('DRY RUN MODE - records will be read and mapped, but no data will be written.');
             $this->newLine();
         }
 
-        $this->info('🚀 Starting RIMS Data Migration');
+        $this->info('Starting RIMS data migration');
+        $this->newLine();
+        $this->showStatistics($includeDeleted);
         $this->newLine();
 
-        if (! $this->option('stats')) {
-            $this->showStatistics();
-            $this->newLine();
+        if (! $this->option('no-interaction') && ! $this->confirm('Do you want to proceed with the migration?', true)) {
+            $this->warn('Migration cancelled.');
 
-            if (! $this->option('no-interaction') && ! $this->confirm('Do you want to proceed with the migration?', true)) {
-                $this->warn('Migration cancelled.');
-
-                return self::SUCCESS;
-            }
-        } else {
             return self::SUCCESS;
         }
 
-        $this->newLine();
+        if (! $this->option('education-only')) {
+            if ($limit !== null) {
+                $this->process((int) $limit, $offset, $batchSize, $includeDeleted);
+            } else {
+                $stats = $this->migrationService->getStatistics($includeDeleted);
+                if ($stats['pending_migration'] === 0) {
+                    $this->info('No staff records to migrate. Staff data is up to date.');
+                } else {
+                    $this->process(null, $offset, $batchSize, $includeDeleted, $stats);
+                }
+            }
+        }
 
-        $limit = $this->option('limit');
-        $offset = (int) $this->option('offset');
-        $batchSize = (int) $this->option('batch-size');
-
-        if ($limit) {
-            $this->processBatch($offset, (int) $limit);
-        } else {
-            $this->processInBatches($batchSize, $offset);
+        if (! $this->option('skip-education') && ($limit === null || $this->option('education-only'))) {
+            return $this->processEducation();
         }
 
         return self::SUCCESS;
     }
 
-    protected function processBatch($offset, $limit)
+    protected function processEducation(): int
     {
-        $this->info("Processing {$limit} records starting from offset {$offset}...");
+        $sqlPath = base_path((string) $this->option('education-sql'));
 
-        $progressBar = $this->output->createProgressBar($limit);
-        $progressBar->start();
+        try {
+            $result = $this->migrationService->migrateStaffEducationFromSqlDump(
+                $sqlPath,
+                (bool) $this->option('dry-run'),
+            );
+        } catch (\Throwable $throwable) {
+            $this->error('Staff education migration failed: '.$throwable->getMessage());
 
-        if (! $this->option('dry-run')) {
-            $result = $this->migrationService->migrateStaff($limit, $offset);
-            $progressBar->advance($result['migrated'] + $result['failed'] + $result['skipped']);
-        } else {
-            $progressBar->advance($limit);
+            return self::FAILURE;
         }
 
-        $progressBar->finish();
-        $this->newLine(2);
+        $this->newLine();
+        $this->info($this->option('dry-run') ? 'Staff education dry-run results:' : 'Staff education migration results:');
+        $this->table(
+            ['Metric', 'Count'],
+            [
+                ['Source education rows', $result['source']],
+                [$this->option('dry-run') ? 'Would migrate' : 'Successfully migrated', $result['migrated']],
+                ['Skipped (already exists)', $result['skipped']],
+            ],
+        );
 
-        if (! $this->option('dry-run')) {
-            $this->displayResults($result);
-        }
+        return self::SUCCESS;
     }
 
-    protected function processInBatches($batchSize, $startOffset)
+    /** @param array{old_database_total: int, new_database_total: int, pending_migration: int}|null $stats */
+    protected function process(?int $limit, int $offset, int $batchSize, bool $includeDeleted, ?array $stats = null): void
     {
-        $stats = $this->migrationService->getStatistics();
-        $totalRecords = $stats['pending_migration'];
-
-        if ($totalRecords === 0) {
-            $this->info('✅ No records to migrate. All data is up to date!');
-
-            return;
-        }
-
-        $this->info("Processing {$totalRecords} records in batches of {$batchSize}...");
-        $this->newLine();
+        $totalRecords = $limit ?? max(0, ($stats ?? $this->migrationService->getStatistics($includeDeleted))['old_database_total'] - $offset);
+        $this->info("Scanning up to {$totalRecords} source records in keyset batches of {$batchSize}...");
 
         $progressBar = $this->output->createProgressBar($totalRecords);
         $progressBar->start();
 
-        $offset = $startOffset;
-        $totalMigrated = 0;
-        $totalFailed = 0;
-        $totalSkipped = 0;
-        $allErrors = [];
-
-        while ($offset < $totalRecords + $startOffset) {
-            if (! $this->option('dry-run')) {
-                $this->migrationService->resetCounters();
-                $result = $this->migrationService->migrateStaff($batchSize, $offset);
-
-                $totalMigrated += $result['migrated'];
-                $totalFailed += $result['failed'];
-                $totalSkipped += $result['skipped'];
-                $allErrors = array_merge($allErrors, $result['errors']);
-
-                $progressBar->advance($result['migrated'] + $result['failed'] + $result['skipped']);
-            } else {
-                $progressBar->advance(min($batchSize, $totalRecords - $offset));
-            }
-
-            $offset += $batchSize;
-        }
+        $result = $this->migrationService->migrateStaff(
+            limit: $limit,
+            offset: $offset,
+            batchSize: $batchSize,
+            dryRun: (bool) $this->option('dry-run'),
+            onProgress: fn (int $processed) => $progressBar->advance(min($processed, $progressBar->getMaxSteps() - $progressBar->getProgress())),
+            includeDeleted: $includeDeleted,
+        );
 
         $progressBar->finish();
         $this->newLine(2);
-
-        if (! $this->option('dry-run')) {
-            $this->displayResults([
-                'migrated' => $totalMigrated,
-                'failed' => $totalFailed,
-                'skipped' => $totalSkipped,
-                'errors' => $allErrors,
-            ]);
-        }
+        $this->displayResults($result, (bool) $this->option('dry-run'));
     }
 
-    protected function displayResults($result)
+    /** @param array{migrated: int, failed: int, skipped: int, errors: array<int, array{service_no: string, error: string}>} $result */
+    protected function displayResults(array $result, bool $dryRun): void
     {
-        $this->info('📊 Migration Results:');
+        $this->info($dryRun ? 'Dry-run results:' : 'Migration results:');
         $this->newLine();
 
         $this->table(
             ['Metric', 'Count'],
             [
-                ['✅ Successfully Migrated', $result['migrated']],
-                ['⏭️  Skipped (Already Exists)', $result['skipped']],
-                ['❌ Failed', $result['failed']],
+                [$dryRun ? 'Would migrate' : 'Successfully migrated', $result['migrated']],
+                ['Skipped (already exists)', $result['skipped']],
+                ['Failed', $result['failed']],
             ]
         );
 
-        if ($result['failed'] > 0 && count($result['errors']) > 0) {
+        if ($result['failed'] > 0 && $result['errors'] !== []) {
             $this->newLine();
-            $this->error('❌ Errors encountered:');
-            $this->newLine();
-
-            $errorTable = array_slice($result['errors'], 0, 10); // Show first 10 errors
+            $this->error('Errors encountered:');
+            $errorTable = array_slice($result['errors'], 0, 10);
             $this->table(
                 ['Service No', 'Error'],
-                array_map(function ($error) {
-                    return [
-                        $error['service_no'],
-                        substr($error['error'], 0, 100).(strlen($error['error']) > 100 ? '...' : ''),
-                    ];
-                }, $errorTable)
+                array_map(fn (array $error) => [
+                    $error['service_no'],
+                    str($error['error'])->limit(100)->toString(),
+                ], $errorTable)
             );
 
             if (count($result['errors']) > 10) {
@@ -189,24 +169,27 @@ class MigrateRimsDataCommand extends Command
         }
 
         $this->newLine();
-        $this->info('✅ Migration completed!');
-        $this->newLine();
+        $this->info($dryRun ? 'Dry run completed. No data was written.' : 'Migration completed.');
 
-        // Show updated statistics
-        $this->showStatistics();
+        if (! $dryRun) {
+            $this->newLine();
+            $this->showStatistics(! $this->option('active-only'));
+        }
     }
 
-    protected function showStatistics()
+    protected function showStatistics(bool $includeDeleted = true): void
     {
-        $stats = $this->migrationService->getStatistics();
+        $stats = $this->migrationService->getStatistics($includeDeleted);
 
-        $this->info('📈 Migration Statistics:');
+        $this->info('Migration statistics:');
         $this->newLine();
-
         $this->table(
             ['Database', 'Count'],
             [
-                ['Old Database (Total Records)', number_format($stats['old_database_total'])],
+                [
+                    $includeDeleted ? 'Old Database (All Staff Rows)' : 'Old Database (deleted = 0)',
+                    number_format($stats['old_database_total']),
+                ],
                 ['New Database (Migrated)', number_format($stats['new_database_total'])],
                 ['Pending Migration', number_format($stats['pending_migration'])],
             ]

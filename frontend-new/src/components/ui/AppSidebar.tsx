@@ -4,11 +4,11 @@ import { isStaffUser, getDisplayName } from "@/lib/api/auth/types";
 import { NavItem } from "@/types";
 import { ChevronDown, LogOut, MoreHorizontal, UserCircle2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useSidebar } from "@/hooks/useSidebar";
@@ -51,13 +51,18 @@ const AppSidebar: React.FC<{
   const {
     isExpanded,
     isMobileOpen,
-    isHovered,
-    setIsHovered,
     toggleMobileSidebar,
   } = useSidebar();
   const location = useLocation();
   const pathname = location.pathname;
   const { user, logout } = useAuth();
+  const [tooltip, setTooltip] = useState<{ label: string; left: number; top: number } | null>(null);
+
+  const showTooltip = (target: HTMLElement, label: string) => {
+    if (isExpanded || isMobileOpen) return;
+    const bounds = target.getBoundingClientRect();
+    setTooltip({ label, left: bounds.right + 12, top: bounds.top + bounds.height / 2 });
+  };
 
   // Close mobile sidebar when navigating to a different page
   useEffect(() => {
@@ -77,32 +82,43 @@ const AppSidebar: React.FC<{
         if (nav.mobileOnly && !isMobileOpen) return null;
 
         return (
-          <li key={nav.name} className={nav.mobileOnly ? "lg:hidden" : ""}>
+          <li
+            key={nav.name}
+            className={nav.mobileOnly ? "lg:hidden" : ""}
+            onMouseEnter={(event) => showTooltip(event.currentTarget, nav.badge !== undefined && nav.badge !== 0 ? `${nav.name} (${nav.badge})` : nav.name)}
+            onMouseLeave={() => setTooltip(null)}
+            onFocusCapture={(event) => showTooltip(event.currentTarget, nav.badge !== undefined && nav.badge !== 0 ? `${nav.name} (${nav.badge})` : nav.name)}
+            onBlurCapture={() => setTooltip(null)}
+          >
             {nav.isButton ? (
               <button
                 onClick={nav.onClick}
+                aria-label={!isExpanded && !isMobileOpen ? nav.name : undefined}
                 className={`menu-item group ${
                   nav.className || "menu-item-inactive"
                 } cursor-pointer ${
-                  !isExpanded && !isHovered
+                  !isExpanded
                     ? "lg:justify-center"
                     : "lg:justify-start"
                 }`}
               >
                 <span className="menu-item-icon-inactive">{nav.icon}</span>
-                {(isExpanded || isHovered || isMobileOpen) && (
+                {(isExpanded || isMobileOpen) && (
                   <span className="menu-item-text">{nav.name}</span>
                 )}
               </button>
             ) : nav.subItems ? (
               <button
-                onClick={() => handleSubmenuToggle(index, menuType)}
+                onClick={() => {
+                  if (isExpanded || isMobileOpen) handleSubmenuToggle(index, menuType);
+                }}
+                aria-label={!isExpanded && !isMobileOpen ? nav.name : undefined}
                 className={`menu-item group  ${
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? "menu-item-active"
                     : "menu-item-inactive"
                 } cursor-pointer ${
-                  !isExpanded && !isHovered
+                  !isExpanded
                     ? "lg:justify-center"
                     : "lg:justify-start"
                 }`}
@@ -117,10 +133,10 @@ const AppSidebar: React.FC<{
                 >
                   {nav.icon}
                 </span>
-                {(isExpanded || isHovered || isMobileOpen) && (
+                {(isExpanded || isMobileOpen) && (
                   <span className={`menu-item-text`}>{nav.name}</span>
                 )}
-                {(isExpanded || isHovered || isMobileOpen) && (
+                {(isExpanded || isMobileOpen) && (
                   <ChevronDown
                     className={`ml-auto w-5 h-5 transition-transform duration-200 ${
                       openSubmenu?.type === menuType &&
@@ -141,6 +157,7 @@ const AppSidebar: React.FC<{
               nav.path && (
                 <Link
                   to={nav.path}
+                  aria-label={!isExpanded && !isMobileOpen ? nav.name : undefined}
                   className={`menu-item group ${
                     isActive(nav.path)
                       ? "menu-item-active"
@@ -156,7 +173,7 @@ const AppSidebar: React.FC<{
                   >
                     {nav.icon}
                   </span>
-                  {(isExpanded || isHovered || isMobileOpen) && (
+                  {(isExpanded || isMobileOpen) && (
                     <>
                       <span className={`menu-item-text`}>{nav.name}</span>
                       {nav.badge !== undefined && nav.badge !== 0 && (
@@ -171,36 +188,32 @@ const AppSidebar: React.FC<{
                 </Link>
               )
             )}
-            {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
+            {nav.subItems && (isExpanded || isMobileOpen) && (
               <div
-                ref={(el) => {
-                  subMenuRefs.current[`${menuType}-${index}`] = el;
-                }}
-                className="overflow-hidden transition-all duration-300"
-                style={{
-                  height:
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
-                      ? `${subMenuHeight[`${menuType}-${index}`]}px`
-                      : "0px",
-                }}
+                className={`grid transition-[grid-template-rows] duration-300 ${
+                  openSubmenu?.type === menuType && openSubmenu?.index === index
+                    ? "grid-rows-[1fr]"
+                    : "grid-rows-[0fr]"
+                }`}
               >
-                <ul className="mt-2 space-y-1 ml-9">
-                  {nav.subItems.map((subItem) => (
-                    <li key={subItem.name}>
-                      <Link
-                        to={subItem.path}
-                        className={`menu-dropdown-item ${
-                          isActive(subItem.path)
-                            ? "menu-dropdown-item-active"
-                            : "menu-dropdown-item-inactive"
-                        }`}
-                      >
-                        {subItem.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-hidden">
+                  <ul className="mt-2 space-y-1 ml-9">
+                    {nav.subItems.map((subItem) => (
+                      <li key={subItem.name}>
+                        <Link
+                          to={subItem.path}
+                          className={`menu-dropdown-item ${
+                            isActive(subItem.path)
+                              ? "menu-dropdown-item-active"
+                              : "menu-dropdown-item-inactive"
+                          }`}
+                        >
+                          {subItem.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </li>
@@ -235,63 +248,38 @@ const AppSidebar: React.FC<{
     return result;
   }, [pathname, navItems, othersItems]);
 
-  const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
-    index: number;
-  } | null>(initialOpenSubmenu);
-
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {},
-  );
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // Update openSubmenu when pathname changes (using effect to avoid cascading renders)
-  useEffect(() => {
-    setOpenSubmenu(initialOpenSubmenu);
-  }, [initialOpenSubmenu]);
-
-  useEffect(() => {
-    // Set the height of the submenu items when the submenu is opened
-    if (openSubmenu !== null) {
-      const key = `${openSubmenu.type}-${openSubmenu.index}`;
-      if (subMenuRefs.current[key]) {
-        setSubMenuHeight((prevHeights) => ({
-          ...prevHeights,
-          [key]: subMenuRefs.current[key]?.scrollHeight || 0,
-        }));
-      }
-    }
-  }, [openSubmenu]);
+  const [manualSubmenu, setManualSubmenu] = useState<{
+    pathname: string;
+    value: { type: "main" | "others"; index: number } | null;
+  } | null>(null);
+  const openSubmenu = manualSubmenu?.pathname === pathname
+    ? manualSubmenu.value
+    : initialOpenSubmenu;
 
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
-    setOpenSubmenu((prevOpenSubmenu) => {
-      if (
-        prevOpenSubmenu &&
-        prevOpenSubmenu.type === menuType &&
-        prevOpenSubmenu.index === index
-      ) {
-        return null;
-      }
-      return { type: menuType, index };
+    setManualSubmenu({
+      pathname,
+      value: openSubmenu?.type === menuType && openSubmenu.index === index
+        ? null
+        : { type: menuType, index },
     });
   };
 
   return (
-    <aside
+    <>
+      <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 py-2 bg-ncos-green-900 text-white h-screen transition-all duration-300 ease-in-out z-50 border-ncos-green-800
-        ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-22.5"}
+        ${isExpanded || isMobileOpen ? "w-64" : "w-22.5"}
         ${
           isMobileOpen
             ? "right-0 translate-x-0 lg:left-0 lg:right-auto"
             : "right-0 translate-x-full lg:left-0 lg:right-auto lg:translate-x-0"
         }
         lg:translate-x-0 lg:border-r`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div
         className={`py-6 hidden lg:flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+          !isExpanded ? "lg:justify-center" : "justify-start"
         }`}
       >
         <Link
@@ -304,7 +292,7 @@ const AppSidebar: React.FC<{
             width={isExpanded ? 50 : 30}
             height={isExpanded ? 40 : 20}
           />
-          {isExpanded || isHovered || isMobileOpen ? logoText : null}
+          {isExpanded || isMobileOpen ? logoText : null}
         </Link>
       </div>
 
@@ -350,12 +338,12 @@ const AppSidebar: React.FC<{
             <div>
               <h2
                 className={`mb-4 text-xs uppercase flex leading-5 text-ncos-green-400 ${
-                  !isExpanded && !isHovered
+                  !isExpanded
                     ? "lg:justify-center"
                     : "justify-start"
                 }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? (
+                {isExpanded || isMobileOpen ? (
                   "Menu"
                 ) : (
                   <MoreHorizontal className="w-4 h-4" />
@@ -367,12 +355,12 @@ const AppSidebar: React.FC<{
             <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-5 text-ncos-green-400 ${
-                  !isExpanded && !isHovered
+                  !isExpanded
                     ? "lg:justify-center"
                     : "justify-start"
                 }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? (
+                {isExpanded || isMobileOpen ? (
                   "Others"
                 ) : (
                   <MoreHorizontal className="w-4 h-4" />
@@ -394,7 +382,21 @@ const AppSidebar: React.FC<{
           </div>
         </nav>
       </div>
-    </aside>
+      </aside>
+      {tooltip && !isExpanded && !isMobileOpen
+        ? createPortal(
+            <span
+              role="tooltip"
+              className="pointer-events-none fixed z-[60] hidden -translate-y-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white shadow-lg lg:block"
+              style={{ left: tooltip.left, top: tooltip.top }}
+            >
+              {tooltip.label}
+              <span className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-950" />
+            </span>,
+            document.body,
+          )
+        : null}
+    </>
   );
 };
 

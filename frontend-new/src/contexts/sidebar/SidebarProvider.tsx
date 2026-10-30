@@ -12,7 +12,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Close mobile sidebar when resizing to desktop breakpoint
@@ -51,14 +50,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         isSidebarOpen,
         isCollapsed,
         isExpanded,
-        isHovered,
         isMobileOpen,
         openSidebar,
         closeSidebar,
         toggleSidebar,
         toggleCollapse,
         toggleMobileSidebar,
-        setIsHovered,
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import { useDashboardStats } from "@/lib/api/dashboard";
 import { NavItem } from "@/types";
 import {
   ChartArea,
+  FileBarChart,
   CheckSquare,
   FolderOpen,
   FolderOpenDot,
@@ -75,6 +76,13 @@ export const mainNavItems: NavItem[] = [
     icon: <ChartArea className="w-5 h-5" />,
     path: ROUTES.STATISTICS,
     adminOnly: true,
+  },
+  {
+    name: "Staff Reports",
+    icon: <FileBarChart className="w-5 h-5" />,
+    path: ROUTES.STAFF_REPORTS,
+    adminOnly: true,
+    requiredPermission: "report.view",
   },
 ];
 

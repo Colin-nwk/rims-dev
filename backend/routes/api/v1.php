@@ -13,6 +13,7 @@ use App\Http\Controllers\V1\StaffController;
 use App\Http\Controllers\V1\StaffDocumentController;
 use App\Http\Controllers\V1\StaffEducationController;
 use App\Http\Controllers\V1\StaffPostingController;
+use App\Http\Controllers\V1\StaffReportController;
 use App\Http\Controllers\V1\StatisticsController;
 use App\Http\Controllers\V1\UserAuthController;
 use App\Http\Controllers\V1\UserController;
@@ -120,6 +121,10 @@ Route::middleware(['auth:sanctum', EnsureAuthenticatedAccountIsActive::class])->
     });
 
     // --- Staff Management ---
+    Route::get('staff-report-options', [StaffReportController::class, 'options']);
+    Route::post('staff-reports/query', [StaffReportController::class, 'query']);
+    Route::post('staff-reports/export', [StaffReportController::class, 'export']);
+    Route::get('staff-reports/{staff}', [StaffReportController::class, 'show']);
     Route::get('staff/export', [StaffController::class, 'export']);
     Route::apiResource('staff', StaffController::class);
     // Staff Role Management
