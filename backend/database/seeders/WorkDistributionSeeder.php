@@ -12,13 +12,24 @@ class WorkDistributionSeeder extends Seeder
     public function run(): void
     {
         $workDistributions = [
-            'General duty',
-            'Medical',
-            'Works',
-            'Industry',
-            'Non custodial',
-            'Arm squad',
-            'Intelligence',
+            'General duty',        // 1
+            'Medical',             // 2
+            'Works',               // 3
+            'Industry',            // 4
+            'Non custodial',       // 5
+            'Arm squad',           // 6
+            'Intelligence',        // 7
+            'Derad',               // 8
+            'Canine',              // 9
+            'Store',               // 10
+            'Chaplain',            // 11
+            'Radio',               // 12
+            'Legal',               // 13
+            'Sport',               // 14
+            'Welfare',             // 15
+            'ICT',                 // 16
+            'Account',             // 17
+            'Imam',                // 18
         ];
 
         foreach ($workDistributions as $workDistribution) {

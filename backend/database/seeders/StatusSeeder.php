@@ -12,17 +12,17 @@ class StatusSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            'Death',
-            'Suspension',
-            'Study leave',
-            'Foreign mission',
-            'Retirement',
-            'Dismissal',
-            'Warning',
-            'Interdiction',
-            'Compulsory retirement',
-            'Suspension',
-            'Reduction in rank',
+            'Death',                                      // 1
+            'Suspension',                                 // 2
+            'Study leave',                                // 3
+            'Foreign mission',                            // 4
+            'Retirement',                                 // 5
+            'Dismissal',                                  // 6
+            'Warning',                                    // 7
+            'Interdiction',                               // 8
+            'Compulsory retirement',                      // 9
+            'Reduction in rank',                          // 10
+            'Deserter',                                   // 11
         ];
 
         foreach ($statuses as $status) {
