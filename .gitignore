@@ -4,3 +4,8 @@ backend/docs/STAFF_STATION_POSTING.md
 backend/STATISTICS_DOCUMENTATION.md
 .DS_Store
 backend/pictures/
+deploy/ssl/*.key
+deploy/ssl/*.srl
+deploy/ssl/hosts.bak*
+backend/.env.bak*
+
