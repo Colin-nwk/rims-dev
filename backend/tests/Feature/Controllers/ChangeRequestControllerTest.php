@@ -92,4 +92,44 @@ class ChangeRequestControllerTest extends TestCase
             'rejection_reason' => 'Bad Data',
         ]);
     }
+
+    public function test_list_includes_ui_labels_for_foreign_key_payload_fields(): void
+    {
+        $user = User::factory()->create();
+
+        \Illuminate\Support\Facades\Gate::define('change_request.view_all', fn () => true);
+
+        $role = \App\Models\Role::create(['name' => 'AdminUi', 'slug' => 'admin-ui', 'scopeless' => true]);
+        $user->roles()->attach($role);
+
+        $this->actingAs($user);
+
+        $state = \App\Models\State::factory()->create([
+            'state' => 'UI Test State Display',
+        ]);
+
+        ChangeRequest::factory()->create([
+            'status' => 'PENDING',
+            'requested_by_id' => null,
+            'requested_by_type' => null,
+            'approved_by' => null,
+            'model_type' => Staff::class,
+            'model_id' => null,
+            'type' => 'UPDATE',
+            'data' => [
+                'assigned_state' => $state->id,
+            ],
+            'service_no' => 'SVC_UI_001',
+        ]);
+
+        $response = $this->getJson('/api/v1/change-requests');
+
+        $response->assertStatus(200);
+
+        $records = collect($response->json('data.data'));
+        $matching = $records->first(fn (mixed $item) => is_array($item) && ($item['service_no'] ?? null) === 'SVC_UI_001');
+
+        $this->assertIsArray($matching);
+        $this->assertSame($state->state, $matching['data_ui']['assigned_state'] ?? null);
+    }
 }

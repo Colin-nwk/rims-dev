@@ -58,18 +58,31 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return $user;
+        return $user->load('roles');
     }
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $rules = [
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email,'.$user->id],
-        ]);
+            'status' => ['sometimes', 'string', 'in:active,inactive,suspended'],
+        ];
+
+        // Only validate password if it's provided
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', 'confirmed', Rules\Password::defaults()];
+        }
+
+        $request->validate($rules);
 
         try {
-            $data = $request->all();
+            $data = $request->only(['name', 'email', 'status']);
+
+            // Handle password separately - hash it before storing in change request
+            if ($request->filled('password')) {
+                $data['password'] = bcrypt($request->password);
+            }
 
             $changeRequest = $this->changeRequestService->submit(
                 'App\Models\User',

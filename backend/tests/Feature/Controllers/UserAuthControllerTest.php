@@ -46,7 +46,7 @@ class UserAuthControllerTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401)
+        $response->assertStatus(422)
             ->assertJsonPath('status', 'Error');
     }
 
@@ -84,6 +84,16 @@ class UserAuthControllerTest extends TestCase
             'tokenable_id' => $user->id,
             'tokenable_type' => User::class,
         ]);
+    }
+
+    public function test_user_can_logout_from_stateful_sanctum_request()
+    {
+        $user = User::factory()->create(['status' => 1]);
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/logout');
+
+        $response->assertStatus(204);
     }
 
     public function test_user_login_with_no_roles_returns_empty_arrays()

@@ -30,8 +30,8 @@ class ComplaintControllerTest extends TestCase
         $me = Staff::factory()->create(['password' => Hash::make('password')]);
         $other = Staff::factory()->create();
 
-        Complaint::create(['subject' => 'My Complaint', 'category' => 'IT', 'created_by' => $me->id]);
-        Complaint::create(['subject' => 'Other Complaint', 'category' => 'IT', 'created_by' => $other->id]);
+        Complaint::create(['subject' => 'My Complaint', 'category' => 'IT', 'created_by' => $me->id, 'created_by_type' => Staff::class]);
+        Complaint::create(['subject' => 'Other Complaint', 'category' => 'IT', 'created_by' => $other->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($me)->getJson('/api/v1/complaints');
 
@@ -47,8 +47,8 @@ class ComplaintControllerTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'complaint.view')->first());
         $admin->roles()->attach($role);
 
-        Complaint::create(['subject' => 'C1', 'category' => 'IT', 'created_by' => $admin->id]);
-        Complaint::create(['subject' => 'C2', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id]);
+        Complaint::create(['subject' => 'C1', 'category' => 'IT', 'created_by' => $admin->id, 'created_by_type' => Staff::class]);
+        Complaint::create(['subject' => 'C2', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->getJson('/api/v1/complaints');
 
@@ -70,8 +70,8 @@ class ComplaintControllerTest extends TestCase
         $staffInState1 = Staff::factory()->create(['assigned_state' => $state1->id]);
         $staffInState2 = Staff::factory()->create(['assigned_state' => $state2->id]);
 
-        Complaint::create(['subject' => 'State 1 Complaint', 'category' => 'IT', 'created_by' => $staffInState1->id]);
-        Complaint::create(['subject' => 'State 2 Complaint', 'category' => 'IT', 'created_by' => $staffInState2->id]);
+        Complaint::create(['subject' => 'State 1 Complaint', 'category' => 'IT', 'created_by' => $staffInState1->id, 'created_by_type' => Staff::class]);
+        Complaint::create(['subject' => 'State 2 Complaint', 'category' => 'IT', 'created_by' => $staffInState2->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->getJson('/api/v1/complaints');
 
@@ -87,8 +87,8 @@ class ComplaintControllerTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'complaint.view')->first());
         $admin->roles()->attach($role);
 
-        Complaint::create(['subject' => 'Admin Complaint', 'category' => 'IT', 'created_by' => $admin->id]);
-        Complaint::create(['subject' => 'Other Complaint', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id]);
+        Complaint::create(['subject' => 'Admin Complaint', 'category' => 'IT', 'created_by' => $admin->id, 'created_by_type' => Staff::class]);
+        Complaint::create(['subject' => 'Other Complaint', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->getJson('/api/v1/complaints?mine=true');
 
@@ -104,6 +104,7 @@ class ComplaintControllerTest extends TestCase
             'subject' => 'Test',
             'category' => 'IT',
             'created_by' => $user->id,
+            'created_by_type' => Staff::class,
             'status' => 'open',
         ]);
 
@@ -123,7 +124,7 @@ class ComplaintControllerTest extends TestCase
         $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.resolve']));
         $admin->roles()->attach($role);
 
-        $complaint = Complaint::create(['subject' => 'Test', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id]);
+        $complaint = Complaint::create(['subject' => 'Test', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->patchJson("/api/v1/complaints/{$complaint->id}/status", [
             'status' => 'resolved',
@@ -145,7 +146,7 @@ class ComplaintControllerTest extends TestCase
 
         // Complaint created by staff in State 2
         $targetStaff = Staff::factory()->create(['assigned_state' => $state2->id]);
-        $complaint = Complaint::create(['subject' => 'Out of Scope', 'category' => 'IT', 'created_by' => $targetStaff->id]);
+        $complaint = Complaint::create(['subject' => 'Out of Scope', 'category' => 'IT', 'created_by' => $targetStaff->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->patchJson("/api/v1/complaints/{$complaint->id}/status", [
             'status' => 'resolved',
@@ -157,7 +158,7 @@ class ComplaintControllerTest extends TestCase
     public function test_unauthorized_user_cannot_delete_complaint()
     {
         $user = Staff::factory()->create();
-        $complaint = Complaint::create(['subject' => 'To Delete', 'category' => 'IT', 'created_by' => $user->id]);
+        $complaint = Complaint::create(['subject' => 'To Delete', 'category' => 'IT', 'created_by' => $user->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($user)->deleteJson("/api/v1/complaints/{$complaint->id}");
 
@@ -172,7 +173,7 @@ class ComplaintControllerTest extends TestCase
         $role->permissions()->attach(Permission::firstOrCreate(['name' => 'complaint.delete']));
         $admin->roles()->attach($role);
 
-        $complaint = Complaint::create(['subject' => 'To Delete', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id]);
+        $complaint = Complaint::create(['subject' => 'To Delete', 'category' => 'IT', 'created_by' => Staff::factory()->create()->id, 'created_by_type' => Staff::class]);
 
         $response = $this->actingAs($admin)->deleteJson("/api/v1/complaints/{$complaint->id}");
 

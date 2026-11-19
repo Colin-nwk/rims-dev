@@ -41,12 +41,17 @@ class UserService extends BaseService
 
     public function find($id)
     {
-        return User::findOrFail($id);
+        return User::with('roles')->findOrFail($id);
     }
 
     public function all(array $filters = [])
     {
-        return User::filter($filters)->paginate($filters['per_page'] ?? 15);
+        return User::with('roles')->filter($filters)->paginate($filters['per_page'] ?? 15);
+    }
+
+    public function allWithRelationships(array $filters = [])
+    {
+        return User::with('roles')->filter($filters)->paginate($filters['per_page'] ?? 15);
     }
 
     /**

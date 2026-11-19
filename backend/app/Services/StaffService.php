@@ -49,7 +49,8 @@ class StaffService extends BaseService
                 }
             }
 
-            return $staff;
+            // Return the created staff with all relationships
+            return $this->find($staff->id);
         });
     }
 
@@ -59,7 +60,7 @@ class StaffService extends BaseService
     public function update($id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $staff = $this->find($id);
+            $staff = Staff::findOrFail($id);
 
             // Update Staff
             if (isset($data['password'])) {
@@ -100,25 +101,65 @@ class StaffService extends BaseService
                 }
             }
 
-            return $staff;
+            // Return the updated staff with all relationships
+            return $this->find($id);
         });
     }
 
     public function delete($id)
     {
-        $staff = $this->find($id);
+        return DB::transaction(function () use ($id) {
+            $staff = $this->find($id);
 
-        return $staff->delete();
+            return $staff->delete();
+        });
     }
 
     public function find($id)
     {
-        return Staff::with(['details', 'education'])->findOrFail($id);
+        return Staff::with([
+            'details',
+            'education',
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
+            'postings',
+            'activePosting',
+        ])->findOrFail($id);
     }
 
     public function all(array $filters = [])
     {
-        return Staff::with(['details', 'education'])
+        return Staff::with(['details', 'education', 'roles'])
+            ->filter($filters)
+            ->paginate($filters['per_page'] ?? 15);
+    }
+
+    public function allWithRelationships(array $filters = [])
+    {
+        return Staff::with([
+            'details',
+            'education',
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents',
+            'presentRank',
+            'initialRank',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
+            'postings',
+            'activePosting',
+        ])
             ->filter($filters)
             ->paginate($filters['per_page'] ?? 15);
     }

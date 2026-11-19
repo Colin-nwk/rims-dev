@@ -26,4 +26,9 @@ class State extends Model
     {
         return $this->hasMany(Prison::class);
     }
+
+    public function lgas()
+    {
+        return $this->hasMany(LGA::class);
+    }
 }

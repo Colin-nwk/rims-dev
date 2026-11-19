@@ -10,6 +10,9 @@ use App\Services\ChangeRequestService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class StaffController extends Controller
 {
@@ -30,7 +33,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         $this->authorize('staff.view');
-        $staff = $this->staffService->all($request->all());
+        $staff = $this->staffService->allWithRelationships($request->all());
 
         return $this->collectionResponse($staff);
     }
@@ -84,9 +87,31 @@ class StaffController extends Controller
 
     public function show(Staff $staff)
     {
-        $this->authorize('staff.view');
+        // Allow staff to view their own record without permission
+        $user = request()->user();
+        $isSelf = ($user instanceof Staff && $user->id === $staff->id);
 
-        return $this->successResponse($staff->load(['details', 'education']));
+        if (! $isSelf) {
+            $this->authorize('staff.view');
+        }
+
+        return $this->successResponse($staff->load([
+            'details',
+            'education',
+            'roles',
+            'assignedState',
+            'initialCommand',
+            'presentCommand',
+            'documents',
+            'presentRank',
+            'initialRank',
+            'workDistribution',
+            'trainingInstitute',
+            'directorate',
+            'staffStatus',
+            'postings',
+            'activePosting',
+        ]));
     }
 
     public function update(UpdateStaffRequest $request, Staff $staff)
@@ -101,6 +126,11 @@ class StaffController extends Controller
 
         try {
             $data = $request->validated();
+
+            // Filter to only include fields that were actually sent in the request
+            $data = array_filter($data, function ($value, $key) use ($request) {
+                return $request->has($key);
+            }, ARRAY_FILTER_USE_BOTH);
 
             $sensitiveFields = [
                 'dob',
@@ -144,29 +174,32 @@ class StaffController extends Controller
                 }
             }
 
-            $responses = [];
+            $responses = DB::transaction(function () use ($sensitivePayload, $standardPayload, $request, $staff) {
+                $res = [];
+                if (! empty($sensitivePayload)) {
+                    $res['sensitive'] = $this->changeRequestService->submit(
+                        'App\Models\Staff',
+                        'SENSITIVE',
+                        $sensitivePayload,
+                        $request->user(),
+                        $staff->service_no,
+                        $staff->id
+                    );
+                }
 
-            if (! empty($sensitivePayload)) {
-                $responses['sensitive'] = $this->changeRequestService->submit(
-                    'App\Models\Staff',
-                    'SENSITIVE',
-                    $sensitivePayload,
-                    $request->user(),
-                    $staff->service_no,
-                    $staff->id
-                );
-            }
+                if (! empty($standardPayload)) {
+                    $res['standard'] = $this->changeRequestService->submit(
+                        'App\Models\Staff',
+                        'UPDATE',
+                        $standardPayload,
+                        $request->user(),
+                        $staff->service_no,
+                        $staff->id
+                    );
+                }
 
-            if (! empty($standardPayload)) {
-                $responses['standard'] = $this->changeRequestService->submit(
-                    'App\Models\Staff',
-                    'UPDATE',
-                    $standardPayload,
-                    $request->user(),
-                    $staff->service_no,
-                    $staff->id
-                );
-            }
+                return $res;
+            });
 
             return $this->successResponse($responses, 'Staff update request(s) submitted for approval.');
         } catch (\Exception $e) {
@@ -184,8 +217,17 @@ class StaffController extends Controller
 
     public function idCard(string $serviceNo)
     {
-        $this->authorize('staff.view');
-        $staff = Staff::with('assignedState')->where('service_no', $serviceNo)->first();
+        $staff = Staff::with([
+            'assignedState',
+            'presentRank',
+            'initialRank',
+            // 'details',
+            // 'education',
+            // 'roles',
+            // 'initialCommand',
+            // 'presentCommand',
+            // 'documents'
+        ])->where('service_no', $serviceNo)->first();
 
         if (! $staff) {
             return $this->errorResponse('Staff not found.', 404);
@@ -193,16 +235,49 @@ class StaffController extends Controller
 
         return $this->successResponse([
             'service_no' => $staff->service_no,
+            'ippis' => $staff->ippis,
             'surname' => $staff->surname,
             'first_name' => $staff->first_name,
             'other_names' => $staff->other_names,
             'present_rank' => $staff->present_rank,
+            'present_rank_name' => $staff->present_rank_name,
+            'initial_rank' => $staff->initial_rank,
+            'initial_rank_name' => $staff->initial_rank_name,
             'dob' => $staff->dob?->format('Y-m-d'),
             'photo' => $staff->photo,
             'status' => $staff->status,
             'sex' => $staff->sex,
             'assigned_state_name' => $staff->assignedState?->state,
+            'station' => $staff->station,
+            'updated_at' => $staff->updated_at,
         ]);
+    }
+
+    /**
+     * Serve staff photo with CORS headers for ID card generation
+     * This endpoint serves photos through Laravel so CORS middleware is applied
+     */
+    public function servePhoto(string $path)
+    {
+        // Sanitize path to prevent directory traversal
+        $path = str_replace(['..', '//'], '', $path);
+
+        // Only allow serving from photos directory
+        if (!str_starts_with($path, 'photos/')) {
+            $path = 'photos/' . $path;
+        }
+
+        // Check if file exists in public storage
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'Photo not found');
+        }
+
+        $file = Storage::disk('public')->get($path);
+        $mimeType = Storage::disk('public')->mimeType($path);
+
+        return response($file, 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Cache-Control', 'public, max-age=31536000');
     }
 
     public function assignRole(Request $request, Staff $staff)
@@ -223,5 +298,90 @@ class StaffController extends Controller
         $staff->removeRole($roleId);
 
         return $this->successResponse($staff->load('roles'), 'Role removed successfully');
+    }
+
+    /**
+     * Export staff data with minimal relationships for performance
+     * Only loads essential data needed for Excel export
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('staff.view');
+
+        $query = Staff::select([
+            'id',
+            'service_no',
+            'surname',
+            'first_name',
+            'other_names',
+            'email',
+            'phone_number',
+            'sex',
+            'dob',
+            'state_of_origin',
+            'lga',
+            'present_rank',
+            'initial_rank',
+            'level',
+            'step',
+            'department',
+            'work_distribution_id',
+            'training_institute_id',
+            'directorate_id',
+            'staff_status_id',
+            'duty',
+            'assigned_state',
+            'prison',
+            'date_of_first_appointment',
+            'present_appointment_date',
+            'command_post_date',
+            'file_no',
+            'ippis',
+            'status',
+            'is_verified',
+            'created_at',
+        ])
+            ->with([
+                'details:service_no,nin,bvn,place_of_birth,contact_address,permanent_home_address,blood_group,genotype,marital_status,pfa_name,pension_pin,next_of_kin_name,next_of_kin_phone,next_of_kin_relationship,bank_name,account_number,account_name',
+                'presentRank:id,title',
+                'initialRank:id,title',
+                'workDistribution:id,name',
+                'trainingInstitute:id,name',
+                'directorate:id,name',
+                'staffStatus:id,name',
+            ])
+            ->filter($request->all());
+
+        $data = $query->paginate($request->per_page ?? 5000);
+
+        // Transform data to include rank names directly
+        $data->getCollection()->transform(function ($staff) {
+            $staff->present_rank_name = $staff->presentRank?->title;
+            $staff->initial_rank_name = $staff->initialRank?->title;
+            // Calculate retirement date if needed
+            $staff->retirement_date_formatted = $staff->retirement_date_formatted;
+
+            return $staff;
+        });
+
+        return $this->collectionResponse($data);
+    }
+
+    /**
+     * Reset password for a staff member (Admin only)
+     */
+    public function resetPassword(Request $request, Staff $staff)
+    {
+        $this->authorize('staff.edit');
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $staff->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $this->successResponse(null, 'Staff password has been reset successfully');
     }
 }

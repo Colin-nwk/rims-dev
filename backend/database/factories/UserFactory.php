@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -23,13 +24,35 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = FakerFactory::create();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $faker->name(),
+            'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $role = \App\Models\Role::firstOrCreate(
+                ['slug' => 'super-admin'],
+                [
+                    'name' => 'Super Administrator',
+                    'scopeless' => true,
+                ]
+            );
+
+            $role->permissions()->sync(\App\Models\Permission::all());
+
+            $user->assignRole($role->id);
+        });
     }
 
     /**

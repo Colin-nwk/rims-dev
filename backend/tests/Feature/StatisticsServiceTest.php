@@ -328,4 +328,247 @@ class StatisticsServiceTest extends TestCase
 
         $this->assertEquals(2, $result['summary']['with_date']);
     }
+
+    // ========================================================================
+    // NEW STATISTICS TESTS
+    // ========================================================================
+
+    public function test_age_groups_distribution(): void
+    {
+        $now = now();
+        // Age 25-34
+        Staff::factory()->count(3)->create(['dob' => $now->subYears(30)]);
+        // Age 35-44
+        Staff::factory()->count(2)->create(['dob' => $now->subYears(40)]);
+        // Age 45-54
+        Staff::factory()->create(['dob' => $now->subYears(50)]);
+
+        $result = $this->service->getAgeGroupsStats();
+
+        $this->assertNotEmpty($result);
+        $ageGroup25_34 = collect($result)->firstWhere('label', '25-34');
+        $this->assertEquals(3, $ageGroup25_34['count']);
+    }
+
+    public function test_prison_distribution(): void
+    {
+        $prison = \App\Models\Prison::factory()->create(['prison_name' => 'Test Prison']);
+        Staff::factory()->count(3)->create(['prison' => $prison->id]);
+        Staff::factory()->count(2)->create(['prison' => null]);
+
+        $result = $this->service->getPrisonStats();
+
+        $prisonStat = collect($result)->firstWhere('label', 'Test Prison');
+        $this->assertEquals(3, $prisonStat['count']);
+    }
+
+    public function test_lga_distribution(): void
+    {
+        Staff::factory()->count(3)->create(['lga' => 'OBANILKU']);
+        Staff::factory()->count(2)->create(['lga' => 'ATIBA']);
+        Staff::factory()->create(['lga' => null]);
+
+        $result = $this->service->getLgaStats();
+
+        $lgaStat = collect($result)->firstWhere('label', 'Obanilku');
+        $this->assertEquals(3, $lgaStat['count']);
+    }
+
+    public function test_document_verification_distribution(): void
+    {
+        \App\Models\StaffDocument::factory()->count(3)->create(['verification_status' => 'pending']);
+        \App\Models\StaffDocument::factory()->count(2)->create(['verification_status' => 'verified']);
+        \App\Models\StaffDocument::factory()->create(['verification_status' => 'rejected']);
+
+        $result = $this->service->getDocumentVerificationStats();
+
+        $pendingStat = collect($result)->firstWhere('label', 'Pending');
+        $this->assertEquals(3, $pendingStat['count']);
+    }
+
+    public function test_document_expiry_distribution(): void
+    {
+        // Expired
+        \App\Models\StaffDocument::factory()->count(2)->create(['expires_at' => now()->subDays(30)]);
+        // Expiring soon (within 30 days)
+        \App\Models\StaffDocument::factory()->count(2)->create(['expires_at' => now()->addDays(15)]);
+        // Valid (more than 30 days)
+        \App\Models\StaffDocument::factory()->count(3)->create(['expires_at' => now()->addDays(90)]);
+        // No expiry date
+        \App\Models\StaffDocument::factory()->create(['expires_at' => null]);
+
+        $result = $this->service->getDocumentExpiryStats();
+
+        $expiredStat = collect($result)->firstWhere('label', 'Expired');
+        $this->assertEquals(2, $expiredStat['count']);
+    }
+
+    public function test_retirement_eligibility_distribution(): void
+    {
+        $now = now();
+        // Eligible (57+ years)
+        Staff::factory()->count(2)->create(['dob' => $now->subYears(58)]);
+        // Due in 1 year (59+ years)
+        Staff::factory()->count(1)->create(['dob' => $now->subYears(59)]);
+        // Not yet eligible (under 57)
+        Staff::factory()->count(3)->create(['dob' => $now->subYears(45)]);
+
+        $result = $this->service->getRetirementEligibilityStats();
+
+        $eligibleStat = collect($result)->firstWhere('label', 'Eligible (57+ years)');
+        $this->assertGreaterThan(0, $eligibleStat['count']);
+    }
+
+    public function test_promotion_eligibility_distribution(): void
+    {
+        $now = now();
+        // Eligible (3+ years in rank)
+        Staff::factory()->count(2)->create(['present_appointment_date' => $now->copy()->subYears(4)]);
+        // Due soon (2-3 years)
+        Staff::factory()->count(2)->create(['present_appointment_date' => $now->copy()->subYears(2)]);
+        // Not yet eligible (less than 2 years)
+        Staff::factory()->count(2)->create(['present_appointment_date' => $now->copy()->subMonths(6)]);
+
+        $result = $this->service->getPromotionEligibilityStats();
+
+        $eligibleStat = collect($result)->firstWhere('label', 'Eligible (3+ years)');
+        $this->assertGreaterThanOrEqual(2, $eligibleStat['count']);
+    }
+
+    public function test_zone_distribution(): void
+    {
+        $state = \App\Models\State::factory()->create(['zone' => 'A']);
+        Staff::factory()->count(3)->create(['assigned_state' => $state->id]);
+
+        $result = $this->service->getZoneStats();
+
+        $zoneStat = collect($result)->firstWhere('label', 'Zone A');
+        $this->assertGreaterThan(0, $zoneStat['count']);
+    }
+
+    public function test_initial_rank_distribution(): void
+    {
+        $ranking = \App\Models\Ranking::factory()->create(['title' => 'IC I']);
+        Staff::factory()->count(3)->create(['initial_rank' => $ranking->id]);
+
+        $result = $this->service->getInitialRankStats();
+
+        $this->assertNotEmpty($result);
+        $total = collect($result)->sum('count');
+        $this->assertEquals(3, $total);
+    }
+
+    public function test_initial_command_distribution(): void
+    {
+        $state = \App\Models\State::factory()->create(['state' => 'Lagos']);
+        Staff::factory()->count(3)->create(['initial_command' => $state->id]);
+
+        $result = $this->service->getInitialCommandStats();
+
+        $commandStat = collect($result)->firstWhere('label', 'Lagos');
+        $this->assertEquals(3, $commandStat['count']);
+    }
+
+    public function test_present_command_distribution(): void
+    {
+        $state = \App\Models\State::factory()->create(['state' => 'Abuja']);
+        Staff::factory()->count(3)->create(['present_command' => $state->id]);
+
+        $result = $this->service->getPresentCommandStats();
+
+        $commandStat = collect($result)->firstWhere('label', 'Abuja');
+        $this->assertEquals(3, $commandStat['count']);
+    }
+
+    public function test_level_distribution(): void
+    {
+        Staff::factory()->count(3)->create(['level' => 7]);
+        Staff::factory()->count(2)->create(['level' => 10]);
+
+        $result = $this->service->getLevelStats();
+
+        $this->assertNotEmpty($result);
+        $total = collect($result)->sum('count');
+        $this->assertEquals(5, $total);
+    }
+
+    public function test_department_distribution(): void
+    {
+        Staff::factory()->count(3)->create(['department' => 'Operations']);
+        Staff::factory()->count(2)->create(['department' => 'Admin']);
+
+        $result = $this->service->getDepartmentStats();
+
+        $deptStat = collect($result)->firstWhere('label', 'Operations');
+        $this->assertEquals(3, $deptStat['count']);
+    }
+
+    public function test_staff_status_distribution(): void
+    {
+        Staff::factory()->count(3)->create(['status' => 1]);
+        Staff::factory()->count(2)->create(['status' => 0]);
+
+        $result = $this->service->getStaffStatusStats();
+
+        $statusStat = collect($result)->firstWhere('label', 1);
+        $this->assertEquals(3, $statusStat['count']);
+    }
+
+    public function test_get_all_includes_new_statistics(): void
+    {
+        Staff::factory()->count(5)->create();
+
+        $result = $this->service->getAll();
+
+        $this->assertArrayHasKey('age_groups', $result);
+        $this->assertArrayHasKey('prison', $result);
+        $this->assertArrayHasKey('lga', $result);
+        $this->assertArrayHasKey('retirement_eligibility', $result);
+        $this->assertArrayHasKey('promotion_eligibility', $result);
+    }
+
+    public function test_age_groups_filters_by_state_of_origin(): void
+    {
+        $now = now();
+        Staff::factory()->create(['dob' => $now->subYears(30), 'state_of_origin' => 'Lagos']);
+        Staff::factory()->create(['dob' => $now->subYears(35), 'state_of_origin' => 'Kano']);
+
+        $result = $this->service->getAgeGroupsStats(['state_of_origin' => 'Lagos']);
+
+        $this->assertEquals(1, collect($result)->sum('count'));
+    }
+
+    public function test_prison_stats_filters_by_department(): void
+    {
+        $prison = \App\Models\Prison::factory()->create(['prison_name' => 'Test Prison']);
+        Staff::factory()->create(['prison' => $prison->id, 'department' => 'Operations']);
+        Staff::factory()->create(['prison' => $prison->id, 'department' => 'Admin']);
+
+        $result = $this->service->getPrisonStats(['department' => 'Operations']);
+
+        $prisonStat = collect($result)->firstWhere('label', 'Test Prison');
+        $this->assertEquals(1, $prisonStat['count']);
+    }
+
+    public function test_retirement_eligibility_filters_by_sex(): void
+    {
+        $now = now();
+        Staff::factory()->create(['dob' => $now->subYears(58), 'sex' => 'Male']);
+        Staff::factory()->create(['dob' => $now->subYears(59), 'sex' => 'Female']);
+
+        $result = $this->service->getRetirementEligibilityStats(['sex' => 'Male']);
+
+        $this->assertEquals(1, collect($result)->sum('count'));
+    }
+
+    public function test_promotion_eligibility_filters_by_level(): void
+    {
+        $now = now();
+        Staff::factory()->create(['present_appointment_date' => $now->subYears(4), 'level' => 7]);
+        Staff::factory()->create(['present_appointment_date' => $now->subYears(5), 'level' => 10]);
+
+        $result = $this->service->getPromotionEligibilityStats(['level' => 7]);
+
+        $this->assertEquals(1, collect($result)->sum('count'));
+    }
 }

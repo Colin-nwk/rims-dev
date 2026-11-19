@@ -16,8 +16,19 @@ class ChangeRequestWorkflowTest extends TestCase
 
     public function test_staff_creation_workflow()
     {
+        // Seed required reference data
+        $zone = \App\Models\Zone::create(['zone' => 'Test Zone']);
+        $state = \App\Models\State::create(['state' => 'Test State', 'capital' => 'Test Capital', 'zone_id' => $zone->id]);
+        $prison = \App\Models\Prison::create(['prison_name' => 'Test Prison', 'address' => 'Test Address', 'capacity' => '100', 'state_id' => $state->id]);
+
         $user = User::factory()->create();
         $this->actingAs($user);
+
+        // Create required states and prisons
+        $state = \App\Models\State::factory()->create();
+        $prison = \App\Models\Prison::factory()->create(['state_id' => $state->id]);
+        $zone = \App\Models\Zone::factory()->create();
+        $rank = \App\Models\Ranking::factory()->create(['title' => 'Cpl']);
 
         // Grant Permissions
         \Illuminate\Support\Facades\Gate::define('staff.create', fn () => true);
@@ -28,12 +39,12 @@ class ChangeRequestWorkflowTest extends TestCase
             'surname' => 'Test',
             'first_name' => 'Staff',
             'password' => 'password',
-            'assigned_state' => 1,
-            'prison' => 1,
-            'zone_id' => 1,
+            'assigned_state' => $state->id,
+            'prison' => $prison->id,
+            'zone_id' => $zone->id,
             'sex' => 'M',
-            'initial_rank' => 'Cpl',
-            'present_rank' => 'Cpl',
+            'initial_rank' => $rank->id,
+            'present_rank' => $rank->id,
             'level' => 8,
             'dob' => '1990-01-01',
             'date_of_first_appointment' => '2010-01-01',

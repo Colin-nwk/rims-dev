@@ -211,4 +211,73 @@ class StaffControllerTest extends TestCase
 
         $this->assertFalse($staff->fresh()->hasRole('tester'));
     }
+
+    public function test_admin_can_reset_staff_password()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $staff = \App\Models\Staff::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword'),
+        ]);
+
+        // Without permission
+        $this->postJson("/api/v1/staff/{$staff->service_no}/reset-password", [
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ])->assertStatus(403);
+
+        // With permission
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
+
+        $response = $this->postJson("/api/v1/staff/{$staff->service_no}/reset-password", [
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'Success')
+            ->assertJsonPath('message', 'Staff password has been reset successfully');
+
+        // Verify password was changed
+        $staff->refresh();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('newpassword123', $staff->password));
+        $this->assertFalse(\Illuminate\Support\Facades\Hash::check('oldpassword', $staff->password));
+    }
+
+    public function test_admin_reset_password_requires_confirmation()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $staff = \App\Models\Staff::factory()->create();
+
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
+
+        $response = $this->postJson("/api/v1/staff/{$staff->service_no}/reset-password", [
+            'password' => 'newpassword123',
+            'password_confirmation' => 'mismatch',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_admin_reset_password_requires_minimum_length()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $staff = \App\Models\Staff::factory()->create();
+
+        \Illuminate\Support\Facades\Gate::define('staff.edit', fn () => true);
+
+        $response = $this->postJson("/api/v1/staff/{$staff->service_no}/reset-password", [
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
 }

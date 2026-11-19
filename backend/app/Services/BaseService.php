@@ -43,6 +43,13 @@ abstract class BaseService
     abstract public function all(array $filters = []);
 
     /**
+     * List resources with filters and relationships
+     *
+     * @return mixed
+     */
+    abstract public function allWithRelationships(array $filters = []);
+
+    /**
      * Perform the actual execution from a ChangeRequest
      *
      * @param  \App\Models\ChangeRequest  $request

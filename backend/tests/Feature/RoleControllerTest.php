@@ -34,7 +34,7 @@ class RoleControllerTest extends TestCase
 
         // Setup an authenticated user (acting as admin)
         $this->admin = User::factory()->create();
-        $this->admin->roles()->attach($role); // Assign role to user
+        // $this->admin->roles()->attach($role); // Assign role to user (Handled by Factory)
 
         // Re-boot gates to pick up new permissions
         (new \App\Providers\AppServiceProvider($this->app))->boot();
@@ -42,7 +42,8 @@ class RoleControllerTest extends TestCase
 
     public function test_cannot_access_without_permission()
     {
-        $user = User::factory()->create(); // User without roles
+        $user = User::factory()->create(); // User created
+        $user->roles()->detach(); // Remove super-admin role assigned by factory callback
 
         $response = $this->actingAs($user)->getJson('/api/v1/roles');
         $response->assertStatus(403);
@@ -91,7 +92,24 @@ class RoleControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->putJson("/api/v1/roles/{$role->id}", $payload);
 
         $response->assertStatus(200);
-        $this->assertDatabaseHas('roles', ['id' => $role->id, 'name' => 'New Name']);
+        $this->assertDatabaseHas('roles', ['id' => $role->id, 'name' => 'New Name', 'slug' => 'old']);
+    }
+
+    public function test_cannot_update_role_slug_via_api()
+    {
+        $role = Role::create(['name' => 'Role', 'slug' => 'immutable-slug']);
+
+        $response = $this->actingAs($this->admin)->putJson("/api/v1/roles/{$role->id}", [
+            'name' => 'Renamed',
+            'slug' => 'new-slug',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseHas('roles', [
+            'id' => $role->id,
+            'slug' => 'immutable-slug',
+            'name' => 'Role',
+        ]);
     }
 
     public function test_can_delete_role()

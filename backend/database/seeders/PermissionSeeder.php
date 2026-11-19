@@ -18,6 +18,25 @@ class PermissionSeeder extends Seeder
             ['name' => 'staff.edit', 'description' => 'Edit existing staff records', 'group' => 'staff'],
             ['name' => 'staff.delete', 'description' => 'Delete staff records', 'group' => 'staff'],
 
+            // Staff Education Management
+            ['name' => 'staff-education.view', 'description' => 'View education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.create', 'description' => 'Create education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.edit', 'description' => 'Edit education records', 'group' => 'staff-education'],
+            ['name' => 'staff-education.delete', 'description' => 'Delete education records', 'group' => 'staff-education'],
+
+            // Staff Document Management
+            ['name' => 'staff-document.view', 'description' => 'View staff documents', 'group' => 'staff-document'],
+            ['name' => 'staff-document.create', 'description' => 'Create staff documents', 'group' => 'staff-document'],
+            ['name' => 'staff-document.edit', 'description' => 'Edit staff documents', 'group' => 'staff-document'],
+            ['name' => 'staff-document.delete', 'description' => 'Delete staff documents', 'group' => 'staff-document'],
+            ['name' => 'staff-document.verify', 'description' => 'Verify or reject staff documents', 'group' => 'staff-document'],
+
+            // Staff Posting Management
+            ['name' => 'staff-posting.view', 'description' => 'View staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.create', 'description' => 'Create staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.edit', 'description' => 'Edit staff postings', 'group' => 'staff-posting'],
+            ['name' => 'staff-posting.delete', 'description' => 'Delete staff postings', 'group' => 'staff-posting'],
+
             // User Management
             ['name' => 'user.view', 'description' => 'View system users', 'group' => 'user'],
             ['name' => 'user.create', 'description' => 'Create new system users', 'group' => 'user'],
@@ -45,6 +64,13 @@ class PermissionSeeder extends Seeder
 
             // Reports
             ['name' => 'report.view', 'description' => 'View system reports', 'group' => 'report'],
+
+            // GENERIC CRUD like states, zones, ranks, etc
+            ['name' => 'generic.create', 'description' => 'Create generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+            ['name' => 'generic.edit', 'description' => 'Edit generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+            ['name' => 'generic.delete', 'description' => 'Delete generic data (states, zones, ranks, etc)', 'group' => 'generic'],
+
+            // Rep
         ];
 
         foreach ($permissions as $permission) {

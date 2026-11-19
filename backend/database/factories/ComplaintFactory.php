@@ -22,6 +22,7 @@ class ComplaintFactory extends Factory
             'priority' => $this->faker->randomElement(['low', 'medium', 'high', 'critical']),
             'status' => 'open',
             'created_by' => \App\Models\Staff::factory(),
+            'created_by_type' => \App\Models\Staff::class,
         ];
     }
 }

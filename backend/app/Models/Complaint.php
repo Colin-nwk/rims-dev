@@ -5,8 +5,8 @@ namespace App\Models;
 use App\Traits\FilterableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Complaint extends Model
 {
@@ -28,6 +28,7 @@ class Complaint extends Model
         'priority',
         'status',
         'created_by',
+        'created_by_type',
     ];
 
     protected $casts = [
@@ -39,9 +40,9 @@ class Complaint extends Model
         'created_by_name',
     ];
 
-    public function creator(): BelongsTo
+    public function creator(): MorphTo
     {
-        return $this->belongsTo(Staff::class, 'created_by');
+        return $this->morphTo(__FUNCTION__, 'created_by_type', 'created_by');
     }
 
     public function messages(): HasMany
@@ -51,7 +52,16 @@ class Complaint extends Model
 
     public function getCreatedByNameAttribute(): ?string
     {
-        return $this->creator ? "{$this->creator->first_name} {$this->creator->surname}" : null;
+        if (! $this->creator) {
+            return null;
+        }
+
+        // Admin users (User model) have 'name', Staff have 'first_name' and 'surname'
+        if ($this->creator instanceof User) {
+            return $this->creator->name;
+        }
+
+        return "{$this->creator->first_name} {$this->creator->surname}";
     }
 
     // Helper methods for Scoped Authorization (Gate checks)
