@@ -67,8 +67,15 @@ export const getFileUrl = (path: string | null | undefined, updatedAt?: string |
   // Remove leading "public/" if present (legacy data compatibility)
   const cleanPath = path.replace(/^public\//, "");
 
-  // Build URL with cache-busting query param
-  let url = `${baseUrl}/storage/${cleanPath}`;
+  // Uploads are served through the API (works with local disk and R2)
+  // instead of the /storage symlink.
+  const servedViaApi = ["photos/", "education/", "staff/education/", "staff/documents/"]
+    .some((prefix) => cleanPath.startsWith(prefix));
+  let url = cleanPath.startsWith("photos/")
+    ? `${BASE_URL}/staff/photo/${cleanPath}`
+    : servedViaApi
+      ? `${BASE_URL}/files/${cleanPath}`
+      : `${baseUrl}/storage/${cleanPath}`;
 
   if (updatedAt) {
     // Use the updated_at timestamp as cache buster

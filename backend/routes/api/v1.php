@@ -60,6 +60,9 @@ Route::get('staff/id-card/{serviceNo}', [StaffController::class, 'idCard']);
 // Staff Photo - Public access (serves photos with CORS headers for ID card generation)
 Route::get('staff/photo/{path}', [StaffController::class, 'servePhoto'])->where('path', '.*');
 
+// Uploaded files (certificates, documents) - served via the public disk (local or R2)
+Route::get('files/{path}', [StaffController::class, 'serveFile'])->where('path', '.*');
+
 // Staff Education Certificate Viewer - Public access (for viewing certificates)
 Route::get('staff-education/{staffEducation}/certificate', [\App\Http\Controllers\V1\StaffEducationController::class, 'viewCertificate']);
 
