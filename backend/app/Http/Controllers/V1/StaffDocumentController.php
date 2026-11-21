@@ -383,8 +383,9 @@ class StaffDocumentController extends Controller
             abort(404, 'Document file not found');
         }
 
-        return response()->download(
-            Storage::disk('public')->path($staffDocument->file_path),
+        // download() works for both local and remote (R2/S3) disks, unlike path()
+        return Storage::disk('public')->download(
+            $staffDocument->file_path,
             $staffDocument->document_name
         );
     }

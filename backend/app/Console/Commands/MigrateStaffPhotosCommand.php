@@ -14,6 +14,7 @@ class MigrateStaffPhotosCommand extends Command
                             {--batch-size=500 : Number of records to process per batch}
                             {--limit= : Total number of records to process}
                             {--offset=0 : Starting offset}
+                            {--disk= : Target disk (defaults to "r2" when R2_BUCKET is configured, otherwise "public")}
                             {--stats : Show migration statistics only}
                             {--force : Skip confirmation prompt}';
 
@@ -33,6 +34,16 @@ class MigrateStaffPhotosCommand extends Command
     public function handle(): int
     {
         $this->sourceDirectory = base_path('pictures');
+
+        $this->disk = $this->option('disk')
+            ?: (config('filesystems.disks.r2.bucket') ? 'r2' : 'public');
+
+        if (! config("filesystems.disks.{$this->disk}")) {
+            $this->error("Unknown disk: {$this->disk}");
+            return self::FAILURE;
+        }
+
+        $this->info("Target disk: {$this->disk}");
 
         if (!File::isDirectory($this->sourceDirectory)) {
             $this->error("Source directory not found: {$this->sourceDirectory}");

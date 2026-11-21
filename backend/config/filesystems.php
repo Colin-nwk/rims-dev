@@ -38,14 +38,43 @@ return [
             'report' => false,
         ],
 
-        'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
+        // Cloudflare R2 (S3-compatible). Used by the "public" disk when PUBLIC_DISK=r2.
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'), // https://<account_id>.r2.cloudflarestorage.com
+            'url' => env('R2_URL'),
+            'use_path_style_endpoint' => true,
             'throw' => false,
             'report' => false,
         ],
+
+        // All app code reads/writes photos and documents through the "public" disk.
+        // Set PUBLIC_DISK=r2 (e.g. on Render) to store them in R2 instead of local disk.
+        'public' => env('PUBLIC_DISK', 'local') === 'r2'
+            ? [
+                'driver' => 's3',
+                'key' => env('R2_ACCESS_KEY_ID'),
+                'secret' => env('R2_SECRET_ACCESS_KEY'),
+                'region' => 'auto',
+                'bucket' => env('R2_BUCKET'),
+                'endpoint' => env('R2_ENDPOINT'),
+                'url' => env('R2_URL'),
+                'use_path_style_endpoint' => true,
+                'throw' => false,
+                'report' => false,
+            ]
+            : [
+                'driver' => 'local',
+                'root' => storage_path('app/public'),
+                'url' => env('APP_URL').'/storage',
+                'visibility' => 'public',
+                'throw' => false,
+                'report' => false,
+            ],
 
         's3' => [
             'driver' => 's3',
