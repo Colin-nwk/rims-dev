@@ -280,6 +280,32 @@ class StaffController extends Controller
             ->header('Cache-Control', 'public, max-age=31536000');
     }
 
+    /**
+     * Serve an uploaded file (education certificates, staff documents) from the
+     * public disk, so it works with local storage and R2 alike.
+     */
+    public function serveFile(string $path)
+    {
+        $path = ltrim(str_replace(['..', '//', '\\'], '', $path), '/');
+
+        $allowed = ['photos/', 'education/', 'staff/education/', 'staff/documents/'];
+        $ok = false;
+        foreach ($allowed as $prefix) {
+            if (str_starts_with($path, $prefix)) {
+                $ok = true;
+                break;
+            }
+        }
+
+        if (! $ok || ! Storage::disk('public')->exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        return response(Storage::disk('public')->get($path), 200)
+            ->header('Content-Type', Storage::disk('public')->mimeType($path) ?: 'application/octet-stream')
+            ->header('Cache-Control', 'public, max-age=31536000');
+    }
+
     public function assignRole(Request $request, Staff $staff)
     {
         $this->authorize('staff.delete');
