@@ -20,7 +20,7 @@ class StoreStaffDocumentRequest extends FormRequest
             'service_no' => ['required', 'string', 'exists:staff,service_no'],
             'document_type' => ['required', 'string', 'in:birth_certificate,confirmation_certificate,national_id,passport,appointment_letter,promotion_letter,transfer_letter,other'],
             'document_name' => ['required', 'string', 'max:255'],
-            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 5MB max
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 10MB max
             'notes' => ['nullable', 'string', 'max:1000'],
             'expires_at' => ['nullable', 'date', 'after:today'],
         ];
@@ -39,7 +39,7 @@ class StoreStaffDocumentRequest extends FormRequest
             'document_name.required' => 'Document name is required',
             'file.required' => 'Document file is required',
             'file.mimes' => 'Document must be a PDF, JPG, JPEG, or PNG file',
-            'file.max' => 'Document file size must not exceed 5MB',
+            'file.max' => 'Document file size must not exceed 10MB',
             'expires_at.after' => 'Expiry date must be in the future',
         ];
     }

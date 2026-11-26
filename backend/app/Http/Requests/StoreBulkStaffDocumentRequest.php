@@ -21,7 +21,7 @@ class StoreBulkStaffDocumentRequest extends FormRequest
             'documents' => ['required', 'array', 'min:1', 'max:10'], // Limit to 10 files per upload for now
             'documents.*.document_type' => ['required', 'string', 'in:birth_certificate,confirmation_certificate,national_id,passport,appointment_letter,promotion_letter,transfer_letter,other'],
             'documents.*.document_name' => ['required', 'string', 'max:255'],
-            'documents.*.file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 5MB max
+            'documents.*.file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 10MB
             'documents.*.notes' => ['nullable', 'string', 'max:1000'],
             'documents.*.expires_at' => ['nullable', 'date', 'after:today'],
         ];
@@ -44,7 +44,7 @@ class StoreBulkStaffDocumentRequest extends FormRequest
             'documents.*.document_name.required' => 'Document name is required for all documents',
             'documents.*.file.required' => 'File is required for all documents',
             'documents.*.file.mimes' => 'Document must be a PDF, JPG, JPEG, or PNG file',
-            'documents.*.file.max' => 'Document file size must not exceed 5MB',
+            'documents.*.file.max' => 'Document file size must not exceed 10MB',
             'documents.*.expires_at.after' => 'Expiry date must be in the future',
         ];
     }
