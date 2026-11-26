@@ -337,7 +337,7 @@ const PhotoUpload: React.FC<{
         />
         <div className="text-xs text-slate-500">
           <p>JPG, PNG or GIF</p>
-          <p>Max 2MB</p>
+          <p>Max 5MB</p>
         </div>
       </div>
       {error && (
