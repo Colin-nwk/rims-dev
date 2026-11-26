@@ -95,7 +95,7 @@ class UpdateStaffRequest extends FormRequest
             'education.*.end_date' => 'nullable|date|after_or_equal:education.*.start_date',
             'education.*.url' => 'nullable',
 
-            'photo' => 'nullable|image|max:2048',
+            'photo' => 'nullable|image|max:5120',
         ];
     }
 }

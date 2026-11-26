@@ -238,8 +238,8 @@ const PhotoUpload: React.FC<{
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2048 * 1024) {
-        toast.error("File size must be less than 2MB");
+      if (file.size > 5120 * 1024) {
+        toast.error("File size must be less than 5MB");
         return;
       }
       onChange(file);
@@ -292,7 +292,7 @@ const PhotoUpload: React.FC<{
         />
         <div className="text-xs text-slate-500">
           <p>JPG, PNG or GIF</p>
-          <p>Max 2MB</p>
+          <p>Max 5MB</p>
         </div>
       </div>
       {error && (
